@@ -294,7 +294,7 @@ exportMidiBytes(
             auto microsPerBeat = static_cast<uint32_t>(round(60000000.0 / tempo));
             auto microsPerBeatBytes = toDigitsBE(microsPerBeat);
 
-            tmp.insert(tmp.end(),{ 0x00, 0xff, 0x51 }); // tempo change, 0x07a120 == 500000 MMPB == 120 BPM
+            tmp.insert(tmp.end(), { 0x00, 0xff, 0x51 }); // tempo change, 0x07a120 == 500000 MMPB == 120 BPM
 
             //
             // FluidSynth hard-codes length of 3, so just do the same
@@ -331,7 +331,7 @@ exportMidiBytes(
 
                 tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend());
 
-                tmp.insert(tmp.end(),{ 0xff, 0x51 }); // tempo change, 0x07a120 == 500000 MMPB == 120 BPM
+                tmp.insert(tmp.end(), { 0xff, 0x51 }); // tempo change, 0x07a120 == 500000 MMPB == 120 BPM
 
                 //
                 // FluidSynth hard-codes length of 3, so just do the same
@@ -380,11 +380,11 @@ exportMidiBytes(
 
         tmp.clear();
 
-        tmp.insert(
-                tmp.end(),
-                { 0x00,
-                  static_cast<uint8_t>(0xc0 | channel),
-                  static_cast<uint8_t>(midiProgram) }); // program change
+        tmp.insert(tmp.end(), {
+            0x00,
+            static_cast<uint8_t>(0xc0 | channel), // program change
+            static_cast<uint8_t>(midiProgram)
+        });
 
         uint32_t trackSpaceCount;
         if (0x70 <= t.header.versionNumber) {
@@ -428,10 +428,10 @@ exportMidiBytes(
 
                                 tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend());
 
-                                tmp.insert(
-                                        tmp.end(),
-                                        { static_cast<uint8_t>(0xc0 | channel),
-                                             static_cast<uint8_t>(midiProgram) }); // program change
+                                tmp.insert(tmp.end(), {
+                                    static_cast<uint8_t>(0xc0 | channel), // program change
+                                    static_cast<uint8_t>(midiProgram)
+                                });
 
                                 lastEventTick = tick;
 
@@ -484,10 +484,10 @@ exportMidiBytes(
 
                             tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend());
 
-                            tmp.insert(
-                                    tmp.end(),
-                                    { static_cast<uint8_t>(0xc0 | channel),
-                                         static_cast<uint8_t>(midiProgram) }); // program change
+                            tmp.insert(tmp.end(), {
+                                static_cast<uint8_t>(0xc0 | channel), // program change
+                                static_cast<uint8_t>(midiProgram)
+                            });
 
                             lastEventTick = tick;
 
