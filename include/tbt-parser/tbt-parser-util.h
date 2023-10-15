@@ -135,7 +135,7 @@ expandDeltaList(
     );
 
     uint32_t unit = 0;
-    std::array<uint8_t, S> units;
+    std::array<uint8_t, S> units{};
     bool hasNonDefaultValue = false;
 
     for (const auto &s: split) {
@@ -255,7 +255,7 @@ std::array<uint8_t, 4> toDigitsBE(uint32_t value);
 
 std::vector<uint8_t> toVLQ(uint32_t value);
 
-std::string fromPascal2String(std::vector<uint8_t> data);
+TBTPARSERLIB_EXPORTED std::string fromPascal2String(std::vector<uint8_t> data);
 
 
 

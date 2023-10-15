@@ -24,6 +24,16 @@
 #include <unordered_map>
 #include <stddef.h>
 
+#ifdef _WIN32
+#  ifdef tbt_parser_lib_EXPORTS
+#    define TBTPARSERLIB_EXPORTED __declspec(dllexport)
+#  else
+#    define TBTPARSERLIB_EXPORTED __declspec(dllimport)
+#  endif
+#else
+#  define TBTPARSERLIB_EXPORTED
+#endif
+
 const int HEADER_SIZE = 64;
 
 struct tbt_header {
@@ -139,13 +149,13 @@ enum Status {
     ERR
 };
 
-Status parseTbtFile(const char *path, tbt_file *out);
+TBTPARSERLIB_EXPORTED Status parseTbtFile(const char *path, tbt_file *out);
 
-Status parseTbtBytes(const uint8_t *data, size_t len, tbt_file *out);
+TBTPARSERLIB_EXPORTED Status parseTbtBytes(const uint8_t *data, size_t len, tbt_file *out);
 
-Status exportMidiFile(const tbt_file &t, const char *path);
+TBTPARSERLIB_EXPORTED Status exportMidiFile(const tbt_file &t, const char *path);
 
-Status exportMidiBytes(const tbt_file &t, std::vector<uint8_t> &out);
+TBTPARSERLIB_EXPORTED Status exportMidiBytes(const tbt_file &t, std::vector<uint8_t> &out);
 
 
 

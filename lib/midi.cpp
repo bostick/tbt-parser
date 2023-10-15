@@ -16,6 +16,8 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+#define _CRT_SECURE_NO_DEPRECATE // disable warnings about fopen being insecure on MSVC
+
 #include "tbt-parser.h"
 
 #include "tbt-parser/tbt-parser-util.h"
@@ -24,6 +26,7 @@
 
 #include <cinttypes>
 #include <cmath> // for round
+#include <algorithm> // for remove
 
 
 #define TAG "midi"
@@ -75,7 +78,7 @@ computeChannelMap(
                 availableChannels.end()
         );
 
-        channelMap[track] = t.metadata.midiChannelBlock[track];
+        channelMap[track] = static_cast<uint8_t>(t.metadata.midiChannelBlock[track]);
     }
 
     //
@@ -441,7 +444,7 @@ exportMidiBytes(
 
                                 auto newVolume = change.value;
 
-                                volume = newVolume;
+                                volume = static_cast<uint8_t>(newVolume);
 
                                 break;
                             }
@@ -528,7 +531,7 @@ exportMidiBytes(
 
                     uint8_t stringCount = t.metadata.stringCountBlock[track];
 
-                    std::array<uint8_t, 8> offVsqs;
+                    std::array<uint8_t, 8> offVsqs{};
 
                     //
                     // Compute note offs
@@ -632,12 +635,12 @@ exportMidiBytes(
                         uint8_t stringNote = off - 0x80;
 
                         if (0x6b <= t.header.versionNumber) {
-                            stringNote += t.metadata.tuningBlock[track][string];
+                            stringNote += static_cast<uint8_t>(t.metadata.tuningBlock[track][string]);
                         } else {
-                            stringNote += t.metadata.tuningBlockLE6a[track][string];
+                            stringNote += static_cast<uint8_t>(t.metadata.tuningBlockLE6a[track][string]);
                         }
 
-                        stringNote += t.metadata.transposeHalfStepsBlock[track];
+                        stringNote += static_cast<uint8_t>(t.metadata.transposeHalfStepsBlock[track]);
 
                         uint8_t midiNote = stringNote + STRING_MIDI_NOTE[string];
 
@@ -674,12 +677,12 @@ exportMidiBytes(
                         uint8_t stringNote = on - 0x80;
                         
                         if (0x6b <= t.header.versionNumber) {
-                            stringNote += t.metadata.tuningBlock[track][string];
+                            stringNote += static_cast<uint8_t>(t.metadata.tuningBlock[track][string]);
                         } else {
-                            stringNote += t.metadata.tuningBlockLE6a[track][string];
+                            stringNote += static_cast<uint8_t>(t.metadata.tuningBlockLE6a[track][string]);
                         }
                         
-                        stringNote += t.metadata.transposeHalfStepsBlock[track];
+                        stringNote += static_cast<uint8_t>(t.metadata.transposeHalfStepsBlock[track]);
 
                         uint8_t midiNote = stringNote + STRING_MIDI_NOTE[string];
 
@@ -731,7 +734,7 @@ exportMidiBytes(
                     }
                 }
 
-                tick += denominator * TICKS_PER_SPACE / numerator;
+                tick += static_cast<uint32_t>(denominator * TICKS_PER_SPACE / numerator);
             }
 
         } // for space
@@ -755,12 +758,12 @@ exportMidiBytes(
                 uint8_t stringNote = off - 0x80;
 
                 if (0x6b <= t.header.versionNumber) {
-                    stringNote += t.metadata.tuningBlock[track][string];
+                    stringNote += static_cast<uint8_t>(t.metadata.tuningBlock[track][string]);
                 } else {
-                    stringNote += t.metadata.tuningBlockLE6a[track][string];
+                    stringNote += static_cast<uint8_t>(t.metadata.tuningBlockLE6a[track][string]);
                 }
 
-                stringNote += t.metadata.transposeHalfStepsBlock[track];
+                stringNote += static_cast<uint8_t>(t.metadata.transposeHalfStepsBlock[track]);
 
                 uint8_t midiNote = stringNote + STRING_MIDI_NOTE[string];
 

@@ -16,6 +16,8 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+#define _CRT_SECURE_NO_DEPRECATE // disable warnings about fopen being insecure on MSVC
+
 #include "tbt-parser.h"
 
 #include "tbt-parser/body.h"
@@ -52,7 +54,7 @@ parseTbtFile(
         return ERR;
     }
 
-    auto res = ftell(file);
+    long res = ftell(file);
 
     if (res < 0) {
 
@@ -61,15 +63,15 @@ parseTbtFile(
         return ERR;
     }
 
-    auto len = res;
+    size_t len = static_cast<size_t>(res);
 
     rewind(file);
 
     auto buf = new uint8_t[len];
 
-    auto r = fread(buf, sizeof(uint8_t), len, file);
+    size_t r = fread(buf, sizeof(uint8_t), len, file);
 
-    if (r != static_cast<size_t>(len)) {
+    if (r != len) {
 
         LOGE("fread failed");
 

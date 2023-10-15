@@ -27,22 +27,22 @@
 
 
 uint16_t parseLE2(std::vector<uint8_t>::const_iterator &it) {
-    return (*it++ << 0) | (*it++ << 8);
+    return static_cast<uint16_t>((*it++ << 0) | (*it++ << 8));
 }
 
 
 uint16_t parseLE2(const uint8_t *data) {
-    return (data[0] << 0) | (data[1] << 8);
+    return static_cast<uint16_t>((data[0] << 0) | (data[1] << 8));
 }
 
 
 uint32_t parseLE4(std::vector<uint8_t>::const_iterator &it) {
-    return (*it++ << 0) | (*it++ << 8) | (*it++ << 16) | (*it++ << 24);
+    return static_cast<uint32_t>((*it++ << 0) | (*it++ << 8) | (*it++ << 16) | (*it++ << 24));
 }
 
 
 uint32_t parseLE4(const uint8_t *data) {
-    return (data[0] << 0) | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
+    return static_cast<uint32_t>((data[0] << 0) | (data[1] << 8) | (data[2] << 16) | (data[3] << 24));
 }
 
 
@@ -214,7 +214,8 @@ zlib_inflate(
             }
             switch (ret) {
                 case Z_NEED_DICT:
-                    ret = Z_DATA_ERROR; /* and fall through */
+                    ret = Z_DATA_ERROR;
+                    /* fall through */
                 case Z_DATA_ERROR:
                 case Z_MEM_ERROR:
                     inflateEnd(&strm);
@@ -313,7 +314,7 @@ computeDeltaListCount(
 
 std::array<uint8_t, 4> toDigitsBE(uint32_t value) {
 
-    std::array<uint8_t, 4> arr;
+    std::array<uint8_t, 4> arr{};
 
     arr[3] = value & 0xff;
     value >>= 8;

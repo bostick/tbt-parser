@@ -23,6 +23,7 @@
 #include "common/common.h"
 
 #include <string>
+#include <cstring>
 
 
 int main(int argc, const char *argv[]) {

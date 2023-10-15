@@ -43,4 +43,32 @@ set_target_properties(tbt-converter-exe
         CXX_STANDARD_REQUIRED ON
 )
 
+#
+# Setup warnings
+#
+# https://www.foonathan.net/2018/10/cmake-warnings/
+#
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+target_compile_options(tbt-converter-exe PRIVATE
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion
+)
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+target_compile_options(tbt-converter-exe PRIVATE
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion
+)
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+target_compile_options(tbt-converter-exe PRIVATE
+    #
+    # Zc:preprocessor is needed for handling __VA_OPT__(,)
+    #
+    /Zc:preprocessor /WX /W4
+)
+endif()
+
+
+
+
+
+
+
 
