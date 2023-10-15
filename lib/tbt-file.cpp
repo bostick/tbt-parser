@@ -25,6 +25,7 @@
 #include "common/common.h"
 
 #include <cinttypes>
+#include <cstring>
 
 
 #define TAG "tbt-file"

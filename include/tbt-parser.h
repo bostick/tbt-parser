@@ -22,6 +22,7 @@
 #include <cstdint>
 #include <vector>
 #include <unordered_map>
+#include <stddef.h>
 
 const int HEADER_SIZE = 64;
 
