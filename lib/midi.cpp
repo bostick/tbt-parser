@@ -324,12 +324,12 @@ exportMidiBytes(
         // Emit tempo
         //
         {
-            uint16_t tempo = t.header.tempo2;
+            uint16_t tempoBPM = t.header.tempo2;
 
             //
             // Use floating point here for better accuracy
             //
-            auto microsPerBeat = static_cast<uint32_t>(round(60000000.0 / tempo));
+            auto microsPerBeat = static_cast<uint32_t>(round(60000000.0 / tempoBPM));
             auto microsPerBeatBytes = toDigitsBE(microsPerBeat);
 
             tmp.insert(tmp.end(), { 0x00, 0xff, 0x51 }); // tempo change, 0x07a120 == 500000 MMPB == 120 BPM
@@ -351,12 +351,12 @@ exportMidiBytes(
             const auto &it = tempoMap.find(tick);
             if (it != tempoMap.end()) {
 
-                uint16_t tempo = it->second;
+                uint16_t tempoBPM = it->second;
 
                 //
                 // Use floating point here for better accuracy
                 //
-                auto microsPerBeat = static_cast<uint32_t>(round(60000000.0 / tempo));
+                auto microsPerBeat = static_cast<uint32_t>(round(60000000.0 / tempoBPM));
                 auto microsPerBeatBytes = toDigitsBE(microsPerBeat);
 
                 uint32_t diff = tick - lastEventTick;
