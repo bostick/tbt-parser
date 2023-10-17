@@ -163,12 +163,17 @@ expandDeltaList(
             y = s[0][1];
         }
 
-        uint32_t space = unit / S;
-        uint32_t slot = unit % S;
+        auto dv = std::div(static_cast<int>(unit), S);
+
+        uint32_t space = static_cast<uint32_t>(dv.quot);
+        uint32_t slot = static_cast<uint32_t>(dv.rem);
         
         uint32_t newUnit = unit + n;
-        uint32_t newSpace = newUnit / S;
-        uint32_t newSlot = newUnit % S;
+
+        dv = std::div(static_cast<int>(newUnit), S);
+
+        uint32_t newSpace = static_cast<uint32_t>(dv.quot);
+        uint32_t newSlot = static_cast<uint32_t>(dv.rem);
 
         if (space == newSpace) {
 
