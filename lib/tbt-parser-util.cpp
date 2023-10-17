@@ -362,7 +362,7 @@ std::string fromPascal2String(std::vector<uint8_t> data) {
 
     cstrData[len] = '\0';
 
-    return std::string(cstrData.data());
+    return { cstrData.data() };
 }
 
 
