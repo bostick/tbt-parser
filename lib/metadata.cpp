@@ -78,10 +78,10 @@ parseMetadata(
             out->modulationBlock[track] = *it++;
         }
 
-        out->pitchBendBlock = std::vector<uint16_t>(t.header.trackCount);
+        out->pitchBendBlock = std::vector<int16_t>(t.header.trackCount);
 
         for (uint8_t track = 0; track < t.header.trackCount; track++) {
-            out->pitchBendBlock[track] = parseLE2(it);
+            out->pitchBendBlock[track] = static_cast<int16_t>(parseLE2(it));
         }
     }
 

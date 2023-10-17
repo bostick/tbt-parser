@@ -74,7 +74,8 @@ struct tbt_metadata {
     std::vector<uint8_t> volumeBlock;
     std::vector<uint8_t> modulationBlock;
 
-    std::vector<uint16_t> pitchBendBlock;
+    // can be negative
+    std::vector<int16_t> pitchBendBlock;
 
     // can be negative
     std::vector<int8_t> transposeHalfStepsBlock;
