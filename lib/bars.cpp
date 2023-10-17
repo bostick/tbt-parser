@@ -79,7 +79,7 @@ parseBarsMap(
         barsSpaceCount = 4000;
     }
 
-    std::vector<uint8_t> barsDeltaList = parseChunk2(it);
+    std::vector<uint8_t> barsDeltaList = parseDeltaListChunk(it);
 
     Status ret = expandDeltaList<1>(barsDeltaList, barsSpaceCount, 0, barsMap);
 

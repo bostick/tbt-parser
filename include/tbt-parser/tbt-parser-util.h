@@ -32,7 +32,7 @@ uint32_t parseLE4(const uint8_t *data);
 
 std::vector<uint8_t> readPascal2String(std::vector<uint8_t>::const_iterator &it);
 
-std::vector<uint8_t> parseChunk2(std::vector<uint8_t>::const_iterator &it);
+std::vector<uint8_t> parseDeltaListChunk(std::vector<uint8_t>::const_iterator &it);
 std::vector<uint8_t> parseChunk4(std::vector<uint8_t>::const_iterator &it);
 
 uint32_t crc32_checksum(const std::vector<uint8_t> &data);

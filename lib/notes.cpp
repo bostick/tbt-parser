@@ -54,7 +54,7 @@ parseNotesMapList(
 
         while (true) {
 
-            auto deltaList = parseChunk2(it);
+            auto deltaList = parseDeltaListChunk(it);
 
             notesDeltaListAcc.insert(notesDeltaListAcc.end(), deltaList.cbegin(), deltaList.cend());
 

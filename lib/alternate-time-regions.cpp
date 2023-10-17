@@ -49,7 +49,7 @@ parseAlternateTimeRegionsMapList(
 
         while (true) {
 
-            std::vector<uint8_t> deltaList = parseChunk2(it);
+            std::vector<uint8_t> deltaList = parseDeltaListChunk(it);
 
             alternateTimeRegionsDeltaListAcc.insert(
                     alternateTimeRegionsDeltaListAcc.end(),

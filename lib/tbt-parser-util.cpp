@@ -62,7 +62,7 @@ readPascal2String(
 
 
 std::vector<uint8_t>
-parseChunk2(
+parseDeltaListChunk(
     std::vector<uint8_t>::const_iterator &it) {
 
     auto count = parseLE2(it);
