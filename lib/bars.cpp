@@ -72,6 +72,8 @@ parseBarsMap(
     const tbt_file &t,
     std::unordered_map<uint32_t, std::array<uint8_t, 1> > &barsMap) {
 
+    ASSERT(t.header.versionNumber <= 0x6f);
+
     uint32_t barsSpaceCount;
     if (t.header.versionNumber == 0x6f) {
         barsSpaceCount = t.header.spaceCount6f;
@@ -79,9 +81,29 @@ parseBarsMap(
         barsSpaceCount = 4000;
     }
 
-    std::vector<uint8_t> barsDeltaList = parseDeltaListChunk(it);
+    std::vector<uint8_t> barsDeltaListAcc;
+    uint32_t sqCount = 0;
 
-    Status ret = expandDeltaList<1>(barsDeltaList, barsSpaceCount, 0, barsMap);
+    while (true) {
+
+        std::vector<uint8_t> deltaList = parseDeltaListChunk(it);
+
+        barsDeltaListAcc.insert(barsDeltaListAcc.end(), deltaList.cbegin(), deltaList.cend());
+
+        Status ret = computeDeltaListCount(deltaList, &sqCount);
+
+        if (ret != OK) {
+            return ret;
+        }
+
+        ASSERT(sqCount <= barsSpaceCount);
+
+        if (sqCount == barsSpaceCount) {
+            break;
+        }
+    }
+
+    Status ret = expandDeltaList<1>(barsDeltaListAcc, barsSpaceCount, 0, barsMap);
 
     if (ret != OK) {
         return ret;
