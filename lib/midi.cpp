@@ -446,15 +446,25 @@ exportMidiBytes(
 
                                 break;
                             }
-                            case SKIP:
+                            case TEMPO:
+                                //
+                                // already handled
+                                //
+                                break;
                             case STROKE_DOWN:
                             case STROKE_UP:
-                            case TEMPO:
+                                //
+                                // nothing to do
+                                //
+                                break;
                             case PAN:
                             case CHORUS:
                             case REVERB:
                             case MODULATION:
                             case PITCH_BEND:
+                                //
+                                // not implemented
+                                //
                                 break;
                             default:
                                 ASSERT(false);
@@ -472,7 +482,12 @@ exportMidiBytes(
                         auto trackEffect = vsqs[16];
 
                         switch (trackEffect) {
-                        case 'I': {
+                        case 0x00:
+                            //
+                            // skip
+                            //
+                            break;
+                        case 'I': { // Instrument change
 
                             auto newInstrument = vsqs[19];
 
@@ -494,7 +509,7 @@ exportMidiBytes(
 
                             break;
                         }
-                        case 'V': {
+                        case 'V': { // Volume change
 
                             auto newVolume = vsqs[19];
 
@@ -502,14 +517,24 @@ exportMidiBytes(
 
                             break;
                         }
-                        case 0x00:
-                        case 'C':
-                        case 'D':
-                        case 'P':
-                        case 'R':
-                        case 'T':
-                        case 'U':
-                        case 't':
+                        case 'T': // Tempo change
+                        case 't': // Tempo change + 250
+                            //
+                            // already handled
+                            //
+                            break;
+                        case 'D': // Stroke down
+                        case 'U': // Stroke up
+                            //
+                            // nothing to do
+                            //
+                            break;
+                        case 'C': // Chorus change
+                        case 'P': // Pan change
+                        case 'R': // Reverb change
+                            //
+                            // not implemented
+                            //
                             break;
                         default:
                             ASSERT(false);

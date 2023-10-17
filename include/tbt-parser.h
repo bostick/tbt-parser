@@ -112,7 +112,6 @@ struct tbt_metadata {
 };
 
 enum tbt_track_effect : uint8_t {
-    SKIP = 0,
     STROKE_DOWN = 1,
     STROKE_UP = 2,
     TEMPO = 3,
