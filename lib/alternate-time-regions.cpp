@@ -20,7 +20,7 @@
 
 #include "tbt-parser/tbt-parser-util.h"
 
-//#include <cmath> // for round
+#include <cmath> // for round
 
 
 #define TAG "alternate-time-regions"
@@ -81,20 +81,17 @@ parseAlternateTimeRegionsMapList(
             return ret;
         }
 
-//        double alternateTimeRegionsCorrection = 0.0;
-//        for (const auto &pair : alternateTimeRegionsMap) {
-//
-//            const auto &region = pair.second;
-//
-//            alternateTimeRegionsCorrection += (1.0 * region[0] / region[1]) - 1.0;
-//        }
-//
-//        alternateTimeRegionsCorrection = round(alternateTimeRegionsCorrection);
-//
-//        if (t.metadata.spaceCountBlock[track] + (int32_t static_cast) alternateTimeRegionsCorrection != t.body.barsSpaceCountGE70) {
-//            LOGE("alternateTimeRegionsCorrection: trackSpaceCount + correction: %d, barSpaceCount: %d", t.metadata.spaceCountBlock[track] + (int32_t) alternateTimeRegionsCorrection, t.body.barsSpaceCountGE70);
-//            return TBT_ERR;
-//        }
+        double alternateTimeRegionsCorrection = 0.0;
+        for (const auto &pair : alternateTimeRegionsMap) {
+
+            const auto &region = pair.second;
+
+            alternateTimeRegionsCorrection += 1.0 - (static_cast<double>(region[0]) / static_cast<double>(region[1]));
+        }
+
+        alternateTimeRegionsCorrection = round(alternateTimeRegionsCorrection);
+
+        ASSERT(t.metadata.spaceCountBlock[track] - static_cast<uint32_t>(alternateTimeRegionsCorrection) == t.body.barsSpaceCountGE70);
 
         alternateTimeRegionsMapList.push_back(alternateTimeRegionsMap);
     }
