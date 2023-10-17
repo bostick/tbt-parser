@@ -112,17 +112,10 @@ computeChannelMap(
 
 
 void
-insertTempoMap_atSpaceGE71(
-    const std::unordered_map<uint32_t, std::vector<tbt_track_effect_change> > &trackEffectChangesMap,
-    uint32_t space,
+insertTempoMap_atTickGE71(
+    const std::vector<tbt_track_effect_change> &changes,
+    uint32_t tick,
     std::unordered_map<uint32_t, uint16_t> &tempoMap) {
-
-    const auto &it = trackEffectChangesMap.find(space);
-    if (it == trackEffectChangesMap.end()) {
-        return;
-    }
-
-    const auto &changes = it->second;
 
     for (const auto &change : changes) {
 
@@ -132,30 +125,23 @@ insertTempoMap_atSpaceGE71(
 
         uint16_t newTempo = change.value;
 
-        const auto &tempoMapIt = tempoMap.find(space);
+        const auto &tempoMapIt = tempoMap.find(tick);
         if (tempoMapIt != tempoMap.end()) {
             if (tempoMapIt->second != newTempo) {
-                LOGW("space %d has conflicting tempo changes: %d, %d", space, tempoMapIt->second, newTempo);
+                LOGW("tick %d has conflicting tempo changes: %d, %d", tick, tempoMapIt->second, newTempo);
             }
         }
 
-        tempoMap[space] = newTempo;
+        tempoMap[tick] = newTempo;
     }
 }
 
 
 void
-insertTempoMap_atSpace(
-    const std::unordered_map<uint32_t, std::array<uint8_t, 20> > &notesMap,
-    uint32_t space,
+insertTempoMap_atTick(
+    const std::array<uint8_t, 20> &vsqs,
+    uint32_t tick,
     std::unordered_map<uint32_t, uint16_t> &tempoMap) {
-
-    const auto &it = notesMap.find(space);
-    if (it == notesMap.end()) {
-        return;
-    }
-
-    const auto &vsqs = it->second;
 
     auto trackEffect = vsqs[16];
 
@@ -164,14 +150,14 @@ insertTempoMap_atSpace(
 
             uint16_t newTempo = vsqs[19];
 
-            const auto &tempoMapIt = tempoMap.find(space);
+            const auto &tempoMapIt = tempoMap.find(tick);
             if (tempoMapIt != tempoMap.end()) {
                 if (tempoMapIt->second != newTempo) {
-                    LOGW("space %d has conflicting tempo changes: %d, %d", space, tempoMapIt->second, newTempo);
+                    LOGW("tick %d has conflicting tempo changes: %d, %d", tick, tempoMapIt->second, newTempo);
                 }
             }
 
-            tempoMap[space] = newTempo;
+            tempoMap[tick] = newTempo;
 
             break;
         }
@@ -179,14 +165,14 @@ insertTempoMap_atSpace(
 
             uint16_t newTempo = vsqs[19] + 250;
 
-            const auto &tempoMapIt = tempoMap.find(space);
+            const auto &tempoMapIt = tempoMap.find(tick);
             if (tempoMapIt != tempoMap.end()) {
                 if (tempoMapIt->second != newTempo) {
-                    LOGW("space %d has conflicting tempo changes: %d, %d", space, tempoMapIt->second, newTempo);
+                    LOGW("tick %d has conflicting tempo changes: %d, %d", tick, tempoMapIt->second, newTempo);
                 }
             }
 
-            tempoMap[space] = newTempo;
+            tempoMap[tick] = newTempo;
 
             break;
         }
@@ -203,6 +189,8 @@ computeTempoMap(
 
     for (uint8_t track = 0; track < t.header.trackCount; track++) {
 
+        uint32_t tick = 0;
+
         uint32_t trackSpaceCount;
         if (0x70 <= t.header.versionNumber) {
             trackSpaceCount = t.metadata.spaceCountBlock[track];
@@ -218,13 +206,61 @@ computeTempoMap(
 
                 const auto &trackEffectChangesMap = t.body.trackEffectChangesMapList[track];
 
-                insertTempoMap_atSpaceGE71(trackEffectChangesMap, space, tempoMap);
+                const auto &it = trackEffectChangesMap.find(space);
+
+                if (it != trackEffectChangesMap.end()) {
+                    
+                    const auto &changes = it->second;
+
+                    insertTempoMap_atTickGE71(changes, tick, tempoMap);
+                }
 
             } else {
 
                 const auto &notesMap = t.body.notesMapList[track];
 
-                insertTempoMap_atSpace(notesMap, space, tempoMap);
+                const auto &it = notesMap.find(space);
+                
+                if (it != notesMap.end()) {
+                    
+                    const auto &vsqs = it->second;
+
+                    insertTempoMap_atTick(vsqs, tick, tempoMap);
+                }
+            }
+
+            //
+            // Compute tick
+            //
+            {
+                //
+                // The denominator of the Alternate Time Region for this space. For example, for triplets, this is 2.
+                //
+                uint8_t denominator = 1;
+
+                //
+                // The numerator of the Alternate Time Region for this space. For example, for triplets, this is 3.
+                //
+                uint8_t numerator = 1;
+
+                auto hasAlternateTimeRegions = ((t.header.featureBitfield & 0b00010000) == 0b00010000);
+
+                if (hasAlternateTimeRegions) {
+
+                    const auto &alternateTimeRegionsStruct = t.body.alternateTimeRegionsMapList[track];
+
+                    const auto &alternateTimeRegionsIt = alternateTimeRegionsStruct.find(space);
+                    if (alternateTimeRegionsIt != alternateTimeRegionsStruct.end()) {
+
+                        const auto &alternateTimeRegion = alternateTimeRegionsIt->second;
+
+                        denominator = alternateTimeRegion[0];
+
+                        numerator = alternateTimeRegion[1];
+                    }
+                }
+
+                tick += static_cast<uint32_t>(denominator * TICKS_PER_SPACE / numerator);
             }
         }
     }
@@ -247,6 +283,8 @@ exportMidiBytes(
 
     //
     // compute tempo map
+    //
+    // tick -> tempoBPM
     //
     std::unordered_map<uint32_t, uint16_t> tempoMap;
 
@@ -274,7 +312,6 @@ exportMidiBytes(
     // Track 0
     //
     {
-        uint32_t tick = 0;
         uint32_t lastEventTick;
 
         out.insert(out.end(), { 'M', 'T', 'r', 'k' }); // type
@@ -303,19 +340,15 @@ exportMidiBytes(
             tmp.insert(tmp.end(), { 3 }); // microsPerBeatBytes size VLQ
             tmp.insert(tmp.end(), microsPerBeatBytes.cbegin() + 1, microsPerBeatBytes.cend());
 
-            lastEventTick = tick;
-            //
-            // no increment, still at 0
-            //
-//            tick += TICKS_PER_SPACE;
+            lastEventTick = 0;
         }
 
-        for (uint32_t space = 0; space < barsSpaceCount + 1; space++) { // + 1 for any still playing at end
+        for (uint32_t tick = 0; tick < TICKS_PER_SPACE * (barsSpaceCount + 1); tick++) { // + 1 for any still playing at end
 
             //
             // Emit tempo changes
             //
-            const auto &it = tempoMap.find(space);
+            const auto &it = tempoMap.find(tick);
             if (it != tempoMap.end()) {
 
                 uint16_t tempo = it->second;
@@ -349,8 +382,6 @@ exportMidiBytes(
 
             // tmp.insert(tmp.end(), { 0x00, 0xFF, 0x05, 0x11 }); // lyric
             // tmp.insert(tmp.end(), { 0x73, 0x70, 0x61, 0x63, 0x65, 0x20, 0x30, 0x20, 0x74, 0x65, 0x6d, 0x70, 0x6f, 0x20, 0x31, 0x32, 0x30, });
-
-            tick += TICKS_PER_SPACE;
         }
 
         tmp.insert(tmp.end(), { 0x00, 0xff, 0x2f, 0x00 }); // end of track
