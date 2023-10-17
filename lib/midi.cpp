@@ -576,12 +576,11 @@ exportMidiBytes(
 
                                 currentlyPlayingStrings[string] = 0;
 
-                            } else if (on >= 0x80) {
+                            } else {
+
+                                ASSERT(on >= 0x80);
 
                                 currentlyPlayingStrings[string] = on;
-
-                            } else {
-                                ASSERT(false);
                             }
                         }
 
@@ -604,16 +603,17 @@ exportMidiBytes(
 
                                     offVsqs[string] = 0;
 
-                                } else if (on >= 0x80) {
+                                } else {
+
+                                    ASSERT(on >= 0x80);
 
                                     offVsqs[string] = 0;
                                     currentlyPlayingStrings[string] = on;
-
-                                } else {
-                                    ASSERT(false);
                                 }
 
-                            } else if (current >= 0x80) {
+                            } else {
+
+                                ASSERT(current >= 0x80);
 
                                 uint8_t on = onVsqs[string];
 
@@ -627,17 +627,13 @@ exportMidiBytes(
                                     offVsqs[string] = current;
                                     currentlyPlayingStrings[string] = 0;
 
-                                } else if (on >= 0x80) {
+                                } else {
+
+                                    ASSERT(on >= 0x80);
 
                                     offVsqs[string] = current;
                                     currentlyPlayingStrings[string] = on;
-
-                                } else {
-                                    ASSERT(false);
                                 }
-
-                            } else {
-                                ASSERT(false);
                             }
                         }
                     }
