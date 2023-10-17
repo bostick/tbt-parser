@@ -9,6 +9,9 @@ The .tbt TabIt file format is described here:
 
 ## How to build
 
+tbt-parser depends on zlib and uses CMake for building.
+
+
 ```
 cd cpp
 mkdir build
