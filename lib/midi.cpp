@@ -673,11 +673,11 @@ exportMidiBytes(
 
                         tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend());
 
-                        tmp.insert(tmp.end(), { static_cast<uint8_t>(0x80 | channel) }); // note off
-
-                        tmp.insert(tmp.end(), { midiNote });
-
-                        tmp.insert(tmp.end(), { 0x00 }); // velocity
+                        tmp.insert(tmp.end(), {
+                            static_cast<uint8_t>(0x80 | channel), // note off
+                            midiNote,
+                            0x00 // velocity
+                        });
 
                         lastEventTick = tick;
                     }
@@ -715,11 +715,11 @@ exportMidiBytes(
 
                         tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend());
 
-                        tmp.insert(tmp.end(), { static_cast<uint8_t>(0x90 | channel) }); // note on
-
-                        tmp.insert(tmp.end(), { midiNote });
-
-                        tmp.insert(tmp.end(), { volume }); // velocity
+                        tmp.insert(tmp.end(), {
+                            static_cast<uint8_t>(0x90 | channel), // note on
+                            midiNote,
+                            volume // velocity
+                        });
 
                         lastEventTick = tick;
                     }
@@ -796,11 +796,11 @@ exportMidiBytes(
 
                 tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend());
 
-                tmp.insert(tmp.end(), { static_cast<uint8_t>(0x80 | channel) }); // note off
-
-                tmp.insert(tmp.end(), { midiNote });
-
-                tmp.insert(tmp.end(), { 0x00 }); // velocity
+                tmp.insert(tmp.end(), {
+                    static_cast<uint8_t>(0x80 | channel), // note off
+                    midiNote,
+                    0x00 // velocity
+                });
 
                 lastEventTick = tick;
             }
