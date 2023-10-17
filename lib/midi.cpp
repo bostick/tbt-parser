@@ -384,7 +384,7 @@ exportMidiBytes(
         tmp.insert(tmp.end(), {
             0x00,
             static_cast<uint8_t>(0xc0 | channel), // program change
-            static_cast<uint8_t>(midiProgram)
+            midiProgram
         });
 
         uint32_t trackSpaceCount;
@@ -431,7 +431,7 @@ exportMidiBytes(
 
                                 tmp.insert(tmp.end(), {
                                     static_cast<uint8_t>(0xc0 | channel), // program change
-                                    static_cast<uint8_t>(midiProgram)
+                                    midiProgram
                                 });
 
                                 lastEventTick = tick;
@@ -502,7 +502,7 @@ exportMidiBytes(
 
                             tmp.insert(tmp.end(), {
                                 static_cast<uint8_t>(0xc0 | channel), // program change
-                                static_cast<uint8_t>(midiProgram)
+                                midiProgram
                             });
 
                             lastEventTick = tick;
