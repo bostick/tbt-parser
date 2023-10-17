@@ -78,7 +78,7 @@ int main(int argc, const char *argv[]) {
 		return ret;
 	}
 
-	LOGI("tbt file version: 0x%x", t.header.versionNumber);
+	LOGI("tbt file version: 0x%02x", t.header.versionNumber);
 
     if (0x6d <= t.header.versionNumber) {
 
