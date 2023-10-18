@@ -404,6 +404,25 @@ exportMidiBytes(
         uint8_t volume = t.metadata.volumeBlock[track];
         bool dontLetRing = ((t.metadata.cleanGuitarBlock[track] & 0b10000000) == 0b10000000);
         uint8_t midiProgram = (t.metadata.cleanGuitarBlock[track] & 0b01111111);
+
+        uint8_t pan = t.metadata.panBlock[track];
+
+        uint8_t reverb = t.metadata.reverbBlock[track];
+
+        uint8_t chorus = t.metadata.chorusBlock[track];
+
+        uint8_t modulation = t.metadata.modulationBlock[track];
+
+        int16_t pitchBend = t.metadata.pitchBendBlock[track]; // -2400 to 2400
+        //
+        // 0b0000000000000000 to 0b0011111111111111 (0 to 16383)
+        //
+        // important that value of 0 goes to value of 0x2000 (8192)
+        //
+        pitchBend = static_cast<int16_t>(round(((static_cast<double>(pitchBend) + 2400.0) * 16383.0) / (2.0 * 2400.0)));
+        uint8_t pitchBendLSB = (pitchBend & 0b01111111);
+        uint8_t pitchBendMSB = ((pitchBend >> 7) & 0b01111111);
+
         uint32_t tick = 0;
         uint32_t lastEventTick = 0;
         std::array<uint8_t, 8> currentlyPlayingStrings{};
@@ -415,7 +434,52 @@ exportMidiBytes(
         tmp.insert(tmp.end(), {
             0x00,
             static_cast<uint8_t>(0xc0 | channel), // program change
-            midiProgram
+            midiProgram,
+
+            0x00,
+            static_cast<uint8_t>(0xb0 | channel), // control change
+            0x0a, // pan
+            pan,
+
+            0x00,
+            static_cast<uint8_t>(0xb0 | channel), // control change
+            0x5b, // reverb
+            reverb,
+            
+            0x00,
+            static_cast<uint8_t>(0xb0 | channel), // control change
+            0x5d, // chorus
+            chorus,
+            
+            0x00,
+            static_cast<uint8_t>(0xb0 | channel), // control change
+            0x01, // modulation
+            modulation,
+            
+            0x00,
+            static_cast<uint8_t>(0xb0 | channel), // control change
+            0x65, // RPN Parameter MSB
+            0x00,
+            
+            0x00,
+            static_cast<uint8_t>(0xb0 | channel), // control change
+            0x64, // RPN Parameter LSB
+            0x00,
+            
+            0x00,
+            static_cast<uint8_t>(0xb0 | channel), // control change
+            0x06, // Data Entry MSB
+            0x18, // 24 semi-tones
+            
+            0x00,
+            static_cast<uint8_t>(0xb0 | channel), // control change
+            0x26, // Data Entry LSB
+            0x00, // 0 cents
+            
+            0x00,
+            static_cast<uint8_t>(0xe0 | channel), // pitch bend
+            pitchBendLSB,
+            pitchBendMSB
         });
 
         uint32_t trackSpaceCount;
@@ -488,15 +552,114 @@ exportMidiBytes(
                                 // nothing to do
                                 //
                                 break;
-                            case PAN:
-                            case CHORUS:
-                            case REVERB:
-                            case MODULATION:
-                            case PITCH_BEND:
-                                //
-                                // not implemented
-                                //
+                            case PAN: {
+                                
+                                auto newPan = change.value;
+
+                                auto diff = tick - lastEventTick;
+
+                                auto vlq = toVLQ(diff);
+
+                                tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend());
+
+                                tmp.insert(tmp.end(), {
+                                    static_cast<uint8_t>(0xb0 | channel), // control change
+                                    0x0a, // pan
+                                    static_cast<uint8_t>(newPan)
+                                });
+
+                                lastEventTick = tick;
+
                                 break;
+                            }
+                            case CHORUS: {
+                                
+                                auto newChorus = change.value;
+
+                                auto diff = tick - lastEventTick;
+
+                                auto vlq = toVLQ(diff);
+
+                                tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend());
+
+                                tmp.insert(tmp.end(), {
+                                    static_cast<uint8_t>(0xb0 | channel), // control change
+                                    0x5d, // chorus
+                                    static_cast<uint8_t>(newChorus)
+                                });
+
+                                lastEventTick = tick;
+
+                                break;
+                            }
+                            case REVERB: {
+                                
+                                auto newReverb = change.value;
+
+                                auto diff = tick - lastEventTick;
+
+                                auto vlq = toVLQ(diff);
+
+                                tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend());
+
+                                tmp.insert(tmp.end(), {
+                                    static_cast<uint8_t>(0xb0 | channel), // control change
+                                    0x5b, // reverb
+                                    static_cast<uint8_t>(newReverb)
+                                });
+
+                                lastEventTick = tick;
+
+                                break;
+                            }
+                            case MODULATION: {
+                                
+                                auto newModulation = change.value;
+
+                                auto diff = tick - lastEventTick;
+
+                                auto vlq = toVLQ(diff);
+
+                                tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend());
+
+                                tmp.insert(tmp.end(), {
+                                    static_cast<uint8_t>(0xb0 | channel), // control change
+                                    0x01, // modulation
+                                    static_cast<uint8_t>(newModulation)
+                                });
+
+                                lastEventTick = tick;
+
+                                break;
+                            }
+                            case PITCH_BEND: {
+                                
+                                int16_t newPitchBend = static_cast<int16_t>(change.value); // -2400 to 2400
+                                //
+                                // 0b0000000000000000 to 0b0011111111111111 (0 to 16383)
+                                //
+                                // important that value of 0 goes to value of 0x2000 (8192)
+                                //
+                                newPitchBend = static_cast<int16_t>(round(((static_cast<double>(newPitchBend) + 2400.0) * 16383.0) / (2.0 * 2400.0)));
+                                uint8_t newPitchBendLSB = (newPitchBend & 0b01111111);
+                                uint8_t newPitchBendMSB = ((newPitchBend >> 7) & 0b01111111);
+
+                                auto diff = tick - lastEventTick;
+
+                                auto vlq = toVLQ(diff);
+
+                                tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend());
+
+                                tmp.insert(tmp.end(), {
+                                    static_cast<uint8_t>(0xe0 | channel), // pitch bend
+                                    newPitchBendLSB,
+                                    newPitchBendMSB
+                                });
+
+                                lastEventTick = tick;
+
+                                break;
+                            }
                             default:
                                 ASSERT(false);
                                 break;
@@ -560,13 +723,66 @@ exportMidiBytes(
                             // nothing to do
                             //
                             break;
-                        case 'C': // Chorus change
-                        case 'P': // Pan change
-                        case 'R': // Reverb change
-                            //
-                            // not implemented
-                            //
+                        case 'C': { // Chorus change
+
+                            auto newChorus = vsqs[19];
+
+                            auto diff = tick - lastEventTick;
+
+                            auto vlq = toVLQ(diff);
+
+                            tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend());
+
+                            tmp.insert(tmp.end(), {
+                                static_cast<uint8_t>(0xb0 | channel), // control change
+                                0x5d, // chorus
+                                newChorus
+                            });
+
+                            lastEventTick = tick;
+
                             break;
+                        }
+                        case 'P': { // Pan change
+
+                            auto newPan = vsqs[19];
+
+                            auto diff = tick - lastEventTick;
+
+                            auto vlq = toVLQ(diff);
+
+                            tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend());
+
+                            tmp.insert(tmp.end(), {
+                                static_cast<uint8_t>(0xb0 | channel), // control change
+                                0x0a, // pan
+                                newPan
+                            });
+
+                            lastEventTick = tick;
+
+                            break;
+                        }
+                        case 'R': { // Reverb change
+
+                            auto newReverb = vsqs[19];
+
+                            auto diff = tick - lastEventTick;
+
+                            auto vlq = toVLQ(diff);
+
+                            tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend());
+
+                            tmp.insert(tmp.end(), {
+                                static_cast<uint8_t>(0xb0 | channel), // control change
+                                0x5b, // reverb
+                                newReverb
+                            });
+
+                            lastEventTick = tick;
+
+                            break;
+                        }
                         default:
                             ASSERT(false);
                             break;
