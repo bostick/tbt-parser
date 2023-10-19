@@ -18,7 +18,7 @@
 
 #define _CRT_SECURE_NO_DEPRECATE // disable warnings about fopen being insecure on MSVC
 
-#include "tbt-parser.h"
+#include "tbt-parser/midi.h"
 
 #include "tbt-parser/tbt-parser-util.h"
 
@@ -31,9 +31,6 @@
 
 #define TAG "midi"
 
-
-const uint8_t TICKS_PER_BEAT = 0xc0; // 192
-const uint8_t TICKS_PER_SPACE = (TICKS_PER_BEAT / 4);
 
 const std::array<uint8_t, 8> STRING_MIDI_NOTE = { 0x28, 0x2d, 0x32, 0x37, 0x3b, 0x40, 0x00, 0x00 };
 
@@ -195,6 +192,7 @@ computeTempoMap(
     for (uint8_t track = 0; track < t.header.trackCount; track++) {
 
         uint32_t tick = 0;
+        double floatingTick = 0.0;
 
         uint32_t trackSpaceCount;
         if (0x70 <= t.header.versionNumber) {
@@ -265,7 +263,11 @@ computeTempoMap(
                     }
                 }
 
-                tick += static_cast<uint32_t>(denominator * TICKS_PER_SPACE / numerator);
+                double actualTicksInSpace = (static_cast<double>(denominator) * static_cast<double>(TICKS_PER_SPACE) / static_cast<double>(numerator));
+
+                floatingTick += actualTicksInSpace;
+
+                tick = static_cast<uint32_t>(round(floatingTick));
             }
         }
     }
@@ -452,6 +454,7 @@ exportMidiBytes(
         uint8_t pitchBendMSB = ((pitchBend >> 7) & 0b01111111);
 
         uint32_t tick = 0;
+        double floatingTick = 0.0;
         uint32_t lastEventTick = 0;
         std::array<uint8_t, 8> currentlyPlayingStrings{};
 
@@ -1060,7 +1063,11 @@ exportMidiBytes(
                     }
                 }
 
-                tick += static_cast<uint32_t>(denominator * TICKS_PER_SPACE / numerator);
+                double actualTicksInSpace = (static_cast<double>(denominator) * static_cast<double>(TICKS_PER_SPACE) / static_cast<double>(numerator));
+
+                floatingTick += actualTicksInSpace;
+
+                tick = static_cast<uint32_t>(round(floatingTick));
             }
 
         } // for space

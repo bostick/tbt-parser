@@ -18,6 +18,7 @@
 
 #include "tbt-parser/alternate-time-regions.h"
 
+#include "tbt-parser/midi.h"
 #include "tbt-parser/tbt-parser-util.h"
 
 #include <cmath> // for round
@@ -82,16 +83,36 @@ parseAlternateTimeRegionsMapList(
         }
 
         double alternateTimeRegionsCorrection = 0.0;
-        for (const auto &pair : alternateTimeRegionsMap) {
+        for (uint32_t space = 0; space < trackSpaceCount; space++) {
 
-            const auto &region = pair.second;
+            //
+            // The denominator of the Alternate Time Region for this space. For example, for triplets, this is 2.
+            //
+            uint8_t denominator = 1;
 
-            alternateTimeRegionsCorrection += 1.0 - (static_cast<double>(region[0]) / static_cast<double>(region[1]));
+            //
+            // The numerator of the Alternate Time Region for this space. For example, for triplets, this is 3.
+            //
+            uint8_t numerator = 1;
+
+            const auto &alternateTimeRegionsIt = alternateTimeRegionsMap.find(space);
+            if (alternateTimeRegionsIt != alternateTimeRegionsMap.end()) {
+
+                const auto &alternateTimeRegion = alternateTimeRegionsIt->second;
+
+                denominator = alternateTimeRegion[0];
+
+                numerator = alternateTimeRegion[1];
+            }
+
+            double actualTicksInSpace = (static_cast<double>(denominator) * static_cast<double>(TICKS_PER_SPACE) / static_cast<double>(numerator));
+
+            alternateTimeRegionsCorrection += (static_cast<double>(TICKS_PER_SPACE) - actualTicksInSpace);
         }
 
         alternateTimeRegionsCorrection = round(alternateTimeRegionsCorrection);
 
-        ASSERT(t.metadata.spaceCountBlock[track] - static_cast<uint32_t>(alternateTimeRegionsCorrection) == t.body.barsSpaceCountGE70);
+        ASSERT(t.metadata.spaceCountBlock[track] == t.body.barsSpaceCountGE70 + static_cast<uint32_t>(alternateTimeRegionsCorrection / static_cast<double>(TICKS_PER_SPACE)));
 
         alternateTimeRegionsMapList.push_back(alternateTimeRegionsMap);
     }
