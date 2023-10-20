@@ -524,6 +524,163 @@ exportMidiBytes(
             const auto &notesMapIt = notesMap.find(space);
 
             //
+            // Emit note offs
+            //
+            {
+                if (notesMapIt != notesMap.end()) {
+
+                    const auto &onVsqs = notesMapIt->second;
+
+                    uint8_t stringCount = t.metadata.stringCountBlock[track];
+
+                    std::array<uint8_t, 8> offVsqs{};
+
+                    //
+                    // Compute note offs
+                    //
+                    if (dontLetRing) {
+
+                        //
+                        // There may be string effects, but no note events
+                        // This will still be in the notesMap, but should not affect notes because of dontLetRing
+                        // i.e., simply checking for something in notesMap is not sufficient
+                        //
+                        bool anyEvents = false;
+                        for (uint8_t string = 0; string < stringCount; string++) {
+
+                            uint8_t event = onVsqs[string];
+
+                            if (event != 0) {
+                                anyEvents = true;
+                                break;
+                            }
+                        }
+                        
+                        if (anyEvents) {
+                            
+                            offVsqs = currentlyPlayingStrings;
+
+                            for (uint8_t string = 0; string < stringCount; string++) {
+
+                                uint8_t on = onVsqs[string];
+
+                                if (on == 0) {
+
+                                    currentlyPlayingStrings[string] = 0;
+
+                                } else if (on == MUTED ||
+                                        on == STOPPED) {
+
+                                    currentlyPlayingStrings[string] = 0;
+
+                                } else {
+
+                                    ASSERT(on >= 0x80);
+
+                                    currentlyPlayingStrings[string] = on;
+                                }
+                            }
+                        }
+
+                    } else {
+
+                        for (uint8_t string = 0; string < stringCount; string++) {
+
+                            uint8_t current = currentlyPlayingStrings[string];
+
+                            if (current == 0) {
+
+                                uint8_t on = onVsqs[string];
+
+                                if (on == 0) {
+
+                                    offVsqs[string] = 0;
+
+                                } else if (on == MUTED ||
+                                        on == STOPPED) {
+
+                                    offVsqs[string] = 0;
+
+                                } else {
+
+                                    ASSERT(on >= 0x80);
+
+                                    offVsqs[string] = 0;
+                                    currentlyPlayingStrings[string] = on;
+                                }
+
+                            } else {
+
+                                ASSERT(current >= 0x80);
+
+                                uint8_t on = onVsqs[string];
+
+                                if (on == 0) {
+
+                                    offVsqs[string] = 0;
+
+                                } else if (on == MUTED ||
+                                        on == STOPPED) {
+
+                                    offVsqs[string] = current;
+                                    currentlyPlayingStrings[string] = 0;
+
+                                } else {
+
+                                    ASSERT(on >= 0x80);
+
+                                    offVsqs[string] = current;
+                                    currentlyPlayingStrings[string] = on;
+                                }
+                            }
+                        }
+                    }
+
+                    //
+                    // Emit note offs
+                    //
+                    for (uint8_t string = 0; string < stringCount; string++) {
+
+                        uint8_t off = offVsqs[string];
+
+                        if (off == 0) {
+                            continue;
+                        }
+
+                        ASSERT(off >= 0x80);
+
+                        uint8_t stringNote = off - 0x80;
+
+                        if (0x6b <= t.header.versionNumber) {
+                            stringNote += static_cast<uint8_t>(t.metadata.tuningBlock[track][string]);
+                        } else {
+                            stringNote += static_cast<uint8_t>(t.metadata.tuningBlockLE6a[track][string]);
+                        }
+
+                        if (0x6d <= t.header.versionNumber) {
+                            stringNote += static_cast<uint8_t>(t.metadata.transposeHalfStepsBlock[track]);
+                        }
+                        
+                        uint8_t midiNote = stringNote + STRING_MIDI_NOTE[string];
+
+                        auto diff = tick - lastEventTick;
+
+                        auto vlq = toVLQ(diff);
+
+                        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend());
+
+                        tmp.insert(tmp.end(), {
+                            static_cast<uint8_t>(0x80 | channel), // note off
+                            midiNote,
+                            0x00 // velocity
+                        });
+
+                        lastEventTick = tick;
+                    }
+                }
+            }
+
+            //
             // Emit track effects
             //
             {
@@ -820,7 +977,7 @@ exportMidiBytes(
             }
 
             //
-            // Emit note offs and note ons
+            // Emit note ons
             //
             {
                 if (notesMapIt != notesMap.end()) {
@@ -828,155 +985,7 @@ exportMidiBytes(
                     const auto &onVsqs = notesMapIt->second;
 
                     uint8_t stringCount = t.metadata.stringCountBlock[track];
-
-                    std::array<uint8_t, 8> offVsqs{};
-
-                    //
-                    // Compute note offs
-                    //
-                    if (dontLetRing) {
-
-                        //
-                        // There may be string effects, but no note events
-                        // This will still be in the notesMap, but should not affect notes because of dontLetRing
-                        // i.e., simply checking for something in notesMap is not sufficient
-                        //
-                        bool anyEvents = false;
-                        for (uint8_t string = 0; string < stringCount; string++) {
-
-                            uint8_t event = onVsqs[string];
-
-                            if (event != 0) {
-                                anyEvents = true;
-                                break;
-                            }
-                        }
-                        
-                        if (anyEvents) {
-                            
-                            offVsqs = currentlyPlayingStrings;
-
-                            for (uint8_t string = 0; string < stringCount; string++) {
-
-                                uint8_t on = onVsqs[string];
-
-                                if (on == 0) {
-
-                                    currentlyPlayingStrings[string] = 0;
-
-                                } else if (on == MUTED ||
-                                        on == STOPPED) {
-
-                                    currentlyPlayingStrings[string] = 0;
-
-                                } else {
-
-                                    ASSERT(on >= 0x80);
-
-                                    currentlyPlayingStrings[string] = on;
-                                }
-                            }
-                        }
-
-                    } else {
-
-                        for (uint8_t string = 0; string < stringCount; string++) {
-
-                            uint8_t current = currentlyPlayingStrings[string];
-
-                            if (current == 0) {
-
-                                uint8_t on = onVsqs[string];
-
-                                if (on == 0) {
-
-                                    offVsqs[string] = 0;
-
-                                } else if (on == MUTED ||
-                                        on == STOPPED) {
-
-                                    offVsqs[string] = 0;
-
-                                } else {
-
-                                    ASSERT(on >= 0x80);
-
-                                    offVsqs[string] = 0;
-                                    currentlyPlayingStrings[string] = on;
-                                }
-
-                            } else {
-
-                                ASSERT(current >= 0x80);
-
-                                uint8_t on = onVsqs[string];
-
-                                if (on == 0) {
-
-                                    offVsqs[string] = 0;
-
-                                } else if (on == MUTED ||
-                                        on == STOPPED) {
-
-                                    offVsqs[string] = current;
-                                    currentlyPlayingStrings[string] = 0;
-
-                                } else {
-
-                                    ASSERT(on >= 0x80);
-
-                                    offVsqs[string] = current;
-                                    currentlyPlayingStrings[string] = on;
-                                }
-                            }
-                        }
-                    }
-
-                    //
-                    // Emit note offs
-                    //
-                    for (uint8_t string = 0; string < stringCount; string++) {
-
-                        uint8_t off = offVsqs[string];
-
-                        if (off == 0) {
-                            continue;
-                        }
-
-                        ASSERT(off >= 0x80);
-
-                        uint8_t stringNote = off - 0x80;
-
-                        if (0x6b <= t.header.versionNumber) {
-                            stringNote += static_cast<uint8_t>(t.metadata.tuningBlock[track][string]);
-                        } else {
-                            stringNote += static_cast<uint8_t>(t.metadata.tuningBlockLE6a[track][string]);
-                        }
-
-                        if (0x6d <= t.header.versionNumber) {
-                            stringNote += static_cast<uint8_t>(t.metadata.transposeHalfStepsBlock[track]);
-                        }
-
-                        uint8_t midiNote = stringNote + STRING_MIDI_NOTE[string];
-
-                        auto diff = tick - lastEventTick;
-
-                        auto vlq = toVLQ(diff);
-
-                        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend());
-
-                        tmp.insert(tmp.end(), {
-                            static_cast<uint8_t>(0x80 | channel), // note off
-                            midiNote,
-                            0x00 // velocity
-                        });
-
-                        lastEventTick = tick;
-                    }
-
-                    //
-                    // Emit note ons
-                    //
+                    
                     for (uint8_t string = 0; string < stringCount; string++) {
 
                         uint8_t on = onVsqs[string];
