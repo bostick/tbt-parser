@@ -59,6 +59,8 @@ computeChannelMap(
     //
     // first just treat any assigned channels as unavailable
     //
+    if (0x6a <= t.header.versionNumber) {
+        
         for (uint8_t track = 0; track < t.header.trackCount; track++) {
 
             if (t.metadata.midiChannelBlock[track] == -1) {
@@ -78,6 +80,7 @@ computeChannelMap(
 
             channelMap[track] = static_cast<uint8_t>(t.metadata.midiChannelBlock[track]);
         }
+    }
 
     //
     // availableChannels now holds generally available channels
@@ -85,9 +88,11 @@ computeChannelMap(
 
     for (uint8_t track = 0; track < t.header.trackCount; track++) {
 
+        if (0x6a <= t.header.versionNumber) {
             if (t.metadata.midiChannelBlock[track] != -1) {
                 continue;
             }
+        }
 
         //
         // Take first available channel
@@ -405,15 +410,38 @@ exportMidiBytes(
         bool dontLetRing = ((t.metadata.cleanGuitarBlock[track] & 0b10000000) == 0b10000000);
         uint8_t midiProgram = (t.metadata.cleanGuitarBlock[track] & 0b01111111);
 
-        uint8_t pan = t.metadata.panBlock[track];
+        uint8_t pan;
+        if (0x6b <= t.header.versionNumber) {
+            pan = t.metadata.panBlock[track];
+        } else {
+            pan = 0x40; // 64
+        }
+        
+        uint8_t reverb;
+        uint8_t chorus;
+        if (0x6c <= t.header.versionNumber) {
+            
+            reverb = t.metadata.reverbBlock[track];
+            chorus = t.metadata.chorusBlock[track];
+            
+        } else {
+            
+            reverb = 0;
+            chorus = 0;
+        }
 
-        uint8_t reverb = t.metadata.reverbBlock[track];
-
-        uint8_t chorus = t.metadata.chorusBlock[track];
-
-        uint8_t modulation = t.metadata.modulationBlock[track];
-
-        int16_t pitchBend = t.metadata.pitchBendBlock[track]; // -2400 to 2400
+        uint8_t modulation;
+        int16_t pitchBend;
+        if (0x71 <= t.header.versionNumber) {
+            
+            modulation = t.metadata.modulationBlock[track];
+            pitchBend = t.metadata.pitchBendBlock[track]; // -2400 to 2400
+            
+        } else {
+            
+            modulation = 0;
+            pitchBend = 0;
+        }
         //
         // 0b0000000000000000 to 0b0011111111111111 (0 to 16383)
         //
@@ -906,7 +934,9 @@ exportMidiBytes(
                             stringNote += static_cast<uint8_t>(t.metadata.tuningBlockLE6a[track][string]);
                         }
 
+                        if (0x6d <= t.header.versionNumber) {
                             stringNote += static_cast<uint8_t>(t.metadata.transposeHalfStepsBlock[track]);
+                        }
 
                         uint8_t midiNote = stringNote + STRING_MIDI_NOTE[string];
 
@@ -948,7 +978,9 @@ exportMidiBytes(
                             stringNote += static_cast<uint8_t>(t.metadata.tuningBlockLE6a[track][string]);
                         }
                         
+                        if (0x6d <= t.header.versionNumber) {
                             stringNote += static_cast<uint8_t>(t.metadata.transposeHalfStepsBlock[track]);
+                        }
 
                         uint8_t midiNote = stringNote + STRING_MIDI_NOTE[string];
 
@@ -1029,7 +1061,9 @@ exportMidiBytes(
                     stringNote += static_cast<uint8_t>(t.metadata.tuningBlockLE6a[track][string]);
                 }
 
+                if (0x6d <= t.header.versionNumber) {
                     stringNote += static_cast<uint8_t>(t.metadata.transposeHalfStepsBlock[track]);
+                }
 
                 uint8_t midiNote = stringNote + STRING_MIDI_NOTE[string];
 
