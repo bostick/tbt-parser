@@ -836,28 +836,28 @@ exportMidiBytes(
                     //
                     if (dontLetRing) {
 
-                        offVsqs = currentlyPlayingStrings;
+                            offVsqs = currentlyPlayingStrings;
 
-                        for (uint8_t string = 0; string < stringCount; string++) {
+                            for (uint8_t string = 0; string < stringCount; string++) {
 
-                            uint8_t on = onVsqs[string];
+                                uint8_t on = onVsqs[string];
 
-                            if (on == 0) {
+                                if (on == 0) {
 
-                                currentlyPlayingStrings[string] = 0;
+                                    currentlyPlayingStrings[string] = 0;
 
-                            } else if (on == MUTED ||
-                                    on == STOPPED) {
+                                } else if (on == MUTED ||
+                                        on == STOPPED) {
 
-                                currentlyPlayingStrings[string] = 0;
+                                    currentlyPlayingStrings[string] = 0;
 
-                            } else {
+                                } else {
 
-                                ASSERT(on >= 0x80);
+                                    ASSERT(on >= 0x80);
 
-                                currentlyPlayingStrings[string] = on;
+                                    currentlyPlayingStrings[string] = on;
+                                }
                             }
-                        }
 
                     } else {
 
