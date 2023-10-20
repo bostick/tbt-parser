@@ -59,25 +59,25 @@ computeChannelMap(
     //
     // first just treat any assigned channels as unavailable
     //
-    for (uint8_t track = 0; track < t.header.trackCount; track++) {
+        for (uint8_t track = 0; track < t.header.trackCount; track++) {
 
-        if (t.metadata.midiChannelBlock[track] == -1) {
-            continue;
+            if (t.metadata.midiChannelBlock[track] == -1) {
+                continue;
+            }
+
+            //
+            // https://en.wikipedia.org/wiki/Erase%E2%80%93remove_idiom
+            //
+            availableChannels.erase(
+                    std::remove(
+                            availableChannels.begin(),
+                            availableChannels.end(),
+                            t.metadata.midiChannelBlock[track]),
+                    availableChannels.end()
+            );
+
+            channelMap[track] = static_cast<uint8_t>(t.metadata.midiChannelBlock[track]);
         }
-
-        //
-        // https://en.wikipedia.org/wiki/Erase%E2%80%93remove_idiom
-        //
-        availableChannels.erase(
-                std::remove(
-                        availableChannels.begin(),
-                        availableChannels.end(),
-                        t.metadata.midiChannelBlock[track]),
-                availableChannels.end()
-        );
-
-        channelMap[track] = static_cast<uint8_t>(t.metadata.midiChannelBlock[track]);
-    }
 
     //
     // availableChannels now holds generally available channels
@@ -85,9 +85,9 @@ computeChannelMap(
 
     for (uint8_t track = 0; track < t.header.trackCount; track++) {
 
-        if (t.metadata.midiChannelBlock[track] != -1) {
-            continue;
-        }
+            if (t.metadata.midiChannelBlock[track] != -1) {
+                continue;
+            }
 
         //
         // Take first available channel
@@ -906,7 +906,7 @@ exportMidiBytes(
                             stringNote += static_cast<uint8_t>(t.metadata.tuningBlockLE6a[track][string]);
                         }
 
-                        stringNote += static_cast<uint8_t>(t.metadata.transposeHalfStepsBlock[track]);
+                            stringNote += static_cast<uint8_t>(t.metadata.transposeHalfStepsBlock[track]);
 
                         uint8_t midiNote = stringNote + STRING_MIDI_NOTE[string];
 
@@ -948,7 +948,7 @@ exportMidiBytes(
                             stringNote += static_cast<uint8_t>(t.metadata.tuningBlockLE6a[track][string]);
                         }
                         
-                        stringNote += static_cast<uint8_t>(t.metadata.transposeHalfStepsBlock[track]);
+                            stringNote += static_cast<uint8_t>(t.metadata.transposeHalfStepsBlock[track]);
 
                         uint8_t midiNote = stringNote + STRING_MIDI_NOTE[string];
 
@@ -1029,7 +1029,7 @@ exportMidiBytes(
                     stringNote += static_cast<uint8_t>(t.metadata.tuningBlockLE6a[track][string]);
                 }
 
-                stringNote += static_cast<uint8_t>(t.metadata.transposeHalfStepsBlock[track]);
+                    stringNote += static_cast<uint8_t>(t.metadata.transposeHalfStepsBlock[track]);
 
                 uint8_t midiNote = stringNote + STRING_MIDI_NOTE[string];
 
