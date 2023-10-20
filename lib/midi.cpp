@@ -836,6 +836,24 @@ exportMidiBytes(
                     //
                     if (dontLetRing) {
 
+                        //
+                        // There may be string effects, but no note events
+                        // This will still be in the notesMap, but should not affect notes because of dontLetRing
+                        // i.e., simply checking for something in notesMap is not sufficient
+                        //
+                        bool anyEvents = false;
+                        for (uint8_t string = 0; string < stringCount; string++) {
+
+                            uint8_t event = onVsqs[string];
+
+                            if (event != 0) {
+                                anyEvents = true;
+                                break;
+                            }
+                        }
+                        
+                        if (anyEvents) {
+                            
                             offVsqs = currentlyPlayingStrings;
 
                             for (uint8_t string = 0; string < stringCount; string++) {
@@ -858,6 +876,7 @@ exportMidiBytes(
                                     currentlyPlayingStrings[string] = on;
                                 }
                             }
+                        }
 
                     } else {
 
