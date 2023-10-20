@@ -53,11 +53,6 @@ jobs:
       shell: bash
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
-
-    - name: Install zlib (Windows)
-      if: runner.os == 'Windows'
-      run: |
-        vcpkg install zlib
     
     - name: Configure CMake (Windows)
       if: runner.os == 'Windows'
