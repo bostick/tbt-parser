@@ -98,14 +98,14 @@ parseAlternateTimeRegionsMapList(
                 numerator = alternateTimeRegion[1];
             }
 
-            double actualTicksInSpace = (static_cast<double>(denominator) * static_cast<double>(TICKS_PER_SPACE) / static_cast<double>(numerator));
+            double actualSpaceInc = (static_cast<double>(denominator) / static_cast<double>(numerator));
 
-            alternateTimeRegionsCorrection += (static_cast<double>(TICKS_PER_SPACE) - actualTicksInSpace);
+            alternateTimeRegionsCorrection += (1.0 - actualSpaceInc);
         }
 
         alternateTimeRegionsCorrection = round(alternateTimeRegionsCorrection);
 
-        ASSERT(out.metadata.tracks[track].spaceCount == out.body.barsSpaceCount + static_cast<uint32_t>(alternateTimeRegionsCorrection / static_cast<double>(TICKS_PER_SPACE)));
+        ASSERT(out.metadata.tracks[track].spaceCount == out.body.barsSpaceCount + static_cast<uint32_t>(alternateTimeRegionsCorrection));
 
         out.body.alternateTimeRegionsMapList.push_back(alternateTimeRegionsMap);
     }
