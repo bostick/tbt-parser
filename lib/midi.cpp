@@ -197,7 +197,7 @@ computeTempoMap(
     for (uint8_t track = 0; track < t.header.trackCount; track++) {
 
         uint32_t tick = 0;
-        double floatingTick = 0.0;
+        double actualSpace = 0.0;
 
         uint32_t trackSpaceCount;
         if constexpr (0x70 <= VERSION) {
@@ -269,11 +269,11 @@ computeTempoMap(
                     }
                 }
 
-                double actualTicksInSpace = (static_cast<double>(denominator) * static_cast<double>(TICKS_PER_SPACE) / static_cast<double>(numerator));
+                double actualSpaceInc = (static_cast<double>(denominator) / static_cast<double>(numerator));
 
-                floatingTick += actualTicksInSpace;
+                actualSpace += actualSpaceInc;
 
-                tick = static_cast<uint32_t>(round(floatingTick));
+                tick = static_cast<uint32_t>(round(actualSpace * static_cast<double>(TICKS_PER_SPACE)));
             }
         }
     }
@@ -326,7 +326,8 @@ exportMidiBytes(
     // Track 0
     //
     {
-        uint32_t lastEventTick;
+        uint32_t tick = 0;
+        uint32_t lastEventTick = 0;
 
         out.insert(out.end(), { 'M', 'T', 'r', 'k' }); // type
 
@@ -359,10 +360,10 @@ exportMidiBytes(
             tmp.insert(tmp.end(), { 3 }); // microsPerBeatBytes size VLQ
             tmp.insert(tmp.end(), microsPerBeatBytes.cbegin() + 1, microsPerBeatBytes.cend());
 
-            lastEventTick = 0;
+            lastEventTick = tick;
         }
 
-        for (uint32_t tick = 0; tick < TICKS_PER_SPACE * (barsSpaceCount + 1); tick++) { // + 1 for any still playing at end
+        for (uint32_t space = 0; space < barsSpaceCount + 1; space++) { // + 1 for any still playing at end
 
             //
             // Emit tempo changes
@@ -401,6 +402,8 @@ exportMidiBytes(
 
             // tmp.insert(tmp.end(), { 0x00, 0xFF, 0x05, 0x11 }); // lyric
             // tmp.insert(tmp.end(), { 0x73, 0x70, 0x61, 0x63, 0x65, 0x20, 0x30, 0x20, 0x74, 0x65, 0x6d, 0x70, 0x6f, 0x20, 0x31, 0x32, 0x30, });
+        
+            tick = space * TICKS_PER_SPACE;
         }
 
         tmp.insert(tmp.end(), { 0x00, 0xff, 0x2f, 0x00 }); // end of track
@@ -469,7 +472,7 @@ exportMidiBytes(
         uint8_t pitchBendMSB = ((pitchBend >> 7) & 0b01111111);
 
         uint32_t tick = 0;
-        double floatingTick = 0.0;
+        double actualSpace = 0.0;
         uint32_t lastEventTick = 0;
         std::array<uint8_t, STRINGS_PER_TRACK> currentlyPlayingStrings{};
 
@@ -1083,11 +1086,11 @@ exportMidiBytes(
                     }
                 }
 
-                double actualTicksInSpace = (static_cast<double>(denominator) * static_cast<double>(TICKS_PER_SPACE) / static_cast<double>(numerator));
+                double actualSpaceInc = (static_cast<double>(denominator) / static_cast<double>(numerator));
 
-                floatingTick += actualTicksInSpace;
+                actualSpace += actualSpaceInc;
 
-                tick = static_cast<uint32_t>(round(floatingTick));
+                tick = static_cast<uint32_t>(round(actualSpace * static_cast<double>(TICKS_PER_SPACE)));
             }
 
         } // for space
