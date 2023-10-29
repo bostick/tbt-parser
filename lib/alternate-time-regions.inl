@@ -63,7 +63,7 @@ parseAlternateTimeRegionsMapList(
             }
         }
 
-        std::unordered_map<uint32_t, std::array<uint8_t, 2> > alternateTimeRegionsMap;
+        std::map<uint32_t, std::array<uint8_t, 2> > alternateTimeRegionsMap;
 
         Status ret = expandDeltaList<2>(
             alternateTimeRegionsDeltaListAcc,

@@ -38,7 +38,7 @@ parseTrackEffectChangesMapList(
 
         std::vector<uint8_t> arrayList = parseChunk4(it);
 
-        std::unordered_map<uint32_t, std::vector<tbt_track_effect_change> > trackEffectChangesMap;
+        std::map<uint32_t, std::vector<tbt_track_effect_change> > trackEffectChangesMap;
 
         std::vector<std::array<uint8_t, 8> > parts;
 

@@ -31,7 +31,7 @@ expandDeltaList(
     const std::vector<uint8_t> &deltaList,
     uint32_t unitCount,
     uint8_t x,
-    std::unordered_map<uint32_t, std::array<uint8_t, S> > &map) {
+    std::map<uint32_t, std::array<uint8_t, S> > &map) {
 
     std::vector<std::array<uint8_t, 2> > parts;
 

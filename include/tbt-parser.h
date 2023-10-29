@@ -20,7 +20,7 @@
 
 #include <array>
 #include <vector>
-#include <unordered_map>
+#include <map>
 #include <cstdint>
 #include <cstddef> // for size_t
 
@@ -464,28 +464,28 @@ struct tbt_track_effect_change {
 };
 
 struct tbt_body71 {
-    std::unordered_map<uint32_t, std::array<uint8_t, 2> > barsMap;
+    std::map<uint32_t, std::array<uint8_t, 2> > barsMap;
     uint32_t barsSpaceCount;
-    std::vector<std::unordered_map<uint32_t, std::array<uint8_t, 20> > > notesMapList;
-    std::vector<std::unordered_map<uint32_t, std::array<uint8_t, 2> > > alternateTimeRegionsMapList;
-    std::vector<std::unordered_map<uint32_t, std::vector<tbt_track_effect_change> > > trackEffectChangesMapList;
+    std::vector<std::map<uint32_t, std::array<uint8_t, 20> > > notesMapList;
+    std::vector<std::map<uint32_t, std::array<uint8_t, 2> > > alternateTimeRegionsMapList;
+    std::vector<std::map<uint32_t, std::vector<tbt_track_effect_change> > > trackEffectChangesMapList;
 };
 
 struct tbt_body70 {
-    std::unordered_map<uint32_t, std::array<uint8_t, 2> > barsMap;
+    std::map<uint32_t, std::array<uint8_t, 2> > barsMap;
     uint32_t barsSpaceCount;
-    std::vector<std::unordered_map<uint32_t, std::array<uint8_t, 20> > > notesMapList;
-    std::vector<std::unordered_map<uint32_t, std::array<uint8_t, 2> > > alternateTimeRegionsMapList;
+    std::vector<std::map<uint32_t, std::array<uint8_t, 20> > > notesMapList;
+    std::vector<std::map<uint32_t, std::array<uint8_t, 2> > > alternateTimeRegionsMapList;
 };
 
 struct tbt_body6b {
-    std::unordered_map<uint32_t, std::array<uint8_t, 1> > barsMap;
-    std::vector<std::unordered_map<uint32_t, std::array<uint8_t, 20> > > notesMapList;
+    std::map<uint32_t, std::array<uint8_t, 1> > barsMap;
+    std::vector<std::map<uint32_t, std::array<uint8_t, 20> > > notesMapList;
 };
 
 struct tbt_body65 {
-    std::unordered_map<uint32_t, std::array<uint8_t, 1> > barsMap;
-    std::vector<std::unordered_map<uint32_t, std::array<uint8_t, 16> > > notesMapList;
+    std::map<uint32_t, std::array<uint8_t, 1> > barsMap;
+    std::vector<std::map<uint32_t, std::array<uint8_t, 16> > > notesMapList;
 };
 
 
