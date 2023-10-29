@@ -67,7 +67,7 @@ parseNotesMapList(
             }
         }
 
-        std::unordered_map<uint32_t, std::array<uint8_t, STRINGS_PER_TRACK + STRINGS_PER_TRACK + 4> > notesMap;
+        std::map<uint32_t, std::array<uint8_t, STRINGS_PER_TRACK + STRINGS_PER_TRACK + 4> > notesMap;
 
         Status ret = expandDeltaList<STRINGS_PER_TRACK + STRINGS_PER_TRACK + 4>(notesDeltaListAcc, vsqCount, 0, notesMap);
 
