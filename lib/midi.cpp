@@ -47,7 +47,7 @@ template <uint8_t VERSION, typename tbt_file_t>
 void
 computeChannelMap(
     const tbt_file_t &t,
-    std::unordered_map<uint8_t, uint8_t> &channelMap) {
+    std::map<uint8_t, uint8_t> &channelMap) {
 
     channelMap.clear();
 
@@ -120,7 +120,7 @@ void
 insertTempoMap_atTick72(
     const std::vector<tbt_track_effect_change> &changes,
     uint32_t tick,
-    std::unordered_map<uint32_t, uint16_t> &tempoMap) {
+    std::map<uint32_t, uint16_t> &tempoMap) {
 
     for (const auto &change : changes) {
 
@@ -147,7 +147,7 @@ void
 insertTempoMap_atTick(
     const std::array<uint8_t, STRINGS_PER_TRACK + STRINGS_PER_TRACK + 4> &vsqs,
     uint32_t tick,
-    std::unordered_map<uint32_t, uint16_t> &tempoMap) {
+    std::map<uint32_t, uint16_t> &tempoMap) {
 
     auto trackEffect = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 0];
 
@@ -192,7 +192,7 @@ template <uint8_t VERSION, typename tbt_file_t, size_t STRINGS_PER_TRACK>
 void
 computeTempoMap(
     const tbt_file_t &t,
-    std::unordered_map<uint32_t, uint16_t> &tempoMap) {
+    std::map<uint32_t, uint16_t> &tempoMap) {
 
     for (uint8_t track = 0; track < t.header.trackCount; track++) {
 
@@ -300,14 +300,14 @@ exportMidiBytes(
     //
     // tick -> tempoBPM
     //
-    std::unordered_map<uint32_t, uint16_t> tempoMap;
+    std::map<uint32_t, uint16_t> tempoMap;
 
     computeTempoMap<VERSION, tbt_file_t, STRINGS_PER_TRACK>(t, tempoMap);
 
     //
     // compute channel map
     //
-    std::unordered_map<uint8_t, uint8_t> channelMap;
+    std::map<uint8_t, uint8_t> channelMap;
 
     computeChannelMap<VERSION>(t, channelMap);
 
