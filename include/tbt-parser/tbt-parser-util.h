@@ -260,7 +260,7 @@ std::array<uint8_t, 4> toDigitsBE(uint32_t value);
 
 std::vector<uint8_t> toVLQ(uint32_t value);
 
-TBTPARSERLIB_EXPORTED std::string fromPascal2String(std::vector<uint8_t> data);
+std::string fromPascal2String(std::vector<uint8_t> data);
 
 
 

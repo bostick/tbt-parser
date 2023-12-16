@@ -149,13 +149,13 @@ enum Status {
     ERR
 };
 
-TBTPARSERLIB_EXPORTED Status parseTbtFile(const char *path, tbt_file *out);
+Status parseTbtFile(const char *path, tbt_file *out);
 
-TBTPARSERLIB_EXPORTED Status parseTbtBytes(const uint8_t *data, size_t len, tbt_file *out);
+Status parseTbtBytes(const uint8_t *data, size_t len, tbt_file *out);
 
-TBTPARSERLIB_EXPORTED Status exportMidiFile(const tbt_file &t, const char *path);
+Status exportMidiFile(const tbt_file &t, const char *path);
 
-TBTPARSERLIB_EXPORTED Status exportMidiBytes(const tbt_file &t, std::vector<uint8_t> &out);
+Status exportMidiBytes(const tbt_file &t, std::vector<uint8_t> &out);
 
 
 
