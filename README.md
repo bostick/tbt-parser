@@ -16,7 +16,7 @@ tbt-parser depends on zlib and uses CMake for building.
 cd cpp
 mkdir build
 cd build
-cmake ..
+cmake -DZLIB_ROOT=/opt/homebrew/Cellar/zlib/1.3/ ..
 cmake --build .
 ```
 
