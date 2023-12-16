@@ -93,7 +93,7 @@ jobs:
     - name: Upload
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ matrix.config.artifact }}
+        name: tbt-converter-exe
         path: ${{ steps.strings.outputs.build-output-dir }}/exe/Release/tbt-converter.exe
 
 
