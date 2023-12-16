@@ -28,7 +28,7 @@
 
 int main(int argc, const char *argv[]) {
 
-	LOGI("tbt converter v1.0.0");
+	LOGI("tbt converter v1.0.1");
 	LOGI("Copyright (C) 2023 by Brenton Bostick");
 
 	if (argc == 1) {
