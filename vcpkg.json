@@ -2,7 +2,7 @@
   "dependencies": [
     {
       "name": "zlib",
-      "platform": "(windows & x64)"
+      "platform": "(windows & x64 & static)"
     }
   ]
 }

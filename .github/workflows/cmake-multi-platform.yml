@@ -70,6 +70,7 @@ jobs:
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
         -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+        -DVCPKG_TARGET_TRIPLET=x64-windows-static
         -DCMAKE_IGNORE_PATH="C:/Strawberry/c/lib"
         -DCMAKE_IGNORE_PREFIX_PATH="C:/Strawberry/c"
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
