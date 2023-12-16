@@ -67,6 +67,20 @@ endif()
 
 
 
+add_test(
+    NAME
+        tbt-converter-exe-test
+    COMMAND
+        $<TARGET_FILE:tbt-converter-exe>
+)
+
+
+
+
+
+
+
+
 
 
 

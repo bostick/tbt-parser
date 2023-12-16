@@ -20,6 +20,10 @@ cmake_minimum_required(VERSION 3.5)
 
 project(tbt-parser)
 
+
+enable_testing()
+
+
 add_subdirectory(lib)
 
 add_subdirectory(exe)
