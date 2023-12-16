@@ -32,7 +32,7 @@ set(CPP_LIB_SOURCES
     track-effect-changes.cpp
 )
 
-add_library(tbt-parser-lib SHARED
+add_library(tbt-parser-lib STATIC
     ${CPP_LIB_SOURCES}
 )
 
