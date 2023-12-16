@@ -1,8 +1,5 @@
 {
   "dependencies": [
-    {
-      "name": "zlib",
-      "platform": "static"
-    }
+    "zlib"
   ]
 }
