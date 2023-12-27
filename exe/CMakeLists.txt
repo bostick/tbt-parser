@@ -28,7 +28,7 @@ add_executable(tbt-converter-exe
 
 target_link_libraries(tbt-converter-exe
     PRIVATE
-        tbt-parser-lib
+        tbt-parser-static-lib
 )
 
 target_include_directories(tbt-converter-exe
