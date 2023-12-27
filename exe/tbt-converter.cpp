@@ -78,7 +78,20 @@ int main(int argc, const char *argv[]) {
 		return ret;
 	}
 
-	LOGI("tbt file version: 0x%02x", t.header.versionNumber);
+	std::string versionString;
+    if (t.header.versionString[0] == 3) {
+        versionString += t.header.versionString[1];
+        versionString += t.header.versionString[2];
+        versionString += t.header.versionString[3];
+    } else {
+        ASSERT(t.header.versionString[0] == 4);
+        versionString += t.header.versionString[1];
+        versionString += t.header.versionString[2];
+        versionString += t.header.versionString[3];
+        versionString += t.header.versionString[4];
+    }
+
+    LOGI("tbt file version: %s (0x%02x)", versionString.c_str(), t.header.versionNumber);
 
     if (0x6d <= t.header.versionNumber) {
 
