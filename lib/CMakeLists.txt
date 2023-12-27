@@ -33,21 +33,21 @@ set(CPP_LIB_SOURCES
     track-effect-changes.cpp
 )
 
-add_library(tbt-parser-lib STATIC
+add_library(tbt-parser-static-lib STATIC
     ${CPP_LIB_SOURCES}
 )
 
-target_include_directories(tbt-parser-lib PRIVATE
+target_include_directories(tbt-parser-static-lib PRIVATE
     ../include/
 )
 
-target_link_libraries(tbt-parser-lib PRIVATE
+target_link_libraries(tbt-parser-static-lib PRIVATE
     ZLIB::ZLIB
 )
 
-set_target_properties(tbt-parser-lib
+set_target_properties(tbt-parser-static-lib
     PROPERTIES
-        OUTPUT_NAME tbt-parser
+        OUTPUT_NAME tbt-parser-static
         CXX_STANDARD 20
         CXX_STANDARD_REQUIRED ON
 )
@@ -58,15 +58,15 @@ set_target_properties(tbt-parser-lib
 # https://www.foonathan.net/2018/10/cmake-warnings/
 #
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-target_compile_options(tbt-parser-lib PRIVATE
+target_compile_options(tbt-parser-static-lib PRIVATE
     -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion
 )
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-target_compile_options(tbt-parser-lib PRIVATE
+target_compile_options(tbt-parser-static-lib PRIVATE
     -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion
 )
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-target_compile_options(tbt-parser-lib PRIVATE
+target_compile_options(tbt-parser-static-lib PRIVATE
     #
     # Zc:preprocessor is needed for handling __VA_OPT__(,)
     #
