@@ -20,6 +20,8 @@
 
 #include "tbt-parser/tbt-parser-util.h"
 
+#include "common/assert.h"
+
 
 #include "partitioninto.inl"
 #include "splitat.inl"

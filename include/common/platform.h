@@ -18,35 +18,50 @@
 
 #pragma once
 
-#include "tbt-parser.h"
-
-#include <string>
-
-
-uint16_t parseLE2(std::vector<uint8_t>::const_iterator &it);
-uint16_t parseLE2(const uint8_t *data);
-uint32_t parseLE4(std::vector<uint8_t>::const_iterator &it);
-uint32_t parseLE4(const uint8_t *data);
-
-std::vector<uint8_t> readPascal2String(std::vector<uint8_t>::const_iterator &it);
-
-std::vector<uint8_t> parseDeltaListChunk(std::vector<uint8_t>::const_iterator &it);
-std::vector<uint8_t> parseChunk4(std::vector<uint8_t>::const_iterator &it);
-
-uint32_t crc32_checksum(const std::vector<uint8_t> &data);
-
-Status zlib_inflate(const std::vector<uint8_t> &data, std::vector<uint8_t> &acc);
-
-Status computeDeltaListCount(const std::vector<uint8_t> &deltaList, uint32_t *acc);
-
-std::array<uint8_t, 4> toDigitsBE(uint32_t value);
-
-std::vector<uint8_t> toVLQ(uint32_t value);
-
-std::string fromPascal2String(std::vector<uint8_t> data);
+// keep 0 undefined
+#define PLATFORM_ANDROID 1
+#define PLATFORM_IOS 2
+#define PLATFORM_MACOS 3
+#define PLATFORM_WINDOWS 4
+#define PLATFORM_LINUX 5
 
 
+#if defined(__ANDROID__)
 
+#define IS_PLATFORM_ANDROID 1
+#define PLATFORM PLATFORM_ANDROID
+
+#elif __APPLE__
+
+#include "TargetConditionals.h"
+
+#if TARGET_OS_IOS
+
+#define IS_PLATFORM_IOS 1
+#define PLATFORM PLATFORM_IOS
+
+#elif TARGET_OS_OSX
+
+#define IS_PLATFORM_MACOS 1
+#define PLATFORM PLATFORM_MACOS
+
+#else // TARGET_OS_IOS
+#error Unknown Apple platform
+#endif // TARGET_OS_IOS
+
+#elif defined(_WIN32)
+
+#define IS_PLATFORM_WINDOWS 1
+#define PLATFORM PLATFORM_WINDOWS
+
+#elif defined(__linux__)
+
+#define IS_PLATFORM_LINUX 1
+#define PLATFORM PLATFORM_LINUX
+
+#else
+#error Unknown platform
+#endif // defined(__ANDROID__)
 
 
 

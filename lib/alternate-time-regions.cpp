@@ -21,6 +21,8 @@
 #include "tbt-parser/midi.h"
 #include "tbt-parser/tbt-parser-util.h"
 
+#include "common/assert.h"
+
 #include <cmath> // for round
 
 

@@ -18,24 +18,15 @@
 
 #pragma once
 
-#if __ANDROID__
+#include "common/platform.h"
+
+#if IS_PLATFORM_ANDROID
 #include <android/log.h>
-#endif
+#endif // IS_PLATFORM_ANDROID
 
-#define ABORT(msg, ...) \
-   do { \
-      LOGE(msg __VA_OPT__(,) __VA_ARGS__); \
-      *((volatile char*)0) = 'a'; \
-   } while (0)
+#include <cstdio> // for fprintf, stderr
 
-#define ASSERT(cond) \
-   do { \
-      if (!(cond)) { \
-         ABORT("ASSERTION FAILED: %s %s:%d", #cond, __FILE__, __LINE__); \
-      } \
-   } while (0)
-
-#if __ANDROID__
+#if IS_PLATFORM_ANDROID
 
 #define LOGE(fmt, ...) __android_log_print(ANDROID_LOG_ERROR, TAG, fmt __VA_OPT__(,) __VA_ARGS__)
 #define LOGW(fmt, ...) __android_log_print(ANDROID_LOG_WARN, TAG, fmt __VA_OPT__(,) __VA_ARGS__)
@@ -49,21 +40,21 @@
 #define LOGV(fmt, ...) __android_log_print(ANDROID_LOG_VERBOSE, TAG, fmt __VA_OPT__(,) __VA_ARGS__)
 #endif
 
-#else // __ANDROID__
+#else // IS_PLATFORM_ANDROID
 
-#define LOGE(fmt, ...) fprintf(stderr, fmt "\n" __VA_OPT__(,) __VA_ARGS__)
-#define LOGW(fmt, ...) fprintf(stderr, fmt "\n" __VA_OPT__(,) __VA_ARGS__)
-#define LOGI(fmt, ...) fprintf(stderr, fmt "\n" __VA_OPT__(,) __VA_ARGS__)
+#define LOGE(fmt, ...) fprintf(stderr, fmt "\n" __VA_OPT__(,) __VA_ARGS__); fflush(stderr)
+#define LOGW(fmt, ...) fprintf(stderr, fmt "\n" __VA_OPT__(,) __VA_ARGS__); fflush(stderr)
+#define LOGI(fmt, ...) fprintf(stderr, fmt "\n" __VA_OPT__(,) __VA_ARGS__); fflush(stderr)
 
 #ifdef NDEBUG
 #define LOGD(fmt, ...)
 #define LOGV(fmt, ...)
 #else
-#define LOGD(fmt, ...) fprintf(stderr, fmt "\n" __VA_OPT__(,) __VA_ARGS__)
-#define LOGV(fmt, ...) fprintf(stderr, fmt "\n" __VA_OPT__(,) __VA_ARGS__)
+#define LOGD(fmt, ...) fprintf(stderr, fmt "\n" __VA_OPT__(,) __VA_ARGS__); fflush(stderr)
+#define LOGV(fmt, ...) fprintf(stderr, fmt "\n" __VA_OPT__(,) __VA_ARGS__); fflush(stderr)
 #endif
 
-#endif // __ANDROID__
+#endif // IS_PLATFORM_ANDROID
 
 
 

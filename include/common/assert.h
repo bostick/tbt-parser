@@ -18,40 +18,11 @@
 
 #pragma once
 
-#include "tbt-parser.h"
+#include "common/abort.h"
 
-#include <string>
-
-
-uint16_t parseLE2(std::vector<uint8_t>::const_iterator &it);
-uint16_t parseLE2(const uint8_t *data);
-uint32_t parseLE4(std::vector<uint8_t>::const_iterator &it);
-uint32_t parseLE4(const uint8_t *data);
-
-std::vector<uint8_t> readPascal2String(std::vector<uint8_t>::const_iterator &it);
-
-std::vector<uint8_t> parseDeltaListChunk(std::vector<uint8_t>::const_iterator &it);
-std::vector<uint8_t> parseChunk4(std::vector<uint8_t>::const_iterator &it);
-
-uint32_t crc32_checksum(const std::vector<uint8_t> &data);
-
-Status zlib_inflate(const std::vector<uint8_t> &data, std::vector<uint8_t> &acc);
-
-Status computeDeltaListCount(const std::vector<uint8_t> &deltaList, uint32_t *acc);
-
-std::array<uint8_t, 4> toDigitsBE(uint32_t value);
-
-std::vector<uint8_t> toVLQ(uint32_t value);
-
-std::string fromPascal2String(std::vector<uint8_t> data);
-
-
-
-
-
-
-
-
-
-
-
+#define ASSERT(cond) \
+   do { \
+      if (!(cond)) { \
+         ABORT("ASSERTION FAILED: %s %s:%d", #cond, __FILE__, __LINE__); \
+      } \
+   } while (0)
