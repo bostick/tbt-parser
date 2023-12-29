@@ -18,7 +18,6 @@
 
 #include "tbt-parser/body.h"
 
-#include "tbt-parser/bars.h"
 #include "tbt-parser/notes.h"
 #include "tbt-parser/track-effect-changes.h"
 #include "tbt-parser/midi.h"
@@ -31,6 +30,7 @@
 #include "partitioninto.inl"
 #include "expanddeltalist.inl"
 #include "alternate-time-regions.inl"
+#include "bars.inl"
 
 
 #define TAG "body"
