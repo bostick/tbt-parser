@@ -16,39 +16,38 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#pragma once
 
-#include "tbt-parser.h"
+//
+// adapted from:
+// https://subscription.packtpub.com/book/programming/9781803248714/11/ch11lvl1sec14/build-your-own-algorithm-split
+//
+// Elements that match predicate are kept.
+//
+template <typename It, typename Oc, typename Pred>
+void splitAt(It it, It end_it, Oc &dest, Pred f) {
+    using SliceContainer = typename Oc::value_type;
+    while (it != end_it) {
 
-#include "common/common.h"
+        SliceContainer dest_elm{};
 
-#include <string>
+        auto slice{it};
 
+        while (slice != end_it) {
 
-uint16_t parseLE2(std::vector<uint8_t>::const_iterator &it);
-uint16_t parseLE2(const uint8_t *data);
-uint32_t parseLE4(std::vector<uint8_t>::const_iterator &it);
-uint32_t parseLE4(const uint8_t *data);
+            dest_elm.push_back(*slice);
 
-std::vector<uint8_t> readPascal2String(std::vector<uint8_t>::const_iterator &it);
+            if (!f(*slice)) {
+                break;
+            }
 
-std::vector<uint8_t> parseDeltaListChunk(std::vector<uint8_t>::const_iterator &it);
-std::vector<uint8_t> parseChunk4(std::vector<uint8_t>::const_iterator &it);
+            slice++;
+        }
 
-uint32_t crc32_checksum(const std::vector<uint8_t> &data);
+        dest.push_back(dest_elm);
 
-Status zlib_inflate(const std::vector<uint8_t> &data, std::vector<uint8_t> &acc);
-
-Status computeDeltaListCount(const std::vector<uint8_t> &deltaList, uint32_t *acc);
-
-std::array<uint8_t, 4> toDigitsBE(uint32_t value);
-
-std::vector<uint8_t> toVLQ(uint32_t value);
-
-std::string fromPascal2String(std::vector<uint8_t> data);
-
-
-
+        it = ++slice;
+    }
+}
 
 
 

@@ -22,6 +22,9 @@
 
 #include "zlib.h"
 
+#include "partitioninto.inl"
+#include "splitat.inl"
+
 
 #define TAG "tbt-parser-util"
 
