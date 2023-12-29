@@ -407,6 +407,24 @@ parseTbtFile(
     fclose(file);
 
 
+    if (len == 0) {
+        
+        LOGE("empty file");
+            
+        delete[] buf;
+
+        return ERR;
+        
+    } else if (len < HEADER_SIZE) {
+        
+        LOGE("file is too small to be parsed. size: %zu", len);
+            
+        delete[] buf;
+
+        return ERR;
+    }
+    
+    
     auto versionNumber = buf[3];
 
 
