@@ -21,6 +21,9 @@
 #include "tbt-parser/tbt-parser-util.h"
 
 
+#include "partitioninto.inl"
+
+
 #define TAG "track-effect-changes"
 
 

@@ -16,36 +16,36 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#pragma once
 
-#include "tbt-parser.h"
-
-#include "common/common.h"
-
-#include <string>
+#define TAG "partitionInto"
 
 
-uint16_t parseLE2(std::vector<uint8_t>::const_iterator &it);
-uint16_t parseLE2(const uint8_t *data);
-uint32_t parseLE4(std::vector<uint8_t>::const_iterator &it);
-uint32_t parseLE4(const uint8_t *data);
+//
+// partition into parts of size s
+//
 
-std::vector<uint8_t> readPascal2String(std::vector<uint8_t>::const_iterator &it);
 
-std::vector<uint8_t> parseDeltaListChunk(std::vector<uint8_t>::const_iterator &it);
-std::vector<uint8_t> parseChunk4(std::vector<uint8_t>::const_iterator &it);
+template <uint32_t S>
+Status
+partitionInto(
+    const std::vector<uint8_t> &data,
+    std::vector<std::array<uint8_t, S> > &out) {
 
-uint32_t crc32_checksum(const std::vector<uint8_t> &data);
+    ASSERT(data.size() % S == 0);
 
-Status zlib_inflate(const std::vector<uint8_t> &data, std::vector<uint8_t> &acc);
+    for (size_t i = 0; i < data.size(); i += S) {
+        std::array<uint8_t, S> part;
+        for (size_t j = 0; j < S; j++) {
+            part[j] = data[i + j];
+        }
+        out.push_back(part);
+    }
 
-Status computeDeltaListCount(const std::vector<uint8_t> &deltaList, uint32_t *acc);
+    return OK;
+}
 
-std::array<uint8_t, 4> toDigitsBE(uint32_t value);
 
-std::vector<uint8_t> toVLQ(uint32_t value);
-
-std::string fromPascal2String(std::vector<uint8_t> data);
+#undef TAG
 
 
 

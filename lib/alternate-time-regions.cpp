@@ -24,6 +24,11 @@
 #include <cmath> // for round
 
 
+#include "partitioninto.inl"
+#include "splitat.inl"
+#include "expanddeltalist.inl"
+
+
 #define TAG "alternate-time-regions"
 
 

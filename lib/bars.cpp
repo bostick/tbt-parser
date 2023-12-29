@@ -23,6 +23,11 @@
 #include <algorithm>
 
 
+#include "partitioninto.inl"
+#include "splitat.inl"
+#include "expanddeltalist.inl"
+
+
 #define TAG "bars"
 
 

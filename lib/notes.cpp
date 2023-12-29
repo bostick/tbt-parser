@@ -21,6 +21,11 @@
 #include "tbt-parser/tbt-parser-util.h"
 
 
+#include "partitioninto.inl"
+#include "splitat.inl"
+#include "expanddeltalist.inl"
+
+
 #define TAG "notes"
 
 
