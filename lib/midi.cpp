@@ -69,11 +69,11 @@ computeChannelMap(
             // https://en.wikipedia.org/wiki/Erase%E2%80%93remove_idiom
             //
             availableChannels.erase(
-                    std::remove(
-                            availableChannels.begin(),
-                            availableChannels.end(),
-                            t.metadata.midiChannelBlock[track]),
-                    availableChannels.end()
+                std::remove(
+                    availableChannels.begin(),
+                    availableChannels.end(),
+                    t.metadata.midiChannelBlock[track]),
+                availableChannels.end()
             );
 
             channelMap[track] = static_cast<uint8_t>(t.metadata.midiChannelBlock[track]);
@@ -211,7 +211,6 @@ computeTempoMap(
                 const auto &trackEffectChangesMap = t.body.trackEffectChangesMapList[track];
 
                 const auto &it = trackEffectChangesMap.find(space);
-
                 if (it != trackEffectChangesMap.end()) {
                     
                     const auto &changes = it->second;
@@ -224,9 +223,8 @@ computeTempoMap(
                 const auto &notesMap = t.body.notesMapList[track];
 
                 const auto &it = notesMap.find(space);
-                
                 if (it != notesMap.end()) {
-                    
+
                     const auto &vsqs = it->second;
 
                     insertTempoMap_atTick(vsqs, tick, tempoMap);
@@ -995,8 +993,8 @@ exportMidiBytes(
                         uint8_t on = onVsqs[string];
 
                         if (on == 0 ||
-                                on == MUTED ||
-                                on == STOPPED) {
+                            on == MUTED ||
+                            on == STOPPED) {
                             continue;
                         }
 

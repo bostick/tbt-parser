@@ -46,9 +46,9 @@ parseAlternateTimeRegionsMapList(
             std::vector<uint8_t> deltaList = parseDeltaListChunk(it);
 
             alternateTimeRegionsDeltaListAcc.insert(
-                    alternateTimeRegionsDeltaListAcc.end(),
-                    deltaList.cbegin(),
-                    deltaList.cend());
+                alternateTimeRegionsDeltaListAcc.end(),
+                deltaList.cbegin(),
+                deltaList.cend());
 
             Status ret = computeDeltaListCount(deltaList, &dsqCount);
 
@@ -66,10 +66,10 @@ parseAlternateTimeRegionsMapList(
         std::unordered_map<uint32_t, std::array<uint8_t, 2> > alternateTimeRegionsMap;
 
         Status ret = expandDeltaList<2>(
-                alternateTimeRegionsDeltaListAcc,
-                dsqCount,
-                1,
-                alternateTimeRegionsMap);
+            alternateTimeRegionsDeltaListAcc,
+            dsqCount,
+            1,
+            alternateTimeRegionsMap);
 
         if (ret != OK) {
             return ret;
