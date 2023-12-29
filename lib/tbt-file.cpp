@@ -29,6 +29,7 @@
 
 #include <cinttypes>
 #include <cstring>
+#include <cmath> // for round in alternate-time-regions.inl, in body.inl
 
 
 #define TAG "tbt-file"

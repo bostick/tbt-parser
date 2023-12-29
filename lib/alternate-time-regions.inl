@@ -16,20 +16,6 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#include "tbt-parser/alternate-time-regions.h"
-
-#include "tbt-parser/midi.h"
-#include "tbt-parser/tbt-parser-util.h"
-
-#include "common/assert.h"
-
-#include <cmath> // for round
-
-
-#include "partitioninto.inl"
-#include "splitat.inl"
-#include "expanddeltalist.inl"
-
 
 #define TAG "alternate-time-regions"
 
@@ -128,6 +114,7 @@ parseAlternateTimeRegionsMapList(
 }
 
 
+#undef TAG
 
 
 

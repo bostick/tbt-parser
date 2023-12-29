@@ -20,8 +20,17 @@
 
 #include "tbt-parser/bars.h"
 #include "tbt-parser/notes.h"
-#include "tbt-parser/alternate-time-regions.h"
 #include "tbt-parser/track-effect-changes.h"
+#include "tbt-parser/midi.h"
+#include "tbt-parser/tbt-parser-util.h"
+
+#include "common/assert.h"
+
+
+#include "splitat.inl"
+#include "partitioninto.inl"
+#include "expanddeltalist.inl"
+#include "alternate-time-regions.inl"
 
 
 #define TAG "body"
