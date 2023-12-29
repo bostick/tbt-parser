@@ -49,7 +49,7 @@ Status
 parseTbtBytes(
     const uint8_t *data,
     size_t len,
-    tbt_file *out) {
+    tbt_file &out) {
 
     //
     // https://bostick.github.io/tabit-file-format/description/tabit-file-format-description.html#header
@@ -61,30 +61,30 @@ parseTbtBytes(
 
     const uint8_t *headerToParse = data + 0;
 
-    memcpy(&out->header, headerToParse, HEADER_SIZE);
+    memcpy(&out.header, headerToParse, HEADER_SIZE);
 
-    if (memcmp(out->header.magic.data(), "TBT", 3) != 0) {
+    if (memcmp(out.header.magic.data(), "TBT", 3) != 0) {
 
         LOGE("parseTBT: magic does not match");
 
         return ERR;
     }
 
-    if (!(out->header.versionString[0] == 3 || out->header.versionString[0] == 4)) {
+    if (!(out.header.versionString[0] == 3 || out.header.versionString[0] == 4)) {
 
         LOGE("parseTBT: versionString is weird");
 
         return ERR;
     }
 
-    if ((out->header.featureBitfield & 0b00001011) != 0b00001011) {
+    if ((out.header.featureBitfield & 0b00001011) != 0b00001011) {
 
         LOGE("parseTBT: featureBitfield is weird");
 
         return ERR;
     }
 
-    for (uint8_t &u : out->header.unused) {
+    for (uint8_t &u : out.header.unused) {
 
         if (u != 0) {
 
@@ -94,16 +94,16 @@ parseTbtBytes(
         }
     }
 
-    if (0x72 < out->header.versionNumber) {
+    if (0x72 < out.header.versionNumber) {
 
-        LOGE("parseTBT: This file was created with a later version of TabIt. You'll need to upgrade to TabIt version %s or later in order to open this file.", out->header.versionString.data() + 1);
+        LOGE("parseTBT: This file was created with a later version of TabIt. You'll need to upgrade to TabIt version %s or later in order to open this file.", out.header.versionString.data() + 1);
 
         return ERR;
     }
 
-    if (0x70 <= out->header.versionNumber) {
+    if (0x70 <= out.header.versionNumber) {
 
-        if (32000 < out->header.barCountGE70) {
+        if (32000 < out.header.barCountGE70) {
 
             LOGE("parseTBT: Unable to load the file because it contains more bars than this version of TabIt supports");
 
@@ -111,22 +111,22 @@ parseTbtBytes(
         }
     }
 
-    if (0x67 < out->header.versionNumber) {
+    if (0x67 < out.header.versionNumber) {
 
         auto restToCheck = std::vector<uint8_t>(data + HEADER_SIZE, data + len);
 
         auto crc32Rest = crc32_checksum(restToCheck);
 
-        if (crc32Rest != out->header.crc32Rest) {
+        if (crc32Rest != out.header.crc32Rest) {
 
-            LOGE("parseTBT: bad crc32Rest. expected: %" PRIu32 " actual: %" PRIu32,  out->header.crc32Rest, crc32Rest);
+            LOGE("parseTBT: bad crc32Rest. expected: %" PRIu32 " actual: %" PRIu32,  out.header.crc32Rest, crc32Rest);
 
             return ERR;
         }
 
-        if (len != out->header.totalByteCount) {
+        if (len != out.header.totalByteCount) {
 
-            LOGE("parseTBT: bad byte count. expected: %" PRIu32 " actual: %zu", out->header.totalByteCount, len);
+            LOGE("parseTBT: bad byte count. expected: %" PRIu32 " actual: %zu", out.header.totalByteCount, len);
 
             return ERR;
         }
@@ -135,23 +135,23 @@ parseTbtBytes(
 
         auto crc32Header = crc32_checksum(headerToCheck);
 
-        if (crc32Header != out->header.crc32Header) {
+        if (crc32Header != out.header.crc32Header) {
 
-            LOGE("parseTBT: bad crc32Header. expected: %" PRIu32 " actual: %" PRIu32, out->header.crc32Header, crc32Header);
+            LOGE("parseTBT: bad crc32Header. expected: %" PRIu32 " actual: %" PRIu32, out.header.crc32Header, crc32Header);
 
             return ERR;
         }
     }
 
-    if (15 < out->header.trackCount) {
+    if (15 < out.header.trackCount) {
 
         LOGE("parseTBT: Unable to load the file because it contains more tracks than this version of TabIt supports");
 
         return ERR;
     }
 
-    if (out->header.tempo1 != out->header.tempo2) {
-        ASSERT(out->header.tempo1 == 250);
+    if (out.header.tempo1 != out.header.tempo2) {
+        ASSERT(out.header.tempo1 == 250);
     }
 
     //
@@ -160,7 +160,7 @@ parseTbtBytes(
     {
         auto metadataToInflate = std::vector<uint8_t>(
                 data + HEADER_SIZE,
-                data + HEADER_SIZE + out->header.metadataLen);
+                data + HEADER_SIZE + out.header.metadataLen);
 
         std::vector<uint8_t> metadataToParse;
 
@@ -172,7 +172,7 @@ parseTbtBytes(
 
         auto it = metadataToParse.cbegin();
 
-        ret = parseMetadata(it, *out, &out->metadata);
+        ret = parseMetadata(it, out);
 
         if (ret != OK) {
             return ret;
@@ -186,7 +186,7 @@ parseTbtBytes(
     //
     {
         auto bodyToInflate = std::vector<uint8_t>(
-                data + HEADER_SIZE + out->header.metadataLen,
+                data + HEADER_SIZE + out.header.metadataLen,
                 data + len);
 
         std::vector<uint8_t> bodyToParse;
@@ -199,7 +199,7 @@ parseTbtBytes(
 
         auto it = bodyToParse.cbegin();
 
-        ret = parseBody(it, *out, &out->body);
+        ret = parseBody(it, out);
 
         if (ret != OK) {
             return ret;
@@ -259,7 +259,20 @@ parseTbtFile(
 
     fclose(file);
 
-    return parseTbtBytes(buf, len, out);
+
+    tbt_file t;
+
+    auto ret = parseTbtBytes(buf, len, t);
+
+    delete[] buf;
+
+    if (ret != OK) {
+        return ret;
+    }
+
+    *out = t;
+
+    return OK;
 }
 
 

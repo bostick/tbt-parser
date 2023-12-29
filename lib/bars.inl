@@ -28,12 +28,10 @@
 Status
 parseBarsMapGE70(
     std::vector<uint8_t>::const_iterator &it,
-    const tbt_file &t,
-    std::unordered_map<uint32_t, std::array<uint8_t, 2> > &barsMap,
-    uint32_t *barsSpaceCount_p) {
+    tbt_file &out) {
 
-    std::vector<uint8_t> data(it, it + t.header.barCountGE70 * 6);
-    it += t.header.barCountGE70 * 6;
+    std::vector<uint8_t> data(it, it + out.header.barCountGE70 * 6);
+    it += out.header.barCountGE70 * 6;
 
     std::vector<std::array<uint8_t, 6> > parts;
 
@@ -43,17 +41,17 @@ parseBarsMapGE70(
         return ret;
     }
 
-    *barsSpaceCount_p = 0;
+    out.body.barsSpaceCountGE70 = 0;
 
-    barsMap.clear();
+    out.body.barsMapGE70.clear();
 
     for (const std::array<uint8_t, 6> &part : parts) {
 
-        uint32_t space = *barsSpaceCount_p;
+        uint32_t space = out.body.barsSpaceCountGE70;
 
-        *barsSpaceCount_p += parseLE4(part.data());
+        out.body.barsSpaceCountGE70 += parseLE4(part.data());
 
-        barsMap[space] = { part[4], part[5] };
+        out.body.barsMapGE70[space] = { part[4], part[5] };
     }
 
     return OK;
@@ -63,14 +61,13 @@ parseBarsMapGE70(
 Status
 parseBarsMap(
     std::vector<uint8_t>::const_iterator &it,
-    const tbt_file &t,
-    std::unordered_map<uint32_t, std::array<uint8_t, 1> > &barsMap) {
+    tbt_file &out) {
 
-    ASSERT(t.header.versionNumber <= 0x6f);
+    ASSERT(out.header.versionNumber <= 0x6f);
 
     uint32_t barsSpaceCount;
-    if (t.header.versionNumber == 0x6f) {
-        barsSpaceCount = t.header.spaceCount6f;
+    if (out.header.versionNumber == 0x6f) {
+        barsSpaceCount = out.header.spaceCount6f;
     } else {
         barsSpaceCount = 4000;
     }
@@ -97,7 +94,7 @@ parseBarsMap(
         }
     }
 
-    Status ret = expandDeltaList<1>(barsDeltaListAcc, barsSpaceCount, 0, barsMap);
+    Status ret = expandDeltaList<1>(barsDeltaListAcc, barsSpaceCount, 0, out.body.barsMap);
 
     if (ret != OK) {
         return ret;

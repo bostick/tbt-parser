@@ -28,176 +28,175 @@
 Status
 parseMetadata(
     std::vector<uint8_t>::const_iterator &it,
-    const tbt_file &t,
-    tbt_metadata *out) {
+    tbt_file &out) {
 
-    if (0x70 <= t.header.versionNumber) {
+    if (0x70 <= out.header.versionNumber) {
 
-        out->spaceCountBlock = std::vector<uint32_t>(t.header.trackCount);
+        out.metadata.spaceCountBlock = std::vector<uint32_t>(out.header.trackCount);
 
-        for (uint8_t track = 0; track < t.header.trackCount; track++) {
-            out->spaceCountBlock[track] = parseLE4(it);
+        for (uint8_t track = 0; track < out.header.trackCount; track++) {
+            out.metadata.spaceCountBlock[track] = parseLE4(it);
         }
     }
 
-    out->stringCountBlock = std::vector<uint8_t>(t.header.trackCount);
+    out.metadata.stringCountBlock = std::vector<uint8_t>(out.header.trackCount);
 
-    for (uint8_t track = 0; track < t.header.trackCount; track++) {
-        out->stringCountBlock[track] = *it++;
+    for (uint8_t track = 0; track < out.header.trackCount; track++) {
+        out.metadata.stringCountBlock[track] = *it++;
     }
 
-    out->cleanGuitarBlock = std::vector<uint8_t>(t.header.trackCount);
+    out.metadata.cleanGuitarBlock = std::vector<uint8_t>(out.header.trackCount);
 
-    for (uint8_t track = 0; track < t.header.trackCount; track++) {
-        out->cleanGuitarBlock[track] = *it++;
+    for (uint8_t track = 0; track < out.header.trackCount; track++) {
+        out.metadata.cleanGuitarBlock[track] = *it++;
     }
 
-    out->mutedGuitarBlock = std::vector<uint8_t>(t.header.trackCount);
+    out.metadata.mutedGuitarBlock = std::vector<uint8_t>(out.header.trackCount);
 
-    for (uint8_t track = 0; track < t.header.trackCount; track++) {
-        out->mutedGuitarBlock[track] = *it++;
+    for (uint8_t track = 0; track < out.header.trackCount; track++) {
+        out.metadata.mutedGuitarBlock[track] = *it++;
     }
 
-    out->volumeBlock = std::vector<uint8_t>(t.header.trackCount);
+    out.metadata.volumeBlock = std::vector<uint8_t>(out.header.trackCount);
 
-    for (uint8_t track = 0; track < t.header.trackCount; track++) {
-        out->volumeBlock[track] = *it++;
+    for (uint8_t track = 0; track < out.header.trackCount; track++) {
+        out.metadata.volumeBlock[track] = *it++;
     }
 
-    if (0x71 <= t.header.versionNumber) {
+    if (0x71 <= out.header.versionNumber) {
 
-        out->modulationBlock = std::vector<uint8_t>(t.header.trackCount);
+        out.metadata.modulationBlock = std::vector<uint8_t>(out.header.trackCount);
 
-        for (uint8_t track = 0; track < t.header.trackCount; track++) {
-            out->modulationBlock[track] = *it++;
+        for (uint8_t track = 0; track < out.header.trackCount; track++) {
+            out.metadata.modulationBlock[track] = *it++;
         }
 
-        out->pitchBendBlock = std::vector<int16_t>(t.header.trackCount);
+        out.metadata.pitchBendBlock = std::vector<int16_t>(out.header.trackCount);
 
-        for (uint8_t track = 0; track < t.header.trackCount; track++) {
-            out->pitchBendBlock[track] = static_cast<int16_t>(parseLE2(it));
-        }
-    }
-
-    if (0x6d <= t.header.versionNumber) {
-
-        out->transposeHalfStepsBlock = std::vector<int8_t>(t.header.trackCount);
-
-        for (uint8_t track = 0; track < t.header.trackCount; track++) {
-            out->transposeHalfStepsBlock[track] = static_cast<int8_t>(*it++);
-        }
-
-        out->midiBankBlock = std::vector<uint8_t>(t.header.trackCount);
-
-        for (uint8_t track = 0; track < t.header.trackCount; track++) {
-            out->midiBankBlock[track] = *it++;
+        for (uint8_t track = 0; track < out.header.trackCount; track++) {
+            out.metadata.pitchBendBlock[track] = static_cast<int16_t>(parseLE2(it));
         }
     }
 
-    if (0x6c <= t.header.versionNumber) {
+    if (0x6d <= out.header.versionNumber) {
 
-        out->reverbBlock = std::vector<uint8_t>(t.header.trackCount);
+        out.metadata.transposeHalfStepsBlock = std::vector<int8_t>(out.header.trackCount);
 
-        for (uint8_t track = 0; track < t.header.trackCount; track++) {
-            out->reverbBlock[track] = *it++;
+        for (uint8_t track = 0; track < out.header.trackCount; track++) {
+            out.metadata.transposeHalfStepsBlock[track] = static_cast<int8_t>(*it++);
         }
 
-        out->chorusBlock = std::vector<uint8_t>(t.header.trackCount);
+        out.metadata.midiBankBlock = std::vector<uint8_t>(out.header.trackCount);
 
-        for (uint8_t track = 0; track < t.header.trackCount; track++) {
-            out->chorusBlock[track] = *it++;
-        }
-    }
-
-    if (0x6b <= t.header.versionNumber) {
-
-        out->panBlock = std::vector<uint8_t>(t.header.trackCount);
-
-        for (uint8_t track = 0; track < t.header.trackCount; track++) {
-            out->panBlock[track] = *it++;
-        }
-
-        out->highestNoteBlock = std::vector<uint8_t>(t.header.trackCount);
-
-        for (uint8_t track = 0; track < t.header.trackCount; track++) {
-            out->highestNoteBlock[track] = *it++;
+        for (uint8_t track = 0; track < out.header.trackCount; track++) {
+            out.metadata.midiBankBlock[track] = *it++;
         }
     }
 
-    if (0x6a <= t.header.versionNumber) {
+    if (0x6c <= out.header.versionNumber) {
 
-        out->displayMIDINoteNumbersBlock = std::vector<uint8_t>(t.header.trackCount);
+        out.metadata.reverbBlock = std::vector<uint8_t>(out.header.trackCount);
 
-        for (uint8_t track = 0; track < t.header.trackCount; track++) {
-            out->displayMIDINoteNumbersBlock[track] = *it++;
+        for (uint8_t track = 0; track < out.header.trackCount; track++) {
+            out.metadata.reverbBlock[track] = *it++;
         }
 
-        out->midiChannelBlock = std::vector<int8_t>(t.header.trackCount);
+        out.metadata.chorusBlock = std::vector<uint8_t>(out.header.trackCount);
 
-        for (uint8_t track = 0; track < t.header.trackCount; track++) {
-            out->midiChannelBlock[track] = static_cast<int8_t>(*it++);
+        for (uint8_t track = 0; track < out.header.trackCount; track++) {
+            out.metadata.chorusBlock[track] = *it++;
         }
     }
 
-    out->topLineTextBlock = std::vector<uint8_t>(t.header.trackCount);
+    if (0x6b <= out.header.versionNumber) {
 
-    for (uint8_t track = 0; track < t.header.trackCount; track++) {
-        out->topLineTextBlock[track] = *it++;
+        out.metadata.panBlock = std::vector<uint8_t>(out.header.trackCount);
+
+        for (uint8_t track = 0; track < out.header.trackCount; track++) {
+            out.metadata.panBlock[track] = *it++;
+        }
+
+        out.metadata.highestNoteBlock = std::vector<uint8_t>(out.header.trackCount);
+
+        for (uint8_t track = 0; track < out.header.trackCount; track++) {
+            out.metadata.highestNoteBlock[track] = *it++;
+        }
     }
 
-    out->bottomLineTextBlock = std::vector<uint8_t>(t.header.trackCount);
+    if (0x6a <= out.header.versionNumber) {
 
-    for (uint8_t track = 0; track < t.header.trackCount; track++) {
-        out->bottomLineTextBlock[track] = *it++;
+        out.metadata.displayMIDINoteNumbersBlock = std::vector<uint8_t>(out.header.trackCount);
+
+        for (uint8_t track = 0; track < out.header.trackCount; track++) {
+            out.metadata.displayMIDINoteNumbersBlock[track] = *it++;
+        }
+
+        out.metadata.midiChannelBlock = std::vector<int8_t>(out.header.trackCount);
+
+        for (uint8_t track = 0; track < out.header.trackCount; track++) {
+            out.metadata.midiChannelBlock[track] = static_cast<int8_t>(*it++);
+        }
+    }
+
+    out.metadata.topLineTextBlock = std::vector<uint8_t>(out.header.trackCount);
+
+    for (uint8_t track = 0; track < out.header.trackCount; track++) {
+        out.metadata.topLineTextBlock[track] = *it++;
+    }
+
+    out.metadata.bottomLineTextBlock = std::vector<uint8_t>(out.header.trackCount);
+
+    for (uint8_t track = 0; track < out.header.trackCount; track++) {
+        out.metadata.bottomLineTextBlock[track] = *it++;
     }
 
 
-    if (0x6b <= t.header.versionNumber) {
+    if (0x6b <= out.header.versionNumber) {
 
-        out->tuningBlock = std::vector<std::array<int8_t, 8> >(t.header.trackCount);
+        out.metadata.tuningBlock = std::vector<std::array<int8_t, 8> >(out.header.trackCount);
 
-        for (uint8_t track = 0; track < t.header.trackCount; track++) {
+        for (uint8_t track = 0; track < out.header.trackCount; track++) {
             for (uint8_t string = 0; string < 8; string++) {
-                out->tuningBlock[track][string] = static_cast<int8_t>(*it++);
+                out.metadata.tuningBlock[track][string] = static_cast<int8_t>(*it++);
             }
         }
 
     } else {
 
-        out->tuningBlockLE6a = std::vector<std::array<int8_t, 6> >(t.header.trackCount);
+        out.metadata.tuningBlockLE6a = std::vector<std::array<int8_t, 6> >(out.header.trackCount);
 
-        for (uint8_t track = 0; track < t.header.trackCount; track++) {
+        for (uint8_t track = 0; track < out.header.trackCount; track++) {
             for (uint8_t string = 0; string < 6; string++) {
-                out->tuningBlockLE6a[track][string] = static_cast<int8_t>(*it++);
+                out.metadata.tuningBlockLE6a[track][string] = static_cast<int8_t>(*it++);
             }
         }
     }
 
-    out->drumsBlock = std::vector<uint8_t>(t.header.trackCount);
+    out.metadata.drumsBlock = std::vector<uint8_t>(out.header.trackCount);
 
-    for (uint8_t track = 0; track < t.header.trackCount; track++) {
-        out->drumsBlock[track] = *it++;
+    for (uint8_t track = 0; track < out.header.trackCount; track++) {
+        out.metadata.drumsBlock[track] = *it++;
     }
 
-    if (0x6d <= t.header.versionNumber) {
+    if (0x6d <= out.header.versionNumber) {
 
-        out->title = readPascal2String(it);
+        out.metadata.title = readPascal2String(it);
 
-        out->artist = readPascal2String(it);
+        out.metadata.artist = readPascal2String(it);
 
-        out->album = readPascal2String(it);
+        out.metadata.album = readPascal2String(it);
 
-        out->transcribedBy = readPascal2String(it);
+        out.metadata.transcribedBy = readPascal2String(it);
 
-        out->comment = readPascal2String(it);
+        out.metadata.comment = readPascal2String(it);
 
     } else {
 
-        out->title = readPascal2String(it);
+        out.metadata.title = readPascal2String(it);
 
-        out->artist = readPascal2String(it);
+        out.metadata.artist = readPascal2String(it);
 
-        out->comment = readPascal2String(it);
+        out.metadata.comment = readPascal2String(it);
     }
 
     return OK;

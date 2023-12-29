@@ -28,15 +28,14 @@
 Status
 parseAlternateTimeRegionsMapList(
     std::vector<uint8_t>::const_iterator &it,
-    const tbt_file &t,
-    std::vector<std::unordered_map<uint32_t, std::array<uint8_t, 2> > > &alternateTimeRegionsMapList) {
+    tbt_file &out) {
 
-    alternateTimeRegionsMapList.clear();
-    alternateTimeRegionsMapList.reserve(t.header.trackCount);
+    out.body.alternateTimeRegionsMapList.clear();
+    out.body.alternateTimeRegionsMapList.reserve(out.header.trackCount);
 
-    for (uint8_t track = 0; track < t.header.trackCount; track++) {
+    for (uint8_t track = 0; track < out.header.trackCount; track++) {
 
-        uint32_t trackSpaceCount = t.metadata.spaceCountBlock[track];
+        uint32_t trackSpaceCount = out.metadata.spaceCountBlock[track];
 
         std::vector<uint8_t> alternateTimeRegionsDeltaListAcc;
         uint32_t dsqCount = 0;
@@ -105,9 +104,9 @@ parseAlternateTimeRegionsMapList(
 
         alternateTimeRegionsCorrection = round(alternateTimeRegionsCorrection);
 
-        ASSERT(t.metadata.spaceCountBlock[track] == t.body.barsSpaceCountGE70 + static_cast<uint32_t>(alternateTimeRegionsCorrection / static_cast<double>(TICKS_PER_SPACE)));
+        ASSERT(out.metadata.spaceCountBlock[track] == out.body.barsSpaceCountGE70 + static_cast<uint32_t>(alternateTimeRegionsCorrection / static_cast<double>(TICKS_PER_SPACE)));
 
-        alternateTimeRegionsMapList.push_back(alternateTimeRegionsMap);
+        out.body.alternateTimeRegionsMapList.push_back(alternateTimeRegionsMap);
     }
 
     return OK;
