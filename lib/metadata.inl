@@ -25,12 +25,13 @@
 //
 
 
+template <uint8_t VERSION, typename tbt_file_t>
 Status
 parseMetadata(
     std::vector<uint8_t>::const_iterator &it,
-    tbt_file &out) {
+    tbt_file_t &out) {
 
-    if (0x70 <= out.header.versionNumber) {
+    if constexpr (0x70 <= VERSION) {
         for (uint8_t track = 0; track < out.header.trackCount; track++) {
             out.metadata.tracks[track].spaceCount = parseLE4(it);
         }
@@ -52,7 +53,7 @@ parseMetadata(
         out.metadata.tracks[track].volume = *it++;
     }
 
-    if (0x71 <= out.header.versionNumber) {
+    if constexpr (0x71 <= VERSION) {
 
         for (uint8_t track = 0; track < out.header.trackCount; track++) {
             out.metadata.tracks[track].modulation = *it++;
@@ -63,7 +64,7 @@ parseMetadata(
         }
     }
 
-    if (0x6d <= out.header.versionNumber) {
+    if constexpr (0x6e <= VERSION) {
 
         for (uint8_t track = 0; track < out.header.trackCount; track++) {
             out.metadata.tracks[track].transposeHalfSteps = static_cast<int8_t>(*it++);
@@ -72,9 +73,6 @@ parseMetadata(
         for (uint8_t track = 0; track < out.header.trackCount; track++) {
             out.metadata.tracks[track].midiBank = *it++;
         }
-    }
-
-    if (0x6c <= out.header.versionNumber) {
 
         for (uint8_t track = 0; track < out.header.trackCount; track++) {
             out.metadata.tracks[track].reverb = *it++;
@@ -85,7 +83,7 @@ parseMetadata(
         }
     }
 
-    if (0x6b <= out.header.versionNumber) {
+    if constexpr (0x6b <= VERSION) {
 
         for (uint8_t track = 0; track < out.header.trackCount; track++) {
             out.metadata.tracks[track].pan = *it++;
@@ -96,7 +94,7 @@ parseMetadata(
         }
     }
 
-    if (0x6a <= out.header.versionNumber) {
+    if constexpr (0x6a <= VERSION) {
 
         for (uint8_t track = 0; track < out.header.trackCount; track++) {
             out.metadata.tracks[track].displayMIDINoteNumbers = *it++;
@@ -116,7 +114,7 @@ parseMetadata(
     }
 
 
-    if (0x6b <= out.header.versionNumber) {
+    if constexpr (0x6b <= VERSION) {
 
         for (uint8_t track = 0; track < out.header.trackCount; track++) {
             for (uint8_t string = 0; string < 8; string++) {
@@ -128,34 +126,13 @@ parseMetadata(
 
         for (uint8_t track = 0; track < out.header.trackCount; track++) {
             for (uint8_t string = 0; string < 6; string++) {
-                out.metadata.tracks[track].tuningLE6a[string] = static_cast<int8_t>(*it++);
+                out.metadata.tracks[track].tuning[string] = static_cast<int8_t>(*it++);
             }
         }
     }
 
     for (uint8_t track = 0; track < out.header.trackCount; track++) {
         out.metadata.tracks[track].drums = *it++;
-    }
-
-    if (0x6d <= out.header.versionNumber) {
-
-        out.metadata.title = readPascal2String(it);
-
-        out.metadata.artist = readPascal2String(it);
-
-        out.metadata.album = readPascal2String(it);
-
-        out.metadata.transcribedBy = readPascal2String(it);
-
-        out.metadata.comment = readPascal2String(it);
-
-    } else {
-
-        out.metadata.title = readPascal2String(it);
-
-        out.metadata.artist = readPascal2String(it);
-
-        out.metadata.comment = readPascal2String(it);
     }
 
     return OK;

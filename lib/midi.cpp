@@ -33,7 +33,8 @@
 #define TAG "midi"
 
 
-const std::array<uint8_t, 8> STRING_MIDI_NOTE = { 0x28, 0x2d, 0x32, 0x37, 0x3b, 0x40, 0x00, 0x00 };
+const std::array<uint8_t, 8> STRING_MIDI_NOTE =      { 0x28, 0x2d, 0x32, 0x37, 0x3b, 0x40, 0x00, 0x00 };
+const std::array<uint8_t, 6> STRING_MIDI_NOTE_LE6A = { 0x40, 0x3b, 0x37, 0x32, 0x2d, 0x28 };
 
 const uint8_t MUTED = 0x11; // 17
 const uint8_t STOPPED = 0x12; // 18
@@ -42,9 +43,10 @@ const uint8_t STOPPED = 0x12; // 18
 //
 // resolve all of the Automatically Assign -1 values to actual channels
 //
+template <uint8_t VERSION, typename tbt_file_t>
 void
 computeChannelMap(
-    const tbt_file &t,
+    const tbt_file_t &t,
     std::unordered_map<uint8_t, uint8_t> &channelMap) {
 
     channelMap.clear();
@@ -57,7 +59,7 @@ computeChannelMap(
     //
     // first just treat any assigned channels as unavailable
     //
-    if (0x6a <= t.header.versionNumber) {
+    if constexpr (0x6a <= VERSION) {
         
         for (uint8_t track = 0; track < t.header.trackCount; track++) {
 
@@ -86,7 +88,7 @@ computeChannelMap(
 
     for (uint8_t track = 0; track < t.header.trackCount; track++) {
 
-        if (0x6a <= t.header.versionNumber) {
+        if constexpr (0x6a <= VERSION) {
             if (t.metadata.tracks[track].midiChannel != -1) {
                 continue;
             }
@@ -115,7 +117,7 @@ computeChannelMap(
 
 
 void
-insertTempoMap_atTickGE71(
+insertTempoMap_atTick72(
     const std::vector<tbt_track_effect_change> &changes,
     uint32_t tick,
     std::unordered_map<uint32_t, uint16_t> &tempoMap) {
@@ -140,18 +142,19 @@ insertTempoMap_atTickGE71(
 }
 
 
+template <size_t STRINGS_PER_TRACK>
 void
 insertTempoMap_atTick(
-    const std::array<uint8_t, 20> &vsqs,
+    const std::array<uint8_t, STRINGS_PER_TRACK + STRINGS_PER_TRACK + 4> &vsqs,
     uint32_t tick,
     std::unordered_map<uint32_t, uint16_t> &tempoMap) {
 
-    auto trackEffect = vsqs[16];
+    auto trackEffect = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 0];
 
     switch (trackEffect) {
         case 'T': {
 
-            uint16_t newTempo = vsqs[19];
+            uint16_t newTempo = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
             const auto &tempoMapIt = tempoMap.find(tick);
             if (tempoMapIt != tempoMap.end()) {
@@ -166,7 +169,7 @@ insertTempoMap_atTick(
         }
         case 't': {
 
-            uint16_t newTempo = vsqs[19] + 250;
+            uint16_t newTempo = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3] + 250;
 
             const auto &tempoMapIt = tempoMap.find(tick);
             if (tempoMapIt != tempoMap.end()) {
@@ -185,9 +188,10 @@ insertTempoMap_atTick(
 }
 
 
+template <uint8_t VERSION, typename tbt_file_t, size_t STRINGS_PER_TRACK>
 void
 computeTempoMap(
-    const tbt_file &t,
+    const tbt_file_t &t,
     std::unordered_map<uint32_t, uint16_t> &tempoMap) {
 
     for (uint8_t track = 0; track < t.header.trackCount; track++) {
@@ -196,17 +200,17 @@ computeTempoMap(
         double floatingTick = 0.0;
 
         uint32_t trackSpaceCount;
-        if (0x70 <= t.header.versionNumber) {
+        if constexpr (0x70 <= VERSION) {
             trackSpaceCount = t.metadata.tracks[track].spaceCount;
-        } else if (t.header.versionNumber == 0x6f) {
-            trackSpaceCount = t.header.spaceCount6f;
+        } else if constexpr (VERSION == 0x6f) {
+            trackSpaceCount = t.header.spaceCount;
         } else {
             trackSpaceCount = 4000;
         }
 
         for (uint32_t space = 0; space < trackSpaceCount; space++) {
 
-            if (0x71 <= t.header.versionNumber) {
+            if constexpr (VERSION == 0x72) {
 
                 const auto &trackEffectChangesMap = t.body.trackEffectChangesMapList[track];
 
@@ -215,7 +219,7 @@ computeTempoMap(
                     
                     const auto &changes = it->second;
 
-                    insertTempoMap_atTickGE71(changes, tick, tempoMap);
+                    insertTempoMap_atTick72(changes, tick, tempoMap);
                 }
 
             } else {
@@ -227,7 +231,7 @@ computeTempoMap(
 
                     const auto &vsqs = it->second;
 
-                    insertTempoMap_atTick(vsqs, tick, tempoMap);
+                    insertTempoMap_atTick<STRINGS_PER_TRACK>(vsqs, tick, tempoMap);
                 }
             }
 
@@ -245,7 +249,7 @@ computeTempoMap(
                 //
                 uint8_t numerator = 1;
 
-                if (0x70 <= t.header.versionNumber) {
+                if constexpr (0x70 <= VERSION) {
 
                     auto hasAlternateTimeRegions = ((t.header.featureBitfield & 0b00010000) == 0b00010000);
 
@@ -276,16 +280,17 @@ computeTempoMap(
 }
 
 
+template <uint8_t VERSION, typename tbt_file_t, size_t STRINGS_PER_TRACK>
 Status
 exportMidiBytes(
-    const tbt_file &t,
+    const tbt_file_t &t,
     std::vector<uint8_t> &out) {
 
     uint32_t barsSpaceCount;
-    if (0x70 <= t.header.versionNumber) {
-        barsSpaceCount = t.body.barsSpaceCountGE70;
-    } else if (t.header.versionNumber == 0x6f) {
-        barsSpaceCount = t.header.spaceCount6f;
+    if constexpr (0x70 <= VERSION) {
+        barsSpaceCount = t.body.barsSpaceCount;
+    } else if constexpr (VERSION == 0x6f) {
+        barsSpaceCount = t.header.spaceCount;
     } else {
         barsSpaceCount = 4000;
     }
@@ -297,14 +302,14 @@ exportMidiBytes(
     //
     std::unordered_map<uint32_t, uint16_t> tempoMap;
 
-    computeTempoMap(t, tempoMap);
+    computeTempoMap<VERSION, tbt_file_t, STRINGS_PER_TRACK>(t, tempoMap);
 
     //
     // compute channel map
     //
     std::unordered_map<uint8_t, uint8_t> channelMap;
 
-    computeChannelMap(t, channelMap);
+    computeChannelMap<VERSION>(t, channelMap);
 
     //
     // header
@@ -333,7 +338,12 @@ exportMidiBytes(
         // Emit tempo
         //
         {
-            uint16_t tempoBPM = t.header.tempo2;
+            uint16_t tempoBPM;
+            if constexpr (0x6e <= VERSION) {
+                tempoBPM = t.header.tempo2;
+            } else {
+                tempoBPM = t.header.tempo1;
+            }
 
             //
             // Use floating point here for better accuracy
@@ -395,6 +405,9 @@ exportMidiBytes(
 
         tmp.insert(tmp.end(), { 0x00, 0xff, 0x2f, 0x00 }); // end of track
 
+        //
+        // append tmp to out
+        //
         {
             auto tmpSizeBytes = toDigitsBE(static_cast<uint32_t>(tmp.size()));
             out.insert(out.end(), tmpSizeBytes.cbegin(), tmpSizeBytes.cend()); // length
@@ -415,7 +428,7 @@ exportMidiBytes(
         uint8_t midiProgram = (t.metadata.tracks[track].cleanGuitar & 0b01111111);
 
         uint8_t pan;
-        if (0x6b <= t.header.versionNumber) {
+        if constexpr (0x6b <= VERSION) {
             pan = t.metadata.tracks[track].pan;
         } else {
             pan = 0x40; // 64
@@ -423,7 +436,7 @@ exportMidiBytes(
         
         uint8_t reverb;
         uint8_t chorus;
-        if (0x6c <= t.header.versionNumber) {
+        if constexpr (0x6e <= VERSION) {
             
             reverb = t.metadata.tracks[track].reverb;
             chorus = t.metadata.tracks[track].chorus;
@@ -436,7 +449,7 @@ exportMidiBytes(
 
         uint8_t modulation;
         int16_t pitchBend;
-        if (0x71 <= t.header.versionNumber) {
+        if constexpr (0x71 <= VERSION) {
             
             modulation = t.metadata.tracks[track].modulation;
             pitchBend = t.metadata.tracks[track].pitchBend; // -2400 to 2400
@@ -458,7 +471,7 @@ exportMidiBytes(
         uint32_t tick = 0;
         double floatingTick = 0.0;
         uint32_t lastEventTick = 0;
-        std::array<uint8_t, 8> currentlyPlayingStrings{};
+        std::array<uint8_t, STRINGS_PER_TRACK> currentlyPlayingStrings{};
 
         out.insert(out.end(), { 'M', 'T', 'r', 'k' }); // type
 
@@ -516,10 +529,10 @@ exportMidiBytes(
         });
 
         uint32_t trackSpaceCount;
-        if (0x70 <= t.header.versionNumber) {
+        if constexpr (0x70 <= VERSION) {
             trackSpaceCount = t.metadata.tracks[track].spaceCount;
-        } else if (t.header.versionNumber == 0x6f) {
-            trackSpaceCount = t.header.spaceCount6f;
+        } else if constexpr (VERSION == 0x6f) {
+            trackSpaceCount = t.header.spaceCount;
         } else {
             trackSpaceCount = 4000;
         }
@@ -538,7 +551,7 @@ exportMidiBytes(
 
                     uint8_t stringCount = t.metadata.tracks[track].stringCount;
 
-                    std::array<uint8_t, 8> offVsqs{};
+                    std::array<uint8_t, STRINGS_PER_TRACK> offVsqs{};
 
                     //
                     // Compute note offs
@@ -656,17 +669,18 @@ exportMidiBytes(
 
                         uint8_t stringNote = off - 0x80;
 
-                        if (0x6b <= t.header.versionNumber) {
-                            stringNote += static_cast<uint8_t>(t.metadata.tracks[track].tuning[string]);
-                        } else {
-                            stringNote += static_cast<uint8_t>(t.metadata.tracks[track].tuningLE6a[string]);
-                        }
+                        stringNote += static_cast<uint8_t>(t.metadata.tracks[track].tuning[string]);
 
-                        if (0x6d <= t.header.versionNumber) {
+                        if constexpr (0x6e <= VERSION) {
                             stringNote += static_cast<uint8_t>(t.metadata.tracks[track].transposeHalfSteps);
                         }
                         
-                        uint8_t midiNote = stringNote + STRING_MIDI_NOTE[string];
+                        uint8_t midiNote;
+                        if constexpr (0x6b <= VERSION) {
+                            midiNote = stringNote + STRING_MIDI_NOTE[string];
+                        } else {
+                            midiNote = stringNote + STRING_MIDI_NOTE_LE6A[string];
+                        }
 
                         auto diff = tick - lastEventTick;
 
@@ -689,7 +703,7 @@ exportMidiBytes(
             // Emit track effects
             //
             {
-                if (0x71 <= t.header.versionNumber) {
+                if constexpr (VERSION == 0x72) {
 
                     const auto &trackEffectChangesMap = t.body.trackEffectChangesMapList[track];
 
@@ -863,7 +877,7 @@ exportMidiBytes(
 
                         const auto &vsqs = notesMapIt->second;
 
-                        auto trackEffect = vsqs[16];
+                        auto trackEffect = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 0];
 
                         switch (trackEffect) {
                         case 0x00:
@@ -873,7 +887,7 @@ exportMidiBytes(
                             break;
                         case 'I': { // Instrument change
 
-                            auto newInstrument = vsqs[19];
+                            auto newInstrument = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
                             dontLetRing = ((newInstrument & 0b10000000) == 0b10000000);
                             midiProgram = (newInstrument & 0b01111111);
@@ -895,7 +909,7 @@ exportMidiBytes(
                         }
                         case 'V': { // Volume change
 
-                            auto newVolume = vsqs[19];
+                            auto newVolume = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
                             volume = newVolume;
 
@@ -915,7 +929,7 @@ exportMidiBytes(
                             break;
                         case 'C': { // Chorus change
 
-                            auto newChorus = vsqs[19];
+                            auto newChorus = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
                             auto diff = tick - lastEventTick;
 
@@ -935,7 +949,7 @@ exportMidiBytes(
                         }
                         case 'P': { // Pan change
 
-                            auto newPan = vsqs[19];
+                            auto newPan = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
                             auto diff = tick - lastEventTick;
 
@@ -955,7 +969,7 @@ exportMidiBytes(
                         }
                         case 'R': { // Reverb change
 
-                            auto newReverb = vsqs[19];
+                            auto newReverb = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
                             auto diff = tick - lastEventTick;
 
@@ -1005,17 +1019,18 @@ exportMidiBytes(
 
                         uint8_t stringNote = on - 0x80;
                         
-                        if (0x6b <= t.header.versionNumber) {
-                            stringNote += static_cast<uint8_t>(t.metadata.tracks[track].tuning[string]);
-                        } else {
-                            stringNote += static_cast<uint8_t>(t.metadata.tracks[track].tuningLE6a[string]);
-                        }
+                        stringNote += static_cast<uint8_t>(t.metadata.tracks[track].tuning[string]);
                         
-                        if (0x6d <= t.header.versionNumber) {
+                        if constexpr (0x6e <= VERSION) {
                             stringNote += static_cast<uint8_t>(t.metadata.tracks[track].transposeHalfSteps);
                         }
 
-                        uint8_t midiNote = stringNote + STRING_MIDI_NOTE[string];
+                        uint8_t midiNote;
+                        if constexpr (0x6b <= VERSION) {
+                            midiNote = stringNote + STRING_MIDI_NOTE[string];
+                        } else {
+                            midiNote = stringNote + STRING_MIDI_NOTE_LE6A[string];
+                        }
 
                         auto diff = tick - lastEventTick;
 
@@ -1048,7 +1063,7 @@ exportMidiBytes(
                 //
                 uint8_t numerator = 1;
 
-                if (0x70 <= t.header.versionNumber) {
+                if constexpr (0x70 <= VERSION) {
 
                     auto hasAlternateTimeRegions = ((t.header.featureBitfield & 0b00010000) == 0b00010000);
 
@@ -1081,7 +1096,7 @@ exportMidiBytes(
         // Emit any final note offs
         //
         {
-            std::array<uint8_t, 8> offVsqs = currentlyPlayingStrings;
+            auto offVsqs = currentlyPlayingStrings;
 
             for (uint8_t string = 0; string < t.metadata.tracks[track].stringCount; string++) {
 
@@ -1095,17 +1110,18 @@ exportMidiBytes(
 
                 uint8_t stringNote = off - 0x80;
 
-                if (0x6b <= t.header.versionNumber) {
-                    stringNote += static_cast<uint8_t>(t.metadata.tracks[track].tuning[string]);
-                } else {
-                    stringNote += static_cast<uint8_t>(t.metadata.tracks[track].tuningLE6a[string]);
-                }
+                stringNote += static_cast<uint8_t>(t.metadata.tracks[track].tuning[string]);
 
-                if (0x6d <= t.header.versionNumber) {
+                if constexpr (0x6e <= VERSION) {
                     stringNote += static_cast<uint8_t>(t.metadata.tracks[track].transposeHalfSteps);
                 }
 
-                uint8_t midiNote = stringNote + STRING_MIDI_NOTE[string];
+                uint8_t midiNote;
+                if constexpr (0x6b <= VERSION) {
+                    midiNote = stringNote + STRING_MIDI_NOTE[string];
+                } else {
+                    midiNote = stringNote + STRING_MIDI_NOTE_LE6A[string];
+                }
 
                 auto diff = tick - lastEventTick;
 
@@ -1125,6 +1141,9 @@ exportMidiBytes(
 
         tmp.insert(tmp.end(), { 0x00, 0xff, 0x2f, 0x00 }); // end of track
 
+        //
+        // append tmp to out
+        //
         {
             auto tmpSizeBytes = toDigitsBE(static_cast<uint32_t>(tmp.size()));
             out.insert(out.end(), tmpSizeBytes.cbegin(), tmpSizeBytes.cend()); // length
@@ -1143,7 +1162,111 @@ exportMidiFile(
 
     std::vector<uint8_t> midiBytes;
 
-    Status ret = exportMidiBytes(t, midiBytes);
+    Status ret;
+
+    auto versionNumber = reinterpret_cast<const uint8_t *>(t)[3];
+
+    switch (versionNumber) {
+    case 0x72: {
+
+        auto t71 = *reinterpret_cast<const tbt_file71 *>(t);
+        
+        ret = exportMidiBytes<0x72, tbt_file71, 8>(t71, midiBytes);
+        
+        break;
+    }
+    case 0x71: {
+        
+        auto t71 = *reinterpret_cast<const tbt_file71 *>(t);
+        
+        ret = exportMidiBytes<0x71, tbt_file71, 8>(t71, midiBytes);
+        
+        break;
+    }
+    case 0x70: {
+        
+        auto t70 = *reinterpret_cast<const tbt_file70 *>(t);
+        
+        ret = exportMidiBytes<0x70, tbt_file70, 8>(t70, midiBytes);
+        
+        break;
+    }
+    case 0x6f: {
+        
+        auto t6f = *reinterpret_cast<const tbt_file6f *>(t);
+        
+        ret = exportMidiBytes<0x6f, tbt_file6f, 8>(t6f, midiBytes);
+        
+        break;
+    }
+    case 0x6e: {
+        
+        auto t6e = *reinterpret_cast<const tbt_file6e *>(t);
+        
+        ret = exportMidiBytes<0x6e, tbt_file6e, 8>(t6e, midiBytes);
+        
+        break;
+    }
+    case 0x6b: {
+        
+        auto t6b = *reinterpret_cast<const tbt_file6b *>(t);
+        
+        ret = exportMidiBytes<0x6b, tbt_file6b, 8>(t6b, midiBytes);
+        
+        break;
+    }
+    case 0x6a: {
+        
+        auto t6a = *reinterpret_cast<const tbt_file6a *>(t);
+        
+        ret = exportMidiBytes<0x6a, tbt_file6a, 6>(t6a, midiBytes);
+        
+        break;
+    }
+    case 0x69: {
+        
+        auto t68 = *reinterpret_cast<const tbt_file68 *>(t);
+        
+        ret = exportMidiBytes<0x69, tbt_file68, 6>(t68, midiBytes);
+        
+        break;
+    }
+    case 0x68: {
+        
+        auto t68 = *reinterpret_cast<const tbt_file68 *>(t);
+        
+        ret = exportMidiBytes<0x68, tbt_file68, 6>(t68, midiBytes);
+        
+        break;
+    }
+    case 0x67: {
+        
+        auto t65 = *reinterpret_cast<const tbt_file65 *>(t);
+        
+        ret = exportMidiBytes<0x67, tbt_file65, 6>(t65, midiBytes);
+        
+        break;
+    }
+    case 0x66: {
+        
+        auto t65 = *reinterpret_cast<const tbt_file65 *>(t);
+        
+        ret = exportMidiBytes<0x66, tbt_file65, 6>(t65, midiBytes);
+        
+        break;
+    }
+    case 0x65: {
+        
+        auto t65 = *reinterpret_cast<const tbt_file65 *>(t);
+        
+        ret = exportMidiBytes<0x65, tbt_file65, 6>(t65, midiBytes);
+        
+        break;
+    }
+    default:
+        ASSERT(false);
+        return ERR;
+    }
 
     if (ret != OK) {
         return ret;
