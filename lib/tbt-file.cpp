@@ -365,9 +365,9 @@ parseTbtFile(
 
     rewind(file);
 
-    auto buf = new uint8_t[len];
+    auto buf = std::vector<uint8_t>(len);
 
-    size_t r = fread(buf, sizeof(uint8_t), len, file);
+    size_t r = fread(buf.data(), sizeof(uint8_t), len, file);
 
     if (r != len) {
 
@@ -382,16 +382,12 @@ parseTbtFile(
     if (len == 0) {
         
         LOGE("empty file");
-            
-        delete[] buf;
 
         return ERR;
         
     } else if (len < HEADER_SIZE) {
         
         LOGE("file is too small to be parsed. size: %zu", len);
-            
-        delete[] buf;
 
         return ERR;
     }
@@ -406,9 +402,7 @@ parseTbtFile(
     case 0x72: {
         
         tbt_file71 t;
-        ret = parseTbtBytes<0x72, tbt_file71>(buf, len, t);
-
-        delete[] buf;
+        ret = parseTbtBytes<0x72, tbt_file71>(buf.data(), len, t);
 
         if (ret != OK) {
             return ret;
@@ -421,9 +415,7 @@ parseTbtFile(
     case 0x71: {
         
         tbt_file71 t;
-        ret = parseTbtBytes<0x71, tbt_file71>(buf, len, t);
-
-        delete[] buf;
+        ret = parseTbtBytes<0x71, tbt_file71>(buf.data(), len, t);
 
         if (ret != OK) {
             return ret;
@@ -436,9 +428,7 @@ parseTbtFile(
     case 0x70: {
         
         tbt_file70 t;
-        ret = parseTbtBytes<0x70, tbt_file70>(buf, len, t);
-
-        delete[] buf;
+        ret = parseTbtBytes<0x70, tbt_file70>(buf.data(), len, t);
 
         if (ret != OK) {
             return ret;
@@ -451,9 +441,7 @@ parseTbtFile(
     case 0x6f: {
         
         tbt_file6d t;
-        ret = parseTbtBytes<0x6f, tbt_file6d>(buf, len, t);
-
-        delete[] buf;
+        ret = parseTbtBytes<0x6f, tbt_file6d>(buf.data(), len, t);
 
         if (ret != OK) {
             return ret;
@@ -466,9 +454,7 @@ parseTbtFile(
     case 0x6e: {
         
         tbt_file6d t;
-        ret = parseTbtBytes<0x6e, tbt_file6d>(buf, len, t);
-
-        delete[] buf;
+        ret = parseTbtBytes<0x6e, tbt_file6d>(buf.data(), len, t);
 
         if (ret != OK) {
             return ret;
@@ -481,9 +467,7 @@ parseTbtFile(
     case 0x6b: {
         
         tbt_file6b t;
-        ret = parseTbtBytes<0x6b, tbt_file6b>(buf, len, t);
-
-        delete[] buf;
+        ret = parseTbtBytes<0x6b, tbt_file6b>(buf.data(), len, t);
 
         if (ret != OK) {
             return ret;
@@ -496,9 +480,7 @@ parseTbtFile(
     case 0x6a: {
         
         tbt_file6a t;
-        ret = parseTbtBytes<0x6a, tbt_file6a>(buf, len, t);
-
-        delete[] buf;
+        ret = parseTbtBytes<0x6a, tbt_file6a>(buf.data(), len, t);
 
         if (ret != OK) {
             return ret;
@@ -511,9 +493,7 @@ parseTbtFile(
     case 0x69: {
         
         tbt_file65 t;
-        ret = parseTbtBytes<0x69, tbt_file65>(buf, len, t);
-
-        delete[] buf;
+        ret = parseTbtBytes<0x69, tbt_file65>(buf.data(), len, t);
 
         if (ret != OK) {
             return ret;
@@ -526,9 +506,7 @@ parseTbtFile(
     case 0x68: {
         
         tbt_file65 t;
-        ret = parseTbtBytes<0x68, tbt_file65>(buf, len, t);
-
-        delete[] buf;
+        ret = parseTbtBytes<0x68, tbt_file65>(buf.data(), len, t);
 
         if (ret != OK) {
             return ret;
@@ -541,9 +519,7 @@ parseTbtFile(
     case 0x67: {
         
         tbt_file65 t;
-        ret = parseTbtBytes<0x67, tbt_file65>(buf, len, t);
-
-        delete[] buf;
+        ret = parseTbtBytes<0x67, tbt_file65>(buf.data(), len, t);
 
         if (ret != OK) {
             return ret;
@@ -556,9 +532,7 @@ parseTbtFile(
     case 0x66: {
         
         tbt_file65 t;
-        ret = parseTbtBytes<0x66, tbt_file65>(buf, len, t);
-
-        delete[] buf;
+        ret = parseTbtBytes<0x66, tbt_file65>(buf.data(), len, t);
 
         if (ret != OK) {
             return ret;
@@ -571,9 +545,7 @@ parseTbtFile(
     case 0x65: {
         
         tbt_file65 t;
-        ret = parseTbtBytes<0x65, tbt_file65>(buf, len, t);
-
-        delete[] buf;
+        ret = parseTbtBytes<0x65, tbt_file65>(buf.data(), len, t);
 
         if (ret != OK) {
             return ret;
@@ -586,8 +558,6 @@ parseTbtFile(
     default:
         
         LOGE("unrecognized tbt file version: 0x%02x", versionNumber);
-            
-        delete[] buf;
 
         return ERR;
     }
