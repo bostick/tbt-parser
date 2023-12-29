@@ -245,20 +245,23 @@ computeTempoMap(
                 //
                 uint8_t numerator = 1;
 
-                auto hasAlternateTimeRegions = ((t.header.featureBitfield & 0b00010000) == 0b00010000);
+                if (0x70 <= t.header.versionNumber) {
 
-                if (hasAlternateTimeRegions) {
+                    auto hasAlternateTimeRegions = ((t.header.featureBitfield & 0b00010000) == 0b00010000);
 
-                    const auto &alternateTimeRegionsStruct = t.body.alternateTimeRegionsMapList[track];
+                    if (hasAlternateTimeRegions) {
 
-                    const auto &alternateTimeRegionsIt = alternateTimeRegionsStruct.find(space);
-                    if (alternateTimeRegionsIt != alternateTimeRegionsStruct.end()) {
+                        const auto &alternateTimeRegionsStruct = t.body.alternateTimeRegionsMapList[track];
 
-                        const auto &alternateTimeRegion = alternateTimeRegionsIt->second;
+                        const auto &alternateTimeRegionsIt = alternateTimeRegionsStruct.find(space);
+                        if (alternateTimeRegionsIt != alternateTimeRegionsStruct.end()) {
 
-                        denominator = alternateTimeRegion[0];
+                            const auto &alternateTimeRegion = alternateTimeRegionsIt->second;
 
-                        numerator = alternateTimeRegion[1];
+                            denominator = alternateTimeRegion[0];
+
+                            numerator = alternateTimeRegion[1];
+                        }
                     }
                 }
 
@@ -1045,20 +1048,23 @@ exportMidiBytes(
                 //
                 uint8_t numerator = 1;
 
-                auto hasAlternateTimeRegions = ((t.header.featureBitfield & 0b00010000) == 0b00010000);
+                if (0x70 <= t.header.versionNumber) {
 
-                if (hasAlternateTimeRegions) {
+                    auto hasAlternateTimeRegions = ((t.header.featureBitfield & 0b00010000) == 0b00010000);
 
-                    const auto &alternateTimeRegionsStruct = t.body.alternateTimeRegionsMapList[track];
+                    if (hasAlternateTimeRegions) {
 
-                    const auto &alternateTimeRegionsIt = alternateTimeRegionsStruct.find(space);
-                    if (alternateTimeRegionsIt != alternateTimeRegionsStruct.end()) {
+                        const auto &alternateTimeRegionsStruct = t.body.alternateTimeRegionsMapList[track];
 
-                        const auto &alternateTimeRegion = alternateTimeRegionsIt->second;
+                        const auto &alternateTimeRegionsIt = alternateTimeRegionsStruct.find(space);
+                        if (alternateTimeRegionsIt != alternateTimeRegionsStruct.end()) {
 
-                        denominator = alternateTimeRegion[0];
+                            const auto &alternateTimeRegion = alternateTimeRegionsIt->second;
 
-                        numerator = alternateTimeRegion[1];
+                            denominator = alternateTimeRegion[0];
+
+                            numerator = alternateTimeRegion[1];
+                        }
                     }
                 }
 
