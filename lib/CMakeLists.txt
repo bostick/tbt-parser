@@ -28,7 +28,6 @@ set(CPP_LIB_SOURCES
     notes.cpp
     tbt-file.cpp
     tbt-parser-util.cpp
-    track-effect-changes.cpp
 )
 
 add_library(tbt-parser-static-lib STATIC
