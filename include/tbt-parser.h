@@ -19,22 +19,14 @@
 #pragma once
 
 #include <array>
-#include <cstdint>
 #include <vector>
 #include <unordered_map>
-#include <stddef.h>
+#include <cstdint>
+#include <cstddef> // for size_t
 
-#ifdef _WIN32
-#  ifdef tbt_parser_lib_EXPORTS
-#    define TBTPARSERLIB_EXPORTED __declspec(dllexport)
-#  else
-#    define TBTPARSERLIB_EXPORTED __declspec(dllimport)
-#  endif
-#else
-#  define TBTPARSERLIB_EXPORTED
-#endif
 
 const int HEADER_SIZE = 64;
+
 
 struct tbt_header {
 
@@ -151,11 +143,11 @@ enum Status {
 
 Status parseTbtFile(const char *path, tbt_file *out);
 
-Status parseTbtBytes(const uint8_t *data, size_t len, tbt_file *out);
+const tbt_header tbtFileHeader(const tbt_file t);
 
-Status exportMidiFile(const tbt_file &t, const char *path);
+Status exportMidiFile(const tbt_file t, const char *path);
 
-Status exportMidiBytes(const tbt_file &t, std::vector<uint8_t> &out);
+void releaseTbtFile(tbt_file t);
 
 
 

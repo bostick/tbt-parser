@@ -79,22 +79,24 @@ int main(int argc, const char *argv[]) {
 		return ret;
 	}
 
+	auto header = tbtFileHeader(t);
+
 	std::string versionString;
-    if (t.header.versionString[0] == 3) {
-        versionString += t.header.versionString[1];
-        versionString += t.header.versionString[2];
-        versionString += t.header.versionString[3];
+    if (header.versionString[0] == 3) {
+        versionString += static_cast<char>(header.versionString[1]);
+        versionString += static_cast<char>(header.versionString[2]);
+        versionString += static_cast<char>(header.versionString[3]);
     } else {
-        ASSERT(t.header.versionString[0] == 4);
-        versionString += t.header.versionString[1];
-        versionString += t.header.versionString[2];
-        versionString += t.header.versionString[3];
-        versionString += t.header.versionString[4];
+        ASSERT(header.versionString[0] == 4);
+        versionString += static_cast<char>(header.versionString[1]);
+        versionString += static_cast<char>(header.versionString[2]);
+        versionString += static_cast<char>(header.versionString[3]);
+        versionString += static_cast<char>(header.versionString[4]);
     }
 
-    LOGI("tbt file version: %s (0x%02x)", versionString.c_str(), t.header.versionNumber);
+    LOGI("tbt file version: %s (0x%02x)", versionString.c_str(), header.versionNumber);
 
-    if (0x6d <= t.header.versionNumber) {
+    if (0x6d <= header.versionNumber) {
 
         LOGI("title: %s", fromPascal2String(t.metadata.title).data());
 
@@ -124,6 +126,8 @@ int main(int argc, const char *argv[]) {
 	}
 
 	LOGI("finished!");
+
+	releaseTbtFile(t);
 
     return 0;
 }
