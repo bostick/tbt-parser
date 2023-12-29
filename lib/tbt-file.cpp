@@ -158,6 +158,8 @@ parseTbtBytes(
     // parse metadata
     //
     {
+        out.metadata.tracks = std::vector<tbt_track_metadata>(out.header.trackCount);
+
         auto metadataToInflate = std::vector<uint8_t>(
                 data + HEADER_SIZE,
                 data + HEADER_SIZE + out.header.metadataLen);

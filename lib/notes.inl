@@ -37,7 +37,7 @@ parseNotesMapList(
 
         uint32_t trackSpaceCount;
         if (0x70 <= out.header.versionNumber) {
-            trackSpaceCount = out.metadata.spaceCountBlock[track];
+            trackSpaceCount = out.metadata.tracks[track].spaceCount;
         } else if (out.header.versionNumber == 0x6f) {
             trackSpaceCount = out.header.spaceCount6f;
         } else {

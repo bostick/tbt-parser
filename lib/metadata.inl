@@ -31,151 +31,110 @@ parseMetadata(
     tbt_file &out) {
 
     if (0x70 <= out.header.versionNumber) {
-
-        out.metadata.spaceCountBlock = std::vector<uint32_t>(out.header.trackCount);
-
         for (uint8_t track = 0; track < out.header.trackCount; track++) {
-            out.metadata.spaceCountBlock[track] = parseLE4(it);
+            out.metadata.tracks[track].spaceCount = parseLE4(it);
         }
     }
 
-    out.metadata.stringCountBlock = std::vector<uint8_t>(out.header.trackCount);
-
     for (uint8_t track = 0; track < out.header.trackCount; track++) {
-        out.metadata.stringCountBlock[track] = *it++;
+        out.metadata.tracks[track].stringCount = *it++;
     }
 
-    out.metadata.cleanGuitarBlock = std::vector<uint8_t>(out.header.trackCount);
-
     for (uint8_t track = 0; track < out.header.trackCount; track++) {
-        out.metadata.cleanGuitarBlock[track] = *it++;
+        out.metadata.tracks[track].cleanGuitar = *it++;
     }
 
-    out.metadata.mutedGuitarBlock = std::vector<uint8_t>(out.header.trackCount);
-
     for (uint8_t track = 0; track < out.header.trackCount; track++) {
-        out.metadata.mutedGuitarBlock[track] = *it++;
+        out.metadata.tracks[track].mutedGuitar = *it++;
     }
 
-    out.metadata.volumeBlock = std::vector<uint8_t>(out.header.trackCount);
-
     for (uint8_t track = 0; track < out.header.trackCount; track++) {
-        out.metadata.volumeBlock[track] = *it++;
+        out.metadata.tracks[track].volume = *it++;
     }
 
     if (0x71 <= out.header.versionNumber) {
 
-        out.metadata.modulationBlock = std::vector<uint8_t>(out.header.trackCount);
-
         for (uint8_t track = 0; track < out.header.trackCount; track++) {
-            out.metadata.modulationBlock[track] = *it++;
+            out.metadata.tracks[track].modulation = *it++;
         }
 
-        out.metadata.pitchBendBlock = std::vector<int16_t>(out.header.trackCount);
-
         for (uint8_t track = 0; track < out.header.trackCount; track++) {
-            out.metadata.pitchBendBlock[track] = static_cast<int16_t>(parseLE2(it));
+            out.metadata.tracks[track].pitchBend = static_cast<int16_t>(parseLE2(it));
         }
     }
 
     if (0x6d <= out.header.versionNumber) {
 
-        out.metadata.transposeHalfStepsBlock = std::vector<int8_t>(out.header.trackCount);
-
         for (uint8_t track = 0; track < out.header.trackCount; track++) {
-            out.metadata.transposeHalfStepsBlock[track] = static_cast<int8_t>(*it++);
+            out.metadata.tracks[track].transposeHalfSteps = static_cast<int8_t>(*it++);
         }
 
-        out.metadata.midiBankBlock = std::vector<uint8_t>(out.header.trackCount);
-
         for (uint8_t track = 0; track < out.header.trackCount; track++) {
-            out.metadata.midiBankBlock[track] = *it++;
+            out.metadata.tracks[track].midiBank = *it++;
         }
     }
 
     if (0x6c <= out.header.versionNumber) {
 
-        out.metadata.reverbBlock = std::vector<uint8_t>(out.header.trackCount);
-
         for (uint8_t track = 0; track < out.header.trackCount; track++) {
-            out.metadata.reverbBlock[track] = *it++;
+            out.metadata.tracks[track].reverb = *it++;
         }
 
-        out.metadata.chorusBlock = std::vector<uint8_t>(out.header.trackCount);
-
         for (uint8_t track = 0; track < out.header.trackCount; track++) {
-            out.metadata.chorusBlock[track] = *it++;
+            out.metadata.tracks[track].chorus = *it++;
         }
     }
 
     if (0x6b <= out.header.versionNumber) {
 
-        out.metadata.panBlock = std::vector<uint8_t>(out.header.trackCount);
-
         for (uint8_t track = 0; track < out.header.trackCount; track++) {
-            out.metadata.panBlock[track] = *it++;
+            out.metadata.tracks[track].pan = *it++;
         }
 
-        out.metadata.highestNoteBlock = std::vector<uint8_t>(out.header.trackCount);
-
         for (uint8_t track = 0; track < out.header.trackCount; track++) {
-            out.metadata.highestNoteBlock[track] = *it++;
+            out.metadata.tracks[track].highestNote = *it++;
         }
     }
 
     if (0x6a <= out.header.versionNumber) {
 
-        out.metadata.displayMIDINoteNumbersBlock = std::vector<uint8_t>(out.header.trackCount);
-
         for (uint8_t track = 0; track < out.header.trackCount; track++) {
-            out.metadata.displayMIDINoteNumbersBlock[track] = *it++;
+            out.metadata.tracks[track].displayMIDINoteNumbers = *it++;
         }
 
-        out.metadata.midiChannelBlock = std::vector<int8_t>(out.header.trackCount);
-
         for (uint8_t track = 0; track < out.header.trackCount; track++) {
-            out.metadata.midiChannelBlock[track] = static_cast<int8_t>(*it++);
+            out.metadata.tracks[track].midiChannel = static_cast<int8_t>(*it++);
         }
     }
 
-    out.metadata.topLineTextBlock = std::vector<uint8_t>(out.header.trackCount);
-
     for (uint8_t track = 0; track < out.header.trackCount; track++) {
-        out.metadata.topLineTextBlock[track] = *it++;
+        out.metadata.tracks[track].topLineText = *it++;
     }
 
-    out.metadata.bottomLineTextBlock = std::vector<uint8_t>(out.header.trackCount);
-
     for (uint8_t track = 0; track < out.header.trackCount; track++) {
-        out.metadata.bottomLineTextBlock[track] = *it++;
+        out.metadata.tracks[track].bottomLineText = *it++;
     }
 
 
     if (0x6b <= out.header.versionNumber) {
 
-        out.metadata.tuningBlock = std::vector<std::array<int8_t, 8> >(out.header.trackCount);
-
         for (uint8_t track = 0; track < out.header.trackCount; track++) {
             for (uint8_t string = 0; string < 8; string++) {
-                out.metadata.tuningBlock[track][string] = static_cast<int8_t>(*it++);
+                out.metadata.tracks[track].tuning[string] = static_cast<int8_t>(*it++);
             }
         }
 
     } else {
 
-        out.metadata.tuningBlockLE6a = std::vector<std::array<int8_t, 6> >(out.header.trackCount);
-
         for (uint8_t track = 0; track < out.header.trackCount; track++) {
             for (uint8_t string = 0; string < 6; string++) {
-                out.metadata.tuningBlockLE6a[track][string] = static_cast<int8_t>(*it++);
+                out.metadata.tracks[track].tuningLE6a[string] = static_cast<int8_t>(*it++);
             }
         }
     }
 
-    out.metadata.drumsBlock = std::vector<uint8_t>(out.header.trackCount);
-
     for (uint8_t track = 0; track < out.header.trackCount; track++) {
-        out.metadata.drumsBlock[track] = *it++;
+        out.metadata.tracks[track].drums = *it++;
     }
 
     if (0x6d <= out.header.versionNumber) {

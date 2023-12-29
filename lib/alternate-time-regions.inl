@@ -35,7 +35,7 @@ parseAlternateTimeRegionsMapList(
 
     for (uint8_t track = 0; track < out.header.trackCount; track++) {
 
-        uint32_t trackSpaceCount = out.metadata.spaceCountBlock[track];
+        uint32_t trackSpaceCount = out.metadata.tracks[track].spaceCount;
 
         std::vector<uint8_t> alternateTimeRegionsDeltaListAcc;
         uint32_t dsqCount = 0;
@@ -104,7 +104,7 @@ parseAlternateTimeRegionsMapList(
 
         alternateTimeRegionsCorrection = round(alternateTimeRegionsCorrection);
 
-        ASSERT(out.metadata.spaceCountBlock[track] == out.body.barsSpaceCountGE70 + static_cast<uint32_t>(alternateTimeRegionsCorrection / static_cast<double>(TICKS_PER_SPACE)));
+        ASSERT(out.metadata.tracks[track].spaceCount == out.body.barsSpaceCountGE70 + static_cast<uint32_t>(alternateTimeRegionsCorrection / static_cast<double>(TICKS_PER_SPACE)));
 
         out.body.alternateTimeRegionsMapList.push_back(alternateTimeRegionsMap);
     }
