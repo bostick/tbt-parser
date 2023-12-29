@@ -7,6 +7,9 @@ The .tbt TabIt file format is described here:
 * [The .tbt TabIt file format](https://github.com/bostick/tabit-file-format)
 
 
+All known versions of TabIt are handled.
+
+
 ## How to build
 
 tbt-parser depends on zlib and uses CMake for building.

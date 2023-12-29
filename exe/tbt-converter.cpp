@@ -96,25 +96,100 @@ int main(int argc, const char *argv[]) {
 
     LOGI("tbt file version: %s (0x%02x)", versionString.c_str(), header.versionNumber);
 
-    if (0x6d <= header.versionNumber) {
+    switch (header.versionNumber) {
+    case 0x72:
+    case 0x71: {
 
-        LOGI("title: %s", fromPascal2String(t.metadata.title).data());
+        auto t71 = *reinterpret_cast<tbt_file71 *>(t);
+        
+        LOGI("title: %s", fromPascal2String(t71.metadata.title).data());
 
-        LOGI("artist: %s", fromPascal2String(t.metadata.artist).data());
+        LOGI("artist: %s", fromPascal2String(t71.metadata.artist).data());
 
-        LOGI("album: %s", fromPascal2String(t.metadata.album).data());
+        LOGI("album: %s", fromPascal2String(t71.metadata.album).data());
 
-        LOGI("transcribed by: %s", fromPascal2String(t.metadata.transcribedBy).data());
+        LOGI("transcribed by: %s", fromPascal2String(t71.metadata.transcribedBy).data());
 
-        // LOGI("%s", fromPascal2String(t.metadata.comment).data());
+        // LOGI("%s", fromPascal2String(t72.metadata.comment).data());
+        
+        break;
+    }
+    case 0x70: {
+        
+        auto t70 = *reinterpret_cast<tbt_file70 *>(t);
+        
+        LOGI("title: %s", fromPascal2String(t70.metadata.title).data());
 
-    } else {
+        LOGI("artist: %s", fromPascal2String(t70.metadata.artist).data());
 
-        LOGI("title: %s", fromPascal2String(t.metadata.title).data());
+        LOGI("album: %s", fromPascal2String(t70.metadata.album).data());
 
-        LOGI("artist: %s", fromPascal2String(t.metadata.artist).data());
+        LOGI("transcribed by: %s", fromPascal2String(t70.metadata.transcribedBy).data());
 
-        // LOGI("%s", fromPascal2String(t.metadata.comment).data());
+        // LOGI("%s", fromPascal2String(t70.metadata.comment).data());
+        
+        break;
+    }
+    case 0x6f:
+    case 0x6e: {
+        
+        auto t6d = *reinterpret_cast<tbt_file6d *>(t);
+        
+        LOGI("title: %s", fromPascal2String(t6d.metadata.title).data());
+
+        LOGI("artist: %s", fromPascal2String(t6d.metadata.artist).data());
+
+        LOGI("album: %s", fromPascal2String(t6d.metadata.album).data());
+
+        LOGI("transcribed by: %s", fromPascal2String(t6d.metadata.transcribedBy).data());
+
+        // LOGI("%s", fromPascal2String(t6d.metadata.comment).data());
+        
+        break;
+    }
+    case 0x6b: {
+        
+        auto t6b = *reinterpret_cast<tbt_file6b *>(t);
+        
+        LOGI("title: %s", fromPascal1String(t6b.metadata.title).data());
+
+        LOGI("artist: %s", fromPascal1String(t6b.metadata.artist).data());
+
+        // LOGI("%s", fromPascal1String(t6b.metadata.comment).data());
+        
+        break;
+    }
+    case 0x6a: {
+        
+        auto t6a = *reinterpret_cast<tbt_file6a *>(t);
+        
+        LOGI("title: %s", fromPascal1String(t6a.metadata.title).data());
+
+        LOGI("artist: %s", fromPascal1String(t6a.metadata.artist).data());
+
+        // LOGI("%s", fromPascal1String(t6a.metadata.comment).data());
+        
+        break;
+    }
+    case 0x69:
+    case 0x68:
+    case 0x67:
+    case 0x66:
+    case 0x65: {
+        
+        auto t65 = *reinterpret_cast<tbt_file65 *>(t);
+        
+        LOGI("title: %s", fromPascal1String(t65.metadata.title).data());
+
+        LOGI("artist: %s", fromPascal1String(t65.metadata.artist).data());
+
+        // LOGI("%s", fromPascal1String(t65.metadata.comment).data());
+        
+        break;
+    }
+    default:
+        ASSERT(false);
+        break;
     }
 
     LOGI("exporting...");

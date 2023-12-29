@@ -45,7 +45,7 @@ struct tbt_header {
 
     uint16_t barCountGE70;
     uint16_t spaceCount6f;
-    uint16_t lastNonEmptySpaceLE6f;
+    uint16_t lastNonEmptySpace;
     uint16_t tempo2;
 
     uint32_t metadataLen;
@@ -56,7 +56,10 @@ struct tbt_header {
 
 static_assert(sizeof(tbt_header) == HEADER_SIZE, "size of tbt_header is not correct");
 
-struct tbt_track_metadata {
+
+#pragma pack(push, 1)
+
+struct tbt_track_metadata71 {
 
     uint32_t spaceCount;
 
@@ -87,12 +90,197 @@ struct tbt_track_metadata {
 
     // can be negative
     std::array<int8_t, 8> tuning;
-    std::array<int8_t, 6> tuningLE6a;
 
     uint8_t drums;
 };
 
-struct tbt_metadata {
+#pragma pack(pop)
+
+static_assert(sizeof(tbt_track_metadata71) == 30);
+
+#pragma pack(push, 1)
+
+struct tbt_track_metadata70 {
+
+    uint32_t spaceCount;
+
+    uint8_t stringCount;
+    uint8_t cleanGuitar;
+    uint8_t mutedGuitar;
+    uint8_t volume;
+
+    // can be negative
+    int8_t transposeHalfSteps;
+
+    uint8_t midiBank;
+    uint8_t reverb;
+    uint8_t chorus;
+    uint8_t pan;
+    uint8_t highestNote;
+    uint8_t displayMIDINoteNumbers;
+
+    // can be -1
+    int8_t midiChannel;
+
+    uint8_t topLineText;
+    uint8_t bottomLineText;
+
+    // can be negative
+    std::array<int8_t, 8> tuning;
+
+    uint8_t drums;
+};
+
+#pragma pack(pop)
+
+static_assert(sizeof(tbt_track_metadata70) == 27);
+
+#pragma pack(push, 1)
+
+struct tbt_track_metadata6d {
+
+    uint8_t stringCount;
+    uint8_t cleanGuitar;
+    uint8_t mutedGuitar;
+    uint8_t volume;
+
+    // can be negative
+    int8_t transposeHalfSteps;
+
+    uint8_t midiBank;
+    uint8_t reverb;
+    uint8_t chorus;
+    uint8_t pan;
+    uint8_t highestNote;
+    uint8_t displayMIDINoteNumbers;
+
+    // can be -1
+    int8_t midiChannel;
+
+    uint8_t topLineText;
+    uint8_t bottomLineText;
+
+    // can be negative
+    std::array<int8_t, 8> tuning;
+
+    uint8_t drums;
+};
+
+#pragma pack(pop)
+
+static_assert(sizeof(tbt_track_metadata6d) == 23);
+
+#pragma pack(push, 1)
+
+struct tbt_track_metadata6c {
+
+    uint8_t stringCount;
+    uint8_t cleanGuitar;
+    uint8_t mutedGuitar;
+    uint8_t volume;
+
+    uint8_t reverb;
+    uint8_t chorus;
+    uint8_t pan;
+    uint8_t highestNote;
+    uint8_t displayMIDINoteNumbers;
+
+    // can be -1
+    int8_t midiChannel;
+
+    uint8_t topLineText;
+    uint8_t bottomLineText;
+
+    // can be negative
+    std::array<int8_t, 8> tuning;
+
+    uint8_t drums;
+};
+
+#pragma pack(pop)
+
+static_assert(sizeof(tbt_track_metadata6c) == 21);
+
+#pragma pack(push, 1)
+
+struct tbt_track_metadata6b {
+
+    uint8_t stringCount;
+    uint8_t cleanGuitar;
+    uint8_t mutedGuitar;
+    uint8_t volume;
+
+    uint8_t pan;
+    uint8_t highestNote;
+    uint8_t displayMIDINoteNumbers;
+
+    // can be -1
+    int8_t midiChannel;
+
+    uint8_t topLineText;
+    uint8_t bottomLineText;
+
+    // can be negative
+    std::array<int8_t, 8> tuning;
+
+    uint8_t drums;
+};
+
+#pragma pack(pop)
+
+static_assert(sizeof(tbt_track_metadata6b) == 19);
+
+#pragma pack(push, 1)
+
+struct tbt_track_metadata6a {
+
+    uint8_t stringCount;
+    uint8_t cleanGuitar;
+    uint8_t mutedGuitar;
+    uint8_t volume;
+
+    uint8_t displayMIDINoteNumbers;
+
+    // can be -1
+    int8_t midiChannel;
+
+    uint8_t topLineText;
+    uint8_t bottomLineText;
+
+    // can be negative
+    std::array<int8_t, 6> tuning;
+
+    uint8_t drums;
+};
+
+#pragma pack(pop)
+
+static_assert(sizeof(tbt_track_metadata6a) == 15);
+
+#pragma pack(push, 1)
+
+struct tbt_track_metadata65 {
+
+    uint8_t stringCount;
+    uint8_t cleanGuitar;
+    uint8_t mutedGuitar;
+    uint8_t volume;
+
+    uint8_t topLineText;
+    uint8_t bottomLineText;
+
+    // can be negative
+    std::array<int8_t, 6> tuning;
+
+    uint8_t drums;
+};
+
+#pragma pack(pop)
+
+static_assert(sizeof(tbt_track_metadata65) == 13);
+
+
+struct tbt_metadata71 {
 
     // Pascal2 string
     std::vector<uint8_t> title;
@@ -105,7 +293,87 @@ struct tbt_metadata {
     // Pascal2 string
     std::vector<uint8_t> comment;
 
-    std::vector<tbt_track_metadata> tracks;
+    std::vector<tbt_track_metadata71> tracks;
+};
+
+struct tbt_metadata70 {
+
+    // Pascal2 string
+    std::vector<uint8_t> title;
+    // Pascal2 string
+    std::vector<uint8_t> artist;
+    // Pascal2 string
+    std::vector<uint8_t> album;
+    // Pascal2 string
+    std::vector<uint8_t> transcribedBy;
+    // Pascal2 string
+    std::vector<uint8_t> comment;
+
+    std::vector<tbt_track_metadata70> tracks;
+};
+
+struct tbt_metadata6d {
+
+    // Pascal2 string
+    std::vector<uint8_t> title;
+    // Pascal2 string
+    std::vector<uint8_t> artist;
+    // Pascal2 string
+    std::vector<uint8_t> album;
+    // Pascal2 string
+    std::vector<uint8_t> transcribedBy;
+    // Pascal2 string
+    std::vector<uint8_t> comment;
+
+    std::vector<tbt_track_metadata6d> tracks;
+};
+
+struct tbt_metadata6c {
+
+    // Pascal1 string
+    std::vector<uint8_t> title;
+    // Pascal1 string
+    std::vector<uint8_t> artist;
+    // Pascal1 string
+    std::vector<uint8_t> comment;
+
+    std::vector<tbt_track_metadata6c> tracks;
+};
+
+struct tbt_metadata6b {
+
+    // Pascal1 string
+    std::vector<uint8_t> title;
+    // Pascal1 string
+    std::vector<uint8_t> artist;
+    // Pascal1 string
+    std::vector<uint8_t> comment;
+
+    std::vector<tbt_track_metadata6b> tracks;
+};
+
+struct tbt_metadata6a {
+
+    // Pascal1 string
+    std::vector<uint8_t> title;
+    // Pascal1 string
+    std::vector<uint8_t> artist;
+    // Pascal1 string
+    std::vector<uint8_t> comment;
+
+    std::vector<tbt_track_metadata6a> tracks;
+};
+
+struct tbt_metadata65 {
+
+    // Pascal1 string
+    std::vector<uint8_t> title;
+    // Pascal1 string
+    std::vector<uint8_t> artist;
+    // Pascal1 string
+    std::vector<uint8_t> comment;
+
+    std::vector<tbt_track_metadata65> tracks;
 };
 
 enum tbt_track_effect : uint8_t {
@@ -126,25 +394,82 @@ struct tbt_track_effect_change {
     uint16_t value;
 };
 
-struct tbt_body {
-    std::unordered_map<uint32_t, std::array<uint8_t, 1> > barsMap;
-    std::unordered_map<uint32_t, std::array<uint8_t, 2> > barsMapGE70;
-    uint32_t barsSpaceCountGE70;
+struct tbt_body71 {
+    std::unordered_map<uint32_t, std::array<uint8_t, 2> > barsMap;
+    uint32_t barsSpaceCount;
     std::vector<std::unordered_map<uint32_t, std::array<uint8_t, 20> > > notesMapList;
     std::vector<std::unordered_map<uint32_t, std::array<uint8_t, 2> > > alternateTimeRegionsMapList;
     std::vector<std::unordered_map<uint32_t, std::vector<tbt_track_effect_change> > > trackEffectChangesMapList;
 };
 
-struct tbt_file {
+struct tbt_body70 {
+    std::unordered_map<uint32_t, std::array<uint8_t, 2> > barsMap;
+    uint32_t barsSpaceCount;
+    std::vector<std::unordered_map<uint32_t, std::array<uint8_t, 20> > > notesMapList;
+    std::vector<std::unordered_map<uint32_t, std::array<uint8_t, 2> > > alternateTimeRegionsMapList;
+};
+
+struct tbt_body6b {
+    std::unordered_map<uint32_t, std::array<uint8_t, 1> > barsMap;
+    std::vector<std::unordered_map<uint32_t, std::array<uint8_t, 20> > > notesMapList;
+};
+
+struct tbt_body65 {
+    std::unordered_map<uint32_t, std::array<uint8_t, 1> > barsMap;
+    std::vector<std::unordered_map<uint32_t, std::array<uint8_t, 16> > > notesMapList;
+};
+
+
+struct tbt_file71 {
     tbt_header header;
-    tbt_metadata metadata;
-    tbt_body body;
+    tbt_metadata71 metadata;
+    tbt_body71 body;
+};
+
+struct tbt_file70 {
+    tbt_header header;
+    tbt_metadata70 metadata;
+    tbt_body70 body;
+};
+
+struct tbt_file6d {
+    tbt_header header;
+    tbt_metadata6d metadata;
+    tbt_body6b body;
+};
+
+struct tbt_file6c {
+    tbt_header header;
+    tbt_metadata6c metadata;
+    tbt_body6b body;
+};
+
+struct tbt_file6b {
+    tbt_header header;
+    tbt_metadata6b metadata;
+    tbt_body6b body;
+};
+
+struct tbt_file6a {
+    tbt_header header;
+    tbt_metadata6a metadata;
+    tbt_body65 body;
+};
+
+struct tbt_file65 {
+    tbt_header header;
+    tbt_metadata65 metadata;
+    tbt_body65 body;
 };
 
 enum Status {
     OK,
     ERR
 };
+
+
+typedef void *tbt_file;
+
 
 Status parseTbtFile(const char *path, tbt_file *out);
 

@@ -25,12 +25,13 @@
 //
 
 
+template <uint8_t versionNumber, typename tbt_file_t>
 Status
 parseBarsMap(
     std::vector<uint8_t>::const_iterator &it,
-    tbt_file &out) {
+    tbt_file_t &out) {
 
-    if (0x70 <= out.header.versionNumber) {
+    if constexpr (0x70 <= versionNumber) {
 
         std::vector<uint8_t> data(it, it + out.header.barCountGE70 * 6);
         it += out.header.barCountGE70 * 6;
@@ -43,17 +44,17 @@ parseBarsMap(
             return ret;
         }
 
-        out.body.barsSpaceCountGE70 = 0;
+        out.body.barsSpaceCount = 0;
 
-        out.body.barsMapGE70.clear();
+        out.body.barsMap.clear();
 
         for (const std::array<uint8_t, 6> &part : parts) {
 
-            uint32_t space = out.body.barsSpaceCountGE70;
+            uint32_t space = out.body.barsSpaceCount;
 
-            out.body.barsSpaceCountGE70 += parseLE4(part.data());
+            out.body.barsSpaceCount += parseLE4(part.data());
 
-            out.body.barsMapGE70[space] = { part[4], part[5] };
+            out.body.barsMap[space] = { part[4], part[5] };
         }
 
         return OK;
@@ -61,7 +62,7 @@ parseBarsMap(
     } else {
 
         uint32_t barsSpaceCount;
-        if (out.header.versionNumber == 0x6f) {
+        if constexpr (versionNumber == 0x6f) {
             barsSpaceCount = out.header.spaceCount6f;
         } else {
             barsSpaceCount = 4000;
