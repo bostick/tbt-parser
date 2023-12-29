@@ -1134,7 +1134,7 @@ exportMidiBytes(
 
 Status
 exportMidiFile(
-    const tbt_file &t,
+    const tbt_file t,
     const char *path) {
 
     std::vector<uint8_t> midiBytes;

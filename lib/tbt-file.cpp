@@ -46,57 +46,6 @@
 
 
 Status
-parseTbtFile(
-    const char *path,
-    tbt_file *out) {
-    
-    FILE *file = fopen(path, "rb");
-
-    if (!file) {
-
-        LOGE("cannot open %s\n", path);
-
-        return ERR;
-    }
-
-    if (fseek(file, 0, SEEK_END)) {
-
-        LOGE("fseek failed");
-
-        return ERR;
-    }
-
-    long res = ftell(file);
-
-    if (res < 0) {
-
-        LOGE("ftell failed");
-
-        return ERR;
-    }
-
-    size_t len = static_cast<size_t>(res);
-
-    rewind(file);
-
-    auto buf = new uint8_t[len];
-
-    size_t r = fread(buf, sizeof(uint8_t), len, file);
-
-    if (r != len) {
-
-        LOGE("fread failed");
-
-        return ERR;
-    }
-
-    fclose(file);
-
-    return parseTbtBytes(buf, len, out);
-}
-
-
-Status
 parseTbtBytes(
     const uint8_t *data,
     size_t len,
@@ -260,6 +209,68 @@ parseTbtBytes(
     }
       
     return OK;
+}
+
+
+Status
+parseTbtFile(
+    const char *path,
+    tbt_file *out) {
+    
+    FILE *file = fopen(path, "rb");
+
+    if (!file) {
+
+        LOGE("cannot open %s\n", path);
+
+        return ERR;
+    }
+
+    if (fseek(file, 0, SEEK_END)) {
+
+        LOGE("fseek failed");
+
+        return ERR;
+    }
+
+    long res = ftell(file);
+
+    if (res < 0) {
+
+        LOGE("ftell failed");
+
+        return ERR;
+    }
+
+    size_t len = static_cast<size_t>(res);
+
+    rewind(file);
+
+    auto buf = new uint8_t[len];
+
+    size_t r = fread(buf, sizeof(uint8_t), len, file);
+
+    if (r != len) {
+
+        LOGE("fread failed");
+
+        return ERR;
+    }
+
+    fclose(file);
+
+    return parseTbtBytes(buf, len, out);
+}
+
+
+const tbt_header tbtFileHeader(const tbt_file t) {
+    return t.header;
+}
+
+
+void releaseTbtFile(tbt_file t) {
+
+
 }
 
 
