@@ -56,40 +56,43 @@ struct tbt_header {
 
 static_assert(sizeof(tbt_header) == HEADER_SIZE, "size of tbt_header is not correct");
 
-struct tbt_metadata {
+struct tbt_track_metadata {
 
-    std::vector<uint32_t> spaceCountBlock;
+    uint32_t spaceCount;
 
-    std::vector<uint8_t> stringCountBlock;
-    std::vector<uint8_t> cleanGuitarBlock;
-    std::vector<uint8_t> mutedGuitarBlock;
-    std::vector<uint8_t> volumeBlock;
-    std::vector<uint8_t> modulationBlock;
-
-    // can be negative
-    std::vector<int16_t> pitchBendBlock;
+    uint8_t stringCount;
+    uint8_t cleanGuitar;
+    uint8_t mutedGuitar;
+    uint8_t volume;
+    uint8_t modulation;
 
     // can be negative
-    std::vector<int8_t> transposeHalfStepsBlock;
+    int16_t pitchBend;
 
-    std::vector<uint8_t> midiBankBlock;
-    std::vector<uint8_t> reverbBlock;
-    std::vector<uint8_t> chorusBlock;
-    std::vector<uint8_t> panBlock;
-    std::vector<uint8_t> highestNoteBlock;
-    std::vector<uint8_t> displayMIDINoteNumbersBlock;
+    // can be negative
+    int8_t transposeHalfSteps;
+
+    uint8_t midiBank;
+    uint8_t reverb;
+    uint8_t chorus;
+    uint8_t pan;
+    uint8_t highestNote;
+    uint8_t displayMIDINoteNumbers;
 
     // can be -1
-    std::vector<int8_t> midiChannelBlock;
+    int8_t midiChannel;
 
-    std::vector<uint8_t> topLineTextBlock;
-    std::vector<uint8_t> bottomLineTextBlock;
+    uint8_t topLineText;
+    uint8_t bottomLineText;
 
     // can be negative
-    std::vector<std::array<int8_t, 8> > tuningBlock;
-    std::vector<std::array<int8_t, 6> > tuningBlockLE6a;
+    std::array<int8_t, 8> tuning;
+    std::array<int8_t, 6> tuningLE6a;
 
-    std::vector<uint8_t> drumsBlock;
+    uint8_t drums;
+};
+
+struct tbt_metadata {
 
     // Pascal2 string
     std::vector<uint8_t> title;
@@ -101,6 +104,8 @@ struct tbt_metadata {
     std::vector<uint8_t> transcribedBy;
     // Pascal2 string
     std::vector<uint8_t> comment;
+
+    std::vector<tbt_track_metadata> tracks;
 };
 
 enum tbt_track_effect : uint8_t {

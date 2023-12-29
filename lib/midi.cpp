@@ -61,7 +61,7 @@ computeChannelMap(
         
         for (uint8_t track = 0; track < t.header.trackCount; track++) {
 
-            if (t.metadata.midiChannelBlock[track] == -1) {
+            if (t.metadata.tracks[track].midiChannel == -1) {
                 continue;
             }
 
@@ -72,11 +72,11 @@ computeChannelMap(
                 std::remove(
                     availableChannels.begin(),
                     availableChannels.end(),
-                    t.metadata.midiChannelBlock[track]),
+                    t.metadata.tracks[track].midiChannel),
                 availableChannels.end()
             );
 
-            channelMap[track] = static_cast<uint8_t>(t.metadata.midiChannelBlock[track]);
+            channelMap[track] = static_cast<uint8_t>(t.metadata.tracks[track].midiChannel);
         }
     }
 
@@ -87,7 +87,7 @@ computeChannelMap(
     for (uint8_t track = 0; track < t.header.trackCount; track++) {
 
         if (0x6a <= t.header.versionNumber) {
-            if (t.metadata.midiChannelBlock[track] != -1) {
+            if (t.metadata.tracks[track].midiChannel != -1) {
                 continue;
             }
         }
@@ -197,7 +197,7 @@ computeTempoMap(
 
         uint32_t trackSpaceCount;
         if (0x70 <= t.header.versionNumber) {
-            trackSpaceCount = t.metadata.spaceCountBlock[track];
+            trackSpaceCount = t.metadata.tracks[track].spaceCount;
         } else if (t.header.versionNumber == 0x6f) {
             trackSpaceCount = t.header.spaceCount6f;
         } else {
@@ -407,13 +407,13 @@ exportMidiBytes(
         const auto &notesMap = t.body.notesMapList[track];
 
         uint8_t channel = channelMap[track];
-        uint8_t volume = t.metadata.volumeBlock[track];
-        bool dontLetRing = ((t.metadata.cleanGuitarBlock[track] & 0b10000000) == 0b10000000);
-        uint8_t midiProgram = (t.metadata.cleanGuitarBlock[track] & 0b01111111);
+        uint8_t volume = t.metadata.tracks[track].volume;
+        bool dontLetRing = ((t.metadata.tracks[track].cleanGuitar & 0b10000000) == 0b10000000);
+        uint8_t midiProgram = (t.metadata.tracks[track].cleanGuitar & 0b01111111);
 
         uint8_t pan;
         if (0x6b <= t.header.versionNumber) {
-            pan = t.metadata.panBlock[track];
+            pan = t.metadata.tracks[track].pan;
         } else {
             pan = 0x40; // 64
         }
@@ -422,8 +422,8 @@ exportMidiBytes(
         uint8_t chorus;
         if (0x6c <= t.header.versionNumber) {
             
-            reverb = t.metadata.reverbBlock[track];
-            chorus = t.metadata.chorusBlock[track];
+            reverb = t.metadata.tracks[track].reverb;
+            chorus = t.metadata.tracks[track].chorus;
             
         } else {
             
@@ -435,8 +435,8 @@ exportMidiBytes(
         int16_t pitchBend;
         if (0x71 <= t.header.versionNumber) {
             
-            modulation = t.metadata.modulationBlock[track];
-            pitchBend = t.metadata.pitchBendBlock[track]; // -2400 to 2400
+            modulation = t.metadata.tracks[track].modulation;
+            pitchBend = t.metadata.tracks[track].pitchBend; // -2400 to 2400
             
         } else {
             
@@ -514,7 +514,7 @@ exportMidiBytes(
 
         uint32_t trackSpaceCount;
         if (0x70 <= t.header.versionNumber) {
-            trackSpaceCount = t.metadata.spaceCountBlock[track];
+            trackSpaceCount = t.metadata.tracks[track].spaceCount;
         } else if (t.header.versionNumber == 0x6f) {
             trackSpaceCount = t.header.spaceCount6f;
         } else {
@@ -533,7 +533,7 @@ exportMidiBytes(
 
                     const auto &onVsqs = notesMapIt->second;
 
-                    uint8_t stringCount = t.metadata.stringCountBlock[track];
+                    uint8_t stringCount = t.metadata.tracks[track].stringCount;
 
                     std::array<uint8_t, 8> offVsqs{};
 
@@ -654,13 +654,13 @@ exportMidiBytes(
                         uint8_t stringNote = off - 0x80;
 
                         if (0x6b <= t.header.versionNumber) {
-                            stringNote += static_cast<uint8_t>(t.metadata.tuningBlock[track][string]);
+                            stringNote += static_cast<uint8_t>(t.metadata.tracks[track].tuning[string]);
                         } else {
-                            stringNote += static_cast<uint8_t>(t.metadata.tuningBlockLE6a[track][string]);
+                            stringNote += static_cast<uint8_t>(t.metadata.tracks[track].tuningLE6a[string]);
                         }
 
                         if (0x6d <= t.header.versionNumber) {
-                            stringNote += static_cast<uint8_t>(t.metadata.transposeHalfStepsBlock[track]);
+                            stringNote += static_cast<uint8_t>(t.metadata.tracks[track].transposeHalfSteps);
                         }
                         
                         uint8_t midiNote = stringNote + STRING_MIDI_NOTE[string];
@@ -986,7 +986,7 @@ exportMidiBytes(
 
                     const auto &onVsqs = notesMapIt->second;
 
-                    uint8_t stringCount = t.metadata.stringCountBlock[track];
+                    uint8_t stringCount = t.metadata.tracks[track].stringCount;
                     
                     for (uint8_t string = 0; string < stringCount; string++) {
 
@@ -1003,13 +1003,13 @@ exportMidiBytes(
                         uint8_t stringNote = on - 0x80;
                         
                         if (0x6b <= t.header.versionNumber) {
-                            stringNote += static_cast<uint8_t>(t.metadata.tuningBlock[track][string]);
+                            stringNote += static_cast<uint8_t>(t.metadata.tracks[track].tuning[string]);
                         } else {
-                            stringNote += static_cast<uint8_t>(t.metadata.tuningBlockLE6a[track][string]);
+                            stringNote += static_cast<uint8_t>(t.metadata.tracks[track].tuningLE6a[string]);
                         }
                         
                         if (0x6d <= t.header.versionNumber) {
-                            stringNote += static_cast<uint8_t>(t.metadata.transposeHalfStepsBlock[track]);
+                            stringNote += static_cast<uint8_t>(t.metadata.tracks[track].transposeHalfSteps);
                         }
 
                         uint8_t midiNote = stringNote + STRING_MIDI_NOTE[string];
@@ -1077,7 +1077,7 @@ exportMidiBytes(
         {
             std::array<uint8_t, 8> offVsqs = currentlyPlayingStrings;
 
-            for (uint8_t string = 0; string < t.metadata.stringCountBlock[track]; string++) {
+            for (uint8_t string = 0; string < t.metadata.tracks[track].stringCount; string++) {
 
                 uint8_t off = offVsqs[string];
 
@@ -1090,13 +1090,13 @@ exportMidiBytes(
                 uint8_t stringNote = off - 0x80;
 
                 if (0x6b <= t.header.versionNumber) {
-                    stringNote += static_cast<uint8_t>(t.metadata.tuningBlock[track][string]);
+                    stringNote += static_cast<uint8_t>(t.metadata.tracks[track].tuning[string]);
                 } else {
-                    stringNote += static_cast<uint8_t>(t.metadata.tuningBlockLE6a[track][string]);
+                    stringNote += static_cast<uint8_t>(t.metadata.tracks[track].tuningLE6a[string]);
                 }
 
                 if (0x6d <= t.header.versionNumber) {
-                    stringNote += static_cast<uint8_t>(t.metadata.transposeHalfStepsBlock[track]);
+                    stringNote += static_cast<uint8_t>(t.metadata.tracks[track].transposeHalfSteps);
                 }
 
                 uint8_t midiNote = stringNote + STRING_MIDI_NOTE[string];
