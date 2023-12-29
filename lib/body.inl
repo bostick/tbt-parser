@@ -36,14 +36,7 @@ parseBody(
 
     Status ret;
 
-    if (0x70 <= out.header.versionNumber) {
-
-        ret = parseBarsMapGE70(it, out);
-
-    } else {
-
-        ret = parseBarsMap(it, out);
-    }
+    ret = parseBarsMap(it, out);
 
     if (ret != OK) {
         return ret;

@@ -26,81 +26,77 @@
 
 
 Status
-parseBarsMapGE70(
-    std::vector<uint8_t>::const_iterator &it,
-    tbt_file &out) {
-
-    std::vector<uint8_t> data(it, it + out.header.barCountGE70 * 6);
-    it += out.header.barCountGE70 * 6;
-
-    std::vector<std::array<uint8_t, 6> > parts;
-
-    Status ret = partitionInto<6>(data, parts);
-
-    if (ret != OK) {
-        return ret;
-    }
-
-    out.body.barsSpaceCountGE70 = 0;
-
-    out.body.barsMapGE70.clear();
-
-    for (const std::array<uint8_t, 6> &part : parts) {
-
-        uint32_t space = out.body.barsSpaceCountGE70;
-
-        out.body.barsSpaceCountGE70 += parseLE4(part.data());
-
-        out.body.barsMapGE70[space] = { part[4], part[5] };
-    }
-
-    return OK;
-}
-
-
-Status
 parseBarsMap(
     std::vector<uint8_t>::const_iterator &it,
     tbt_file &out) {
 
-    ASSERT(out.header.versionNumber <= 0x6f);
+    if (0x70 <= out.header.versionNumber) {
 
-    uint32_t barsSpaceCount;
-    if (out.header.versionNumber == 0x6f) {
-        barsSpaceCount = out.header.spaceCount6f;
-    } else {
-        barsSpaceCount = 4000;
-    }
+        std::vector<uint8_t> data(it, it + out.header.barCountGE70 * 6);
+        it += out.header.barCountGE70 * 6;
 
-    std::vector<uint8_t> barsDeltaListAcc;
-    uint32_t sqCount = 0;
+        std::vector<std::array<uint8_t, 6> > parts;
 
-    while (true) {
-
-        std::vector<uint8_t> deltaList = parseDeltaListChunk(it);
-
-        barsDeltaListAcc.insert(barsDeltaListAcc.end(), deltaList.cbegin(), deltaList.cend());
-
-        Status ret = computeDeltaListCount(deltaList, &sqCount);
+        Status ret = partitionInto<6>(data, parts);
 
         if (ret != OK) {
             return ret;
         }
 
-        ASSERT(sqCount <= barsSpaceCount);
+        out.body.barsSpaceCountGE70 = 0;
 
-        if (sqCount == barsSpaceCount) {
-            break;
+        out.body.barsMapGE70.clear();
+
+        for (const std::array<uint8_t, 6> &part : parts) {
+
+            uint32_t space = out.body.barsSpaceCountGE70;
+
+            out.body.barsSpaceCountGE70 += parseLE4(part.data());
+
+            out.body.barsMapGE70[space] = { part[4], part[5] };
         }
+
+        return OK;
+
+    } else {
+
+        uint32_t barsSpaceCount;
+        if (out.header.versionNumber == 0x6f) {
+            barsSpaceCount = out.header.spaceCount6f;
+        } else {
+            barsSpaceCount = 4000;
+        }
+
+        std::vector<uint8_t> barsDeltaListAcc;
+        uint32_t sqCount = 0;
+
+        while (true) {
+
+            std::vector<uint8_t> deltaList = parseDeltaListChunk(it);
+
+            barsDeltaListAcc.insert(barsDeltaListAcc.end(), deltaList.cbegin(), deltaList.cend());
+
+            Status ret = computeDeltaListCount(deltaList, &sqCount);
+
+            if (ret != OK) {
+                return ret;
+            }
+
+            ASSERT(sqCount <= barsSpaceCount);
+
+            if (sqCount == barsSpaceCount) {
+                break;
+            }
+        }
+
+        Status ret = expandDeltaList<1>(barsDeltaListAcc, barsSpaceCount, 0, out.body.barsMap);
+
+        if (ret != OK) {
+            return ret;
+        }
+
+        return OK;
     }
-
-    Status ret = expandDeltaList<1>(barsDeltaListAcc, barsSpaceCount, 0, out.body.barsMap);
-
-    if (ret != OK) {
-        return ret;
-    }
-
-    return OK;
 }
 
 
