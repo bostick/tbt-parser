@@ -25,7 +25,6 @@ set(CPP_LIB_SOURCES
     body.cpp
     metadata.cpp
     midi.cpp
-    notes.cpp
     tbt-file.cpp
     tbt-parser-util.cpp
 )

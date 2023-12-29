@@ -18,7 +18,6 @@
 
 #include "tbt-parser/body.h"
 
-#include "tbt-parser/notes.h"
 #include "tbt-parser/midi.h"
 #include "tbt-parser/tbt-parser-util.h"
 
@@ -31,6 +30,7 @@
 #include "alternate-time-regions.inl"
 #include "bars.inl"
 #include "track-effect-changes.inl"
+#include "notes.inl"
 
 
 #define TAG "body"
