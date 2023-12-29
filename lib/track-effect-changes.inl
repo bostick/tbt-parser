@@ -25,10 +25,11 @@
 //
 
 
+template <uint8_t VERSION, typename tbt_file_t>
 Status
 parseTrackEffectChangesMapList(
     std::vector<uint8_t>::const_iterator &it,
-    tbt_file &out) {
+    tbt_file_t &out) {
 
     out.body.trackEffectChangesMapList.clear();
     out.body.trackEffectChangesMapList.reserve(out.header.trackCount);

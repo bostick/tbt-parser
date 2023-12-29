@@ -25,10 +25,11 @@
 //
 
 
+template <uint8_t VERSION, typename tbt_file_t, size_t STRINGS_PER_TRACK>
 Status
 parseNotesMapList(
     std::vector<uint8_t>::const_iterator &it,
-    tbt_file &out) {
+    tbt_file_t &out) {
 
     out.body.notesMapList.clear();
     out.body.notesMapList.reserve(out.header.trackCount);
@@ -36,10 +37,10 @@ parseNotesMapList(
     for (uint8_t track = 0; track < out.header.trackCount; track++) {
 
         uint32_t trackSpaceCount;
-        if (0x70 <= out.header.versionNumber) {
+        if constexpr (0x70 <= VERSION) {
             trackSpaceCount = out.metadata.tracks[track].spaceCount;
-        } else if (out.header.versionNumber == 0x6f) {
-            trackSpaceCount = out.header.spaceCount6f;
+        } else if constexpr (VERSION == 0x6f) {
+            trackSpaceCount = out.header.spaceCount;
         } else {
             trackSpaceCount = 4000;
         }
@@ -59,16 +60,16 @@ parseNotesMapList(
                 return ret;
             }
 
-            ASSERT(vsqCount <= 20 * trackSpaceCount);
+            ASSERT(vsqCount <= (STRINGS_PER_TRACK + STRINGS_PER_TRACK + 4) * trackSpaceCount);
 
-            if (vsqCount == 20 * trackSpaceCount) {
+            if (vsqCount == (STRINGS_PER_TRACK + STRINGS_PER_TRACK + 4) * trackSpaceCount) {
                 break;
             }
         }
 
-        std::unordered_map<uint32_t, std::array<uint8_t, 20> > notesMap;
+        std::unordered_map<uint32_t, std::array<uint8_t, STRINGS_PER_TRACK + STRINGS_PER_TRACK + 4> > notesMap;
 
-        Status ret = expandDeltaList<20>(notesDeltaListAcc, vsqCount, 0, notesMap);
+        Status ret = expandDeltaList<STRINGS_PER_TRACK + STRINGS_PER_TRACK + 4>(notesDeltaListAcc, vsqCount, 0, notesMap);
 
         if (ret != OK) {
             return ret;

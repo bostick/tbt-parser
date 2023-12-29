@@ -25,10 +25,11 @@
 //
 
 
+template <uint8_t VERSION, typename tbt_file_t>
 Status
 parseAlternateTimeRegionsMapList(
     std::vector<uint8_t>::const_iterator &it,
-    tbt_file &out) {
+    tbt_file_t &out) {
 
     out.body.alternateTimeRegionsMapList.clear();
     out.body.alternateTimeRegionsMapList.reserve(out.header.trackCount);
@@ -104,7 +105,7 @@ parseAlternateTimeRegionsMapList(
 
         alternateTimeRegionsCorrection = round(alternateTimeRegionsCorrection);
 
-        ASSERT(out.metadata.tracks[track].spaceCount == out.body.barsSpaceCountGE70 + static_cast<uint32_t>(alternateTimeRegionsCorrection / static_cast<double>(TICKS_PER_SPACE)));
+        ASSERT(out.metadata.tracks[track].spaceCount == out.body.barsSpaceCount + static_cast<uint32_t>(alternateTimeRegionsCorrection / static_cast<double>(TICKS_PER_SPACE)));
 
         out.body.alternateTimeRegionsMapList.push_back(alternateTimeRegionsMap);
     }

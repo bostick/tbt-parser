@@ -358,6 +358,17 @@ std::vector<uint8_t> toVLQ(uint32_t value) {
 }
 
 
+std::string fromPascal1String(std::vector<uint8_t> data) {
+    
+    uint8_t len = *(data.data() + 0);
+
+    std::vector<char> cstrData(data.data() + 1, data.data() + 1 + len + 1);
+
+    cstrData[len] = '\0';
+
+    return { cstrData.data() };
+}
+
 std::string fromPascal2String(std::vector<uint8_t> data) {
     
     uint16_t len = parseLE2(data.data());
