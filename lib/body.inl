@@ -16,24 +16,13 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#include "tbt-parser/body.h"
-
-#include "tbt-parser/midi.h"
-#include "tbt-parser/tbt-parser-util.h"
-
-#include "common/assert.h"
-
-
-#include "splitat.inl"
-#include "partitioninto.inl"
-#include "expanddeltalist.inl"
-#include "alternate-time-regions.inl"
-#include "bars.inl"
-#include "track-effect-changes.inl"
-#include "notes.inl"
-
 
 #define TAG "body"
+
+
+//
+// https://bostick.github.io/tabit-file-format/description/tabit-file-format-description.html#body
+//
 
 
 Status
@@ -41,10 +30,6 @@ parseBody(
     std::vector<uint8_t>::const_iterator &it,
     const tbt_file &t,
     tbt_body *out) {
-
-    //
-    // https://bostick.github.io/tabit-file-format/description/tabit-file-format-description.html#body
-    //
     
     //
     // parse bars
@@ -107,6 +92,7 @@ parseBody(
 }
 
 
+#undef TAG
 
 
 

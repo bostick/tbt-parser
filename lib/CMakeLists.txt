@@ -22,7 +22,6 @@ set(ZLIB_USE_STATIC_LIBS ON)
 find_package(ZLIB REQUIRED)
 
 set(CPP_LIB_SOURCES
-    body.cpp
     metadata.cpp
     midi.cpp
     tbt-file.cpp
