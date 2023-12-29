@@ -28,19 +28,18 @@
 Status
 parseNotesMapList(
     std::vector<uint8_t>::const_iterator &it,
-    const tbt_file &t,
-    std::vector<std::unordered_map<uint32_t, std::array<uint8_t, 20> > > &notesMapList) {
+    tbt_file &out) {
 
-    notesMapList.clear();
-    notesMapList.reserve(t.header.trackCount);
+    out.body.notesMapList.clear();
+    out.body.notesMapList.reserve(out.header.trackCount);
 
-    for (uint8_t track = 0; track < t.header.trackCount; track++) {
+    for (uint8_t track = 0; track < out.header.trackCount; track++) {
 
         uint32_t trackSpaceCount;
-        if (0x70 <= t.header.versionNumber) {
-            trackSpaceCount = t.metadata.spaceCountBlock[track];
-        } else if (t.header.versionNumber == 0x6f) {
-            trackSpaceCount = t.header.spaceCount6f;
+        if (0x70 <= out.header.versionNumber) {
+            trackSpaceCount = out.metadata.spaceCountBlock[track];
+        } else if (out.header.versionNumber == 0x6f) {
+            trackSpaceCount = out.header.spaceCount6f;
         } else {
             trackSpaceCount = 4000;
         }
@@ -75,7 +74,7 @@ parseNotesMapList(
             return ret;
         }
 
-        notesMapList.push_back(notesMap);
+        out.body.notesMapList.push_back(notesMap);
     }
 
     return OK;

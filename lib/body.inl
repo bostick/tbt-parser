@@ -28,8 +28,7 @@
 Status
 parseBody(
     std::vector<uint8_t>::const_iterator &it,
-    const tbt_file &t,
-    tbt_body *out) {
+    tbt_file &out) {
 
     //
     // parse bars
@@ -37,13 +36,13 @@ parseBody(
 
     Status ret;
 
-    if (0x70 <= t.header.versionNumber) {
+    if (0x70 <= out.header.versionNumber) {
 
-        ret = parseBarsMapGE70(it, t, out->barsMapGE70, &out->barsSpaceCountGE70);
+        ret = parseBarsMapGE70(it, out);
 
     } else {
 
-        ret = parseBarsMap(it, t, out->barsMap);
+        ret = parseBarsMap(it, out);
     }
 
     if (ret != OK) {
@@ -54,7 +53,7 @@ parseBody(
     // parse notes
     //
 
-    ret = parseNotesMapList(it, t, out->notesMapList);
+    ret = parseNotesMapList(it, out);
 
     if (ret != OK) {
         return ret;
@@ -64,11 +63,11 @@ parseBody(
     // parse alternate time regions
     //
 
-    bool hasAlternateTimeRegions = ((t.header.featureBitfield & 0b00010000) == 0b00010000);
+    bool hasAlternateTimeRegions = ((out.header.featureBitfield & 0b00010000) == 0b00010000);
 
     if (hasAlternateTimeRegions) {
 
-        ret = parseAlternateTimeRegionsMapList(it, t, out->alternateTimeRegionsMapList);
+        ret = parseAlternateTimeRegionsMapList(it, out);
 
         if (ret != OK) {
             return ret;
@@ -79,9 +78,9 @@ parseBody(
     // parse track effect changes
     //
 
-    if (0x71 <= t.header.versionNumber) {
+    if (0x71 <= out.header.versionNumber) {
 
-        ret = parseTrackEffectChangesMapList(it, t, out->trackEffectChangesMapList);
+        ret = parseTrackEffectChangesMapList(it, out);
 
         if (ret != OK) {
             return ret;
