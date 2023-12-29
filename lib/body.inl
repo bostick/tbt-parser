@@ -56,14 +56,17 @@ parseBody(
     // parse alternate time regions
     //
 
-    bool hasAlternateTimeRegions = ((out.header.featureBitfield & 0b00010000) == 0b00010000);
+    if (0x70 <= out.header.versionNumber) {
 
-    if (hasAlternateTimeRegions) {
+        bool hasAlternateTimeRegions = ((out.header.featureBitfield & 0b00010000) == 0b00010000);
 
-        ret = parseAlternateTimeRegionsMapList(it, out);
+        if (hasAlternateTimeRegions) {
 
-        if (ret != OK) {
-            return ret;
+            ret = parseAlternateTimeRegionsMapList(it, out);
+
+            if (ret != OK) {
+                return ret;
+            }
         }
     }
 

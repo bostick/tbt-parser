@@ -158,56 +158,156 @@ parseTbtBytes(
     // parse metadata
     //
     {
-        out.metadata.tracks = std::vector<tbt_track_metadata>(out.header.trackCount);
+        if (0x6e <= out.header.versionNumber) {
 
-        auto metadataToInflate = std::vector<uint8_t>(
+            if (0x71 <= out.header.versionNumber) {
+
+                out.metadata.tracks = std::vector<tbt_track_metadata>(out.header.trackCount);
+
+            } else if (0x70 <= out.header.versionNumber) {
+
+                out.metadata.tracks = std::vector<tbt_track_metadata>(out.header.trackCount);
+
+            } else {
+
+                out.metadata.tracks = std::vector<tbt_track_metadata>(out.header.trackCount);
+            }
+
+            auto metadataToInflate = std::vector<uint8_t>(
                 data + HEADER_SIZE,
                 data + HEADER_SIZE + out.header.metadataLen);
 
-        std::vector<uint8_t> metadataToParse;
+            std::vector<uint8_t> metadataToParse;
 
-        Status ret = zlib_inflate(metadataToInflate, metadataToParse);
+            Status ret = zlib_inflate(metadataToInflate, metadataToParse);
 
-        if (ret != OK) {
-            return ret;
+            if (ret != OK) {
+                return ret;
+            }
+
+            auto it = metadataToParse.cbegin();
+
+            ret = parseMetadata(it, out);
+
+            if (ret != OK) {
+                return ret;
+            }
+
+            ASSERT(it == metadataToParse.end());
+
+        } else {
+
+            uint32_t metadataLen;
+
+            if (out.header.versionNumber == 0x6d) {
+
+                metadataLen = out.header.metadataLen;
+
+                out.metadata.tracks = std::vector<tbt_track_metadata>(out.header.trackCount);
+
+            } else if (out.header.versionNumber == 0x6c) {
+
+                metadataLen = out.header.metadataLen;
+
+                out.metadata.tracks = std::vector<tbt_track_metadata>(out.header.trackCount);
+
+            } else if (out.header.versionNumber == 0x6b) {
+
+                metadataLen = out.header.metadataLen;
+
+                out.metadata.tracks = std::vector<tbt_track_metadata>(out.header.trackCount);
+
+            } else if (out.header.versionNumber == 0x6a) {
+
+                metadataLen = out.header.metadataLen;
+
+                out.metadata.tracks = std::vector<tbt_track_metadata>(out.header.trackCount);
+
+            } else {
+
+                metadataLen = out.header.metadataLen;
+
+                out.metadata.tracks = std::vector<tbt_track_metadata>(out.header.trackCount);
+            }
+
+            auto metadataToInflate = std::vector<uint8_t>(
+                data + HEADER_SIZE,
+                data + HEADER_SIZE + out.header.metadataLen);
+
+            std::vector<uint8_t> metadataToParse;
+
+            Status ret = zlib_inflate(metadataToInflate, metadataToParse);
+
+            if (ret != OK) {
+                return ret;
+            }
+
+            auto it = metadataToParse.cbegin();
+
+            ret = parseMetadata(it, out);
+
+            if (ret != OK) {
+                return ret;
+            }
+
+            ASSERT(it == metadataToParse.end());
         }
-
-        auto it = metadataToParse.cbegin();
-
-        ret = parseMetadata(it, out);
-
-        if (ret != OK) {
-            return ret;
-        }
-
-        ASSERT(it == metadataToParse.end());
     }
 
     //
     // parse body
     //
     {
-        auto bodyToInflate = std::vector<uint8_t>(
+        if (0x6e <= out.header.versionNumber) {
+
+            auto bodyToInflate = std::vector<uint8_t>(
                 data + HEADER_SIZE + out.header.metadataLen,
                 data + len);
 
-        std::vector<uint8_t> bodyToParse;
+            Status ret;
 
-        Status ret = zlib_inflate(bodyToInflate, bodyToParse);
+            std::vector<uint8_t> bodyToParse;
+            ret = zlib_inflate(bodyToInflate, bodyToParse);
 
-        if (ret != OK) {
-            return ret;
+            if (ret != OK) {
+                return ret;
+            }
+
+            auto it = bodyToParse.cbegin();
+
+            ret = parseBody(it, out);
+
+            if (ret != OK) {
+                return ret;
+            }
+
+            ASSERT(it == bodyToParse.end());
+
+        } else {
+
+            auto bodyToInflate = std::vector<uint8_t>(
+                data + HEADER_SIZE + out.header.metadataLen,
+                data + len);
+
+            Status ret;
+
+            std::vector<uint8_t> bodyToParse;
+            ret = zlib_inflate(bodyToInflate, bodyToParse);
+
+            if (ret != OK) {
+                return ret;
+            }
+
+            auto it = bodyToParse.cbegin();
+
+            ret = parseBody(it, out);
+
+            if (ret != OK) {
+                return ret;
+            }
+
+            ASSERT(it == bodyToParse.end());
         }
-
-        auto it = bodyToParse.cbegin();
-
-        ret = parseBody(it, out);
-
-        if (ret != OK) {
-            return ret;
-        }
-
-        ASSERT(it == bodyToParse.end());
     }
       
     return OK;
