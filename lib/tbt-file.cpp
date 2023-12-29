@@ -71,6 +71,38 @@ parseTbtBytes(
         return ERR;
     }
 
+    if constexpr (0x67 < versionNumber) {
+
+        auto restToCheck = std::vector<uint8_t>(data + HEADER_SIZE, data + len);
+        
+        if (len != out.header.totalByteCount) {
+
+            LOGE("parseTBT: bad byte count. expected: %" PRIu32 " actual: %zu", out.header.totalByteCount, len);
+
+            return ERR;
+        }
+        
+        auto crc32Rest = crc32_checksum(restToCheck);
+        
+        if (crc32Rest != out.header.crc32Rest) {
+
+            LOGE("parseTBT: bad crc32Rest. expected: %" PRIu32 " actual: %" PRIu32,  out.header.crc32Rest, crc32Rest);
+
+            return ERR;
+        }
+
+        auto headerToCheck = std::vector<uint8_t>(data + 0, data + HEADER_SIZE - 4);
+
+        auto crc32Header = crc32_checksum(headerToCheck);
+
+        if (crc32Header != out.header.crc32Header) {
+
+            LOGE("parseTBT: bad crc32Header. expected: %" PRIu32 " actual: %" PRIu32, out.header.crc32Header, crc32Header);
+
+            return ERR;
+        }
+    }
+    
     if (!(out.header.versionString[0] == 3 || out.header.versionString[0] == 4)) {
 
         LOGE("parseTBT: versionString is weird");
@@ -107,38 +139,6 @@ parseTbtBytes(
         if (32000 < out.header.barCountGE70) {
 
             LOGE("parseTBT: Unable to load the file because it contains more bars than this version of TabIt supports");
-
-            return ERR;
-        }
-    }
-
-    if constexpr (0x67 < versionNumber) {
-
-        auto restToCheck = std::vector<uint8_t>(data + HEADER_SIZE, data + len);
-
-        auto crc32Rest = crc32_checksum(restToCheck);
-
-        if (crc32Rest != out.header.crc32Rest) {
-
-            LOGE("parseTBT: bad crc32Rest. expected: %" PRIu32 " actual: %" PRIu32,  out.header.crc32Rest, crc32Rest);
-
-            return ERR;
-        }
-
-        if (len != out.header.totalByteCount) {
-
-            LOGE("parseTBT: bad byte count. expected: %" PRIu32 " actual: %zu", out.header.totalByteCount, len);
-
-            return ERR;
-        }
-
-        auto headerToCheck = std::vector<uint8_t>(data + 0, data + HEADER_SIZE - 4);
-
-        auto crc32Header = crc32_checksum(headerToCheck);
-
-        if (crc32Header != out.header.crc32Header) {
-
-            LOGE("parseTBT: bad crc32Header. expected: %" PRIu32 " actual: %" PRIu32, out.header.crc32Header, crc32Header);
 
             return ERR;
         }
