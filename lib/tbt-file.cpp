@@ -24,7 +24,8 @@
 #include "tbt-parser/metadata.h"
 #include "tbt-parser/tbt-parser-util.h"
 
-#include "common/common.h"
+#include "common/assert.h"
+#include "common/logging.h"
 
 #include <cinttypes>
 #include <cstring>

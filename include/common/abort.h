@@ -18,40 +18,10 @@
 
 #pragma once
 
-#include "tbt-parser.h"
+#include "common/logging.h"
 
-#include <string>
-
-
-uint16_t parseLE2(std::vector<uint8_t>::const_iterator &it);
-uint16_t parseLE2(const uint8_t *data);
-uint32_t parseLE4(std::vector<uint8_t>::const_iterator &it);
-uint32_t parseLE4(const uint8_t *data);
-
-std::vector<uint8_t> readPascal2String(std::vector<uint8_t>::const_iterator &it);
-
-std::vector<uint8_t> parseDeltaListChunk(std::vector<uint8_t>::const_iterator &it);
-std::vector<uint8_t> parseChunk4(std::vector<uint8_t>::const_iterator &it);
-
-uint32_t crc32_checksum(const std::vector<uint8_t> &data);
-
-Status zlib_inflate(const std::vector<uint8_t> &data, std::vector<uint8_t> &acc);
-
-Status computeDeltaListCount(const std::vector<uint8_t> &deltaList, uint32_t *acc);
-
-std::array<uint8_t, 4> toDigitsBE(uint32_t value);
-
-std::vector<uint8_t> toVLQ(uint32_t value);
-
-std::string fromPascal2String(std::vector<uint8_t> data);
-
-
-
-
-
-
-
-
-
-
-
+#define ABORT(msg, ...) \
+   do { \
+      LOGE(msg __VA_OPT__(,) __VA_ARGS__); \
+      *((volatile char*)0) = 'a'; \
+   } while (0)
