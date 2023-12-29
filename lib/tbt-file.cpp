@@ -20,7 +20,6 @@
 
 #include "tbt-parser.h"
 
-#include "tbt-parser/metadata.h"
 #include "tbt-parser/midi.h"
 #include "tbt-parser/tbt-parser-util.h"
 
@@ -35,6 +34,7 @@
 #include "splitat.inl"
 #include "partitioninto.inl"
 #include "expanddeltalist.inl"
+#include "metadata.inl"
 #include "alternate-time-regions.inl"
 #include "bars.inl"
 #include "track-effect-changes.inl"
