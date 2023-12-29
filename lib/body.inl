@@ -30,7 +30,7 @@ parseBody(
     std::vector<uint8_t>::const_iterator &it,
     const tbt_file &t,
     tbt_body *out) {
-    
+
     //
     // parse bars
     //
