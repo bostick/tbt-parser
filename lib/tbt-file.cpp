@@ -20,8 +20,8 @@
 
 #include "tbt-parser.h"
 
-#include "tbt-parser/body.h"
 #include "tbt-parser/metadata.h"
+#include "tbt-parser/midi.h"
 #include "tbt-parser/tbt-parser-util.h"
 
 #include "common/assert.h"
@@ -30,6 +30,16 @@
 #include <cinttypes>
 #include <cstring>
 #include <cmath> // for round in alternate-time-regions.inl, in body.inl
+
+
+#include "splitat.inl"
+#include "partitioninto.inl"
+#include "expanddeltalist.inl"
+#include "alternate-time-regions.inl"
+#include "bars.inl"
+#include "track-effect-changes.inl"
+#include "notes.inl"
+#include "body.inl"
 
 
 #define TAG "tbt-file"
