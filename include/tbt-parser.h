@@ -27,6 +27,11 @@
 
 const int HEADER_SIZE = 64;
 
+//
+// mask for featureBitfield
+//
+const uint8_t HASALTERNATETIMEREGIONS_MASK = 0b00010000;
+
 
 struct tbt_header70 {
 
