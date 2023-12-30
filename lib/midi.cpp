@@ -33,8 +33,25 @@
 #define TAG "midi"
 
 
-const std::array<uint8_t, 8> STRING_MIDI_NOTE =      { 0x28, 0x2d, 0x32, 0x37, 0x3b, 0x40, 0x00, 0x00 };
-const std::array<uint8_t, 6> STRING_MIDI_NOTE_LE6A = { 0x40, 0x3b, 0x37, 0x32, 0x2d, 0x28 };
+const std::array<uint8_t, 8> STRING_MIDI_NOTE = {
+    0x28, // MIDI note for open E string
+    0x2d, // MIDI note for open A string
+    0x32, // MIDI note for open D string
+    0x37, // MIDI note for open G string
+    0x3b, // MIDI note for open B string
+    0x40, // MIDI note for open e string
+    0x00,
+    0x00,
+};
+
+const std::array<uint8_t, 6> STRING_MIDI_NOTE_LE6A = {
+    0x40, // MIDI note for open e string
+    0x3b, // MIDI note for open B string
+    0x37, // MIDI note for open G string
+    0x32, // MIDI note for open D string
+    0x2d, // MIDI note for open A string
+    0x28, // MIDI note for open E string
+};
 
 const uint8_t MUTED = 0x11; // 17
 const uint8_t STOPPED = 0x12; // 18
@@ -319,7 +336,7 @@ exportMidiBytes(
     out.insert(out.end(), { 'M', 'T', 'h', 'd' }); // type
     out.insert(out.end(), { 0x00, 0x00, 0x00, 0x06 }); // length
     out.insert(out.end(), { 0x00, 0x01 }); // format
-    out.insert(out.end(), { 0x00, static_cast<uint8_t>(t.header.trackCount + 1) }); // track count
+    out.insert(out.end(), { 0x00, static_cast<uint8_t>(t.header.trackCount + 1) }); // track count, + 1 for tempo track
     out.insert(out.end(), { 0x00, TICKS_PER_BEAT }); // division
 
     std::vector<uint8_t> tmp;
@@ -335,7 +352,16 @@ exportMidiBytes(
 
         tmp.clear();
 
-        tmp.insert(tmp.end(), { 0x00, 0xff, 0x58, 0x04, 0x04, 0x02, 0x18, 0x08 }); // time signature
+        tmp.insert(tmp.end(), {
+            0x00, // delta time
+            0xff, // meta event
+            0x58, // time signature
+            0x04, 
+            0x04, // numerator
+            0x02, // denominator (as 2^d)
+            0x18, // 24 ticks per metronome click
+            0x08, // 8 notated 32-notes in MIDI quarter notes
+        });
 
         //
         // Emit tempo
@@ -354,12 +380,15 @@ exportMidiBytes(
             auto microsPerBeat = static_cast<uint32_t>(round(MICROS_PER_MINUTE / static_cast<double>(tempoBPM)));
             auto microsPerBeatBytes = toDigitsBE(microsPerBeat);
 
-            tmp.insert(tmp.end(), { 0x00, 0xff, 0x51 }); // tempo change, 0x07a120 == 500000 MMPB == 120 BPM
-
-            //
-            // FluidSynth hard-codes length of 3, so just do the same
-            //
-            tmp.insert(tmp.end(), { 3 }); // microsPerBeatBytes size VLQ
+            tmp.insert(tmp.end(), {
+                0x00, // delta time
+                0xff, // meta event
+                0x51, // tempo change
+                //
+                // FluidSynth hard-codes length of 3, so just do the same
+                //
+                0x03 // microsPerBeatBytes size VLQ
+            });
             tmp.insert(tmp.end(), microsPerBeatBytes.cbegin() + 1, microsPerBeatBytes.cend());
 
             lastEventTick = tick;
@@ -370,10 +399,10 @@ exportMidiBytes(
             //
             // Emit tempo changes
             //
-            const auto &it = tempoMap.find(tick);
-            if (it != tempoMap.end()) {
+            const auto &tempoMapIt = tempoMap.find(tick);
+            if (tempoMapIt != tempoMap.end()) {
 
-                uint16_t tempoBPM = it->second;
+                uint16_t tempoBPM = tempoMapIt->second;
 
                 //
                 // Use floating point here for better accuracy
@@ -385,14 +414,16 @@ exportMidiBytes(
 
                 auto vlq = toVLQ(diff);
 
-                tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend());
+                tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
 
-                tmp.insert(tmp.end(), { 0xff, 0x51 }); // tempo change, 0x07a120 == 500000 MMPB == 120 BPM
-
-                //
-                // FluidSynth hard-codes length of 3, so just do the same
-                //
-                tmp.insert(tmp.end(), { 3 }); // microsPerBeatBytes size VLQ
+                tmp.insert(tmp.end(), {
+                    0xff, // meta event
+                    0x51, // tempo change
+                    //
+                    // FluidSynth hard-codes length of 3, so just do the same
+                    //
+                    0x03 // microsPerBeatBytes size VLQ
+                });
                 tmp.insert(tmp.end(), microsPerBeatBytes.cbegin() + 1, microsPerBeatBytes.cend());
 
                 lastEventTick = tick;
@@ -408,7 +439,12 @@ exportMidiBytes(
             tick = space * TICKS_PER_SPACE;
         }
 
-        tmp.insert(tmp.end(), { 0x00, 0xff, 0x2f, 0x00 }); // end of track
+        tmp.insert(tmp.end(), {
+            0x00, // delta time
+            0xff, // meta event
+            0x2f, // end of track
+            0x00
+        });
 
         //
         // append tmp to out
@@ -483,51 +519,56 @@ exportMidiBytes(
         tmp.clear();
 
         tmp.insert(tmp.end(), {
-            0x00,
+            0x00, // delta time
             static_cast<uint8_t>(0xc0 | channel), // program change
             midiProgram,
 
-            0x00,
-            static_cast<uint8_t>(0xb0 | channel), // control change
+            0x00, // delta time
+            static_cast<uint8_t>(0xb0 | channel), // control event
             0x0a, // pan
             pan,
 
-            0x00,
-            static_cast<uint8_t>(0xb0 | channel), // control change
+            0x00, // delta time
+            static_cast<uint8_t>(0xb0 | channel), // control event
             0x5b, // reverb
             reverb,
             
-            0x00,
-            static_cast<uint8_t>(0xb0 | channel), // control change
+            0x00, // delta time
+            static_cast<uint8_t>(0xb0 | channel), // control event
             0x5d, // chorus
             chorus,
             
-            0x00,
-            static_cast<uint8_t>(0xb0 | channel), // control change
+            0x00, // delta time
+            static_cast<uint8_t>(0xb0 | channel), // control event
             0x01, // modulation
             modulation,
             
-            0x00,
-            static_cast<uint8_t>(0xb0 | channel), // control change
+            //
+            // RPN Parameter MSB 0, RPN Parameter LSB 0 = RPN Parameter 0
+            // RPN Parameter 0 is standardized for pitch bend range
+            //
+
+            0x00, // delta time
+            static_cast<uint8_t>(0xb0 | channel), // control event
             0x65, // RPN Parameter MSB
             0x00,
             
-            0x00,
-            static_cast<uint8_t>(0xb0 | channel), // control change
+            0x00, // delta time
+            static_cast<uint8_t>(0xb0 | channel), // control event
             0x64, // RPN Parameter LSB
             0x00,
             
-            0x00,
-            static_cast<uint8_t>(0xb0 | channel), // control change
+            0x00, // delta time
+            static_cast<uint8_t>(0xb0 | channel), // control event
             0x06, // Data Entry MSB
             0x18, // 24 semi-tones
             
-            0x00,
-            static_cast<uint8_t>(0xb0 | channel), // control change
+            0x00, // delta time
+            static_cast<uint8_t>(0xb0 | channel), // control event
             0x26, // Data Entry LSB
             0x00, // 0 cents
             
-            0x00,
+            0x00, // delta time
             static_cast<uint8_t>(0xe0 | channel), // pitch bend
             pitchBendLSB,
             pitchBendMSB
@@ -691,7 +732,7 @@ exportMidiBytes(
 
                         auto vlq = toVLQ(diff);
 
-                        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend());
+                        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
 
                         tmp.insert(tmp.end(), {
                             static_cast<uint8_t>(0x80 | channel), // note off
@@ -731,7 +772,7 @@ exportMidiBytes(
 
                                 auto vlq = toVLQ(diff);
 
-                                tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend());
+                                tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
 
                                 tmp.insert(tmp.end(), {
                                     static_cast<uint8_t>(0xc0 | channel), // program change
@@ -769,10 +810,10 @@ exportMidiBytes(
 
                                 auto vlq = toVLQ(diff);
 
-                                tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend());
+                                tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
 
                                 tmp.insert(tmp.end(), {
-                                    static_cast<uint8_t>(0xb0 | channel), // control change
+                                    static_cast<uint8_t>(0xb0 | channel), // control event
                                     0x0a, // pan
                                     static_cast<uint8_t>(newPan)
                                 });
@@ -789,10 +830,10 @@ exportMidiBytes(
 
                                 auto vlq = toVLQ(diff);
 
-                                tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend());
+                                tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
 
                                 tmp.insert(tmp.end(), {
-                                    static_cast<uint8_t>(0xb0 | channel), // control change
+                                    static_cast<uint8_t>(0xb0 | channel), // control event
                                     0x5d, // chorus
                                     static_cast<uint8_t>(newChorus)
                                 });
@@ -809,10 +850,10 @@ exportMidiBytes(
 
                                 auto vlq = toVLQ(diff);
 
-                                tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend());
+                                tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
 
                                 tmp.insert(tmp.end(), {
-                                    static_cast<uint8_t>(0xb0 | channel), // control change
+                                    static_cast<uint8_t>(0xb0 | channel), // control event
                                     0x5b, // reverb
                                     static_cast<uint8_t>(newReverb)
                                 });
@@ -829,10 +870,10 @@ exportMidiBytes(
 
                                 auto vlq = toVLQ(diff);
 
-                                tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend());
+                                tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
 
                                 tmp.insert(tmp.end(), {
-                                    static_cast<uint8_t>(0xb0 | channel), // control change
+                                    static_cast<uint8_t>(0xb0 | channel), // control event
                                     0x01, // modulation
                                     static_cast<uint8_t>(newModulation)
                                 });
@@ -857,7 +898,7 @@ exportMidiBytes(
 
                                 auto vlq = toVLQ(diff);
 
-                                tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend());
+                                tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
 
                                 tmp.insert(tmp.end(), {
                                     static_cast<uint8_t>(0xe0 | channel), // pitch bend
@@ -901,7 +942,7 @@ exportMidiBytes(
 
                             auto vlq = toVLQ(diff);
 
-                            tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend());
+                            tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
 
                             tmp.insert(tmp.end(), {
                                 static_cast<uint8_t>(0xc0 | channel), // program change
@@ -940,10 +981,10 @@ exportMidiBytes(
 
                             auto vlq = toVLQ(diff);
 
-                            tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend());
+                            tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
 
                             tmp.insert(tmp.end(), {
-                                static_cast<uint8_t>(0xb0 | channel), // control change
+                                static_cast<uint8_t>(0xb0 | channel), // control event
                                 0x5d, // chorus
                                 newChorus
                             });
@@ -960,10 +1001,10 @@ exportMidiBytes(
 
                             auto vlq = toVLQ(diff);
 
-                            tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend());
+                            tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
 
                             tmp.insert(tmp.end(), {
-                                static_cast<uint8_t>(0xb0 | channel), // control change
+                                static_cast<uint8_t>(0xb0 | channel), // control event
                                 0x0a, // pan
                                 newPan
                             });
@@ -980,10 +1021,10 @@ exportMidiBytes(
 
                             auto vlq = toVLQ(diff);
 
-                            tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend());
+                            tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
 
                             tmp.insert(tmp.end(), {
-                                static_cast<uint8_t>(0xb0 | channel), // control change
+                                static_cast<uint8_t>(0xb0 | channel), // control event
                                 0x5b, // reverb
                                 newReverb
                             });
@@ -1041,7 +1082,7 @@ exportMidiBytes(
 
                         auto vlq = toVLQ(diff);
 
-                        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend());
+                        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
 
                         tmp.insert(tmp.end(), {
                             static_cast<uint8_t>(0x90 | channel), // note on
@@ -1132,7 +1173,7 @@ exportMidiBytes(
 
                 auto vlq = toVLQ(diff);
 
-                tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend());
+                tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
 
                 tmp.insert(tmp.end(), {
                     static_cast<uint8_t>(0x80 | channel), // note off
@@ -1144,7 +1185,12 @@ exportMidiBytes(
             }
         }
 
-        tmp.insert(tmp.end(), { 0x00, 0xff, 0x2f, 0x00 }); // end of track
+        tmp.insert(tmp.end(), {
+            0x00, // delta time
+            0xff, // meta event
+            0x2f, // end of track
+            0x00
+        });
 
         //
         // append tmp to out
