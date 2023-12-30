@@ -39,6 +39,8 @@ const std::array<uint8_t, 6> STRING_MIDI_NOTE_LE6A = { 0x40, 0x3b, 0x37, 0x32, 0
 const uint8_t MUTED = 0x11; // 17
 const uint8_t STOPPED = 0x12; // 18
 
+const double MICROS_PER_MINUTE = 60 * 1e6;
+
 
 //
 // resolve all of the Automatically Assign -1 values to actual channels
@@ -349,7 +351,7 @@ exportMidiBytes(
             //
             // Use floating point here for better accuracy
             //
-            auto microsPerBeat = static_cast<uint32_t>(round(60000000.0 / tempoBPM));
+            auto microsPerBeat = static_cast<uint32_t>(round(MICROS_PER_MINUTE / static_cast<double>(tempoBPM)));
             auto microsPerBeatBytes = toDigitsBE(microsPerBeat);
 
             tmp.insert(tmp.end(), { 0x00, 0xff, 0x51 }); // tempo change, 0x07a120 == 500000 MMPB == 120 BPM
@@ -376,7 +378,7 @@ exportMidiBytes(
                 //
                 // Use floating point here for better accuracy
                 //
-                auto microsPerBeat = static_cast<uint32_t>(round(60000000.0 / tempoBPM));
+                auto microsPerBeat = static_cast<uint32_t>(round(MICROS_PER_MINUTE / static_cast<double>(tempoBPM)));
                 auto microsPerBeatBytes = toDigitsBE(microsPerBeat);
 
                 uint32_t diff = tick - lastEventTick;
