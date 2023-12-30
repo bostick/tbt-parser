@@ -66,7 +66,7 @@ parseBody(
 
     if constexpr (0x70 <= VERSION) {
 
-        bool hasAlternateTimeRegions = ((out.header.featureBitfield & 0b00010000) == 0b00010000);
+        bool hasAlternateTimeRegions = ((out.header.featureBitfield & HASALTERNATETIMEREGIONS_MASK) == HASALTERNATETIMEREGIONS_MASK);
 
         if (hasAlternateTimeRegions) {
 

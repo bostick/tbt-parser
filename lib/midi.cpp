@@ -251,7 +251,7 @@ computeTempoMap(
 
                 if constexpr (0x70 <= VERSION) {
 
-                    auto hasAlternateTimeRegions = ((t.header.featureBitfield & 0b00010000) == 0b00010000);
+                    auto hasAlternateTimeRegions = ((t.header.featureBitfield & HASALTERNATETIMEREGIONS_MASK) == HASALTERNATETIMEREGIONS_MASK);
 
                     if (hasAlternateTimeRegions) {
 
@@ -1068,7 +1068,7 @@ exportMidiBytes(
 
                 if constexpr (0x70 <= VERSION) {
 
-                    auto hasAlternateTimeRegions = ((t.header.featureBitfield & 0b00010000) == 0b00010000);
+                    auto hasAlternateTimeRegions = ((t.header.featureBitfield & HASALTERNATETIMEREGIONS_MASK) == HASALTERNATETIMEREGIONS_MASK);
 
                     if (hasAlternateTimeRegions) {
 
