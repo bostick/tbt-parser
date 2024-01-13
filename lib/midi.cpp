@@ -216,7 +216,6 @@ computeTempoMap(
     for (uint8_t track = 0; track < t.header.trackCount; track++) {
 
         uint32_t tick = 0;
-        double actualSpace = 0.0;
 
         uint32_t trackSpaceCount;
         if constexpr (0x70 <= VERSION) {
@@ -227,7 +226,7 @@ computeTempoMap(
             trackSpaceCount = 4000;
         }
 
-        for (uint32_t space = 0; space < trackSpaceCount; space++) {
+        for (uint32_t space = 0; space < trackSpaceCount;) {
 
             if constexpr (VERSION == 0x72) {
 
@@ -290,9 +289,11 @@ computeTempoMap(
 
                 double actualSpaceInc = (static_cast<double>(denominator) / static_cast<double>(numerator));
 
-                actualSpace += actualSpaceInc;
+                uint32_t tickInc = static_cast<uint32_t>(round(actualSpaceInc * static_cast<double>(TICKS_PER_SPACE)));
 
-                tick = static_cast<uint32_t>(round(actualSpace * static_cast<double>(TICKS_PER_SPACE)));
+                tick += tickInc;
+
+                space++;
             }
         }
     }
@@ -510,7 +511,6 @@ exportMidiBytes(
         uint8_t pitchBendMSB = ((pitchBend >> 7) & 0b01111111);
 
         uint32_t tick = 0;
-        double actualSpace = 0.0;
         uint32_t lastEventTick = 0;
         std::array<uint8_t, STRINGS_PER_TRACK> currentlyPlayingStrings{};
 
@@ -583,8 +583,8 @@ exportMidiBytes(
             trackSpaceCount = 4000;
         }
 
-        for (uint32_t space = 0; space < trackSpaceCount; space++) {
-            
+        for (uint32_t space = 0; space < trackSpaceCount;) {
+
             const auto &notesMapIt = notesMap.find(space);
 
             //
@@ -1131,9 +1131,11 @@ exportMidiBytes(
 
                 double actualSpaceInc = (static_cast<double>(denominator) / static_cast<double>(numerator));
 
-                actualSpace += actualSpaceInc;
+                uint32_t tickInc = static_cast<uint32_t>(round(actualSpaceInc * static_cast<double>(TICKS_PER_SPACE)));
 
-                tick = static_cast<uint32_t>(round(actualSpace * static_cast<double>(TICKS_PER_SPACE)));
+                tick += tickInc;
+
+                space++;
             }
 
         } // for space
