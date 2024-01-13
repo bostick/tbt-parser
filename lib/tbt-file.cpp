@@ -64,29 +64,33 @@ parseTbtBytes(
 
     memcpy(&out.header, headerToParse, HEADER_SIZE);
 
+    //
+    // handle file corruption
+    //
+
     if (memcmp(out.header.magic.data(), "TBT", 3) != 0) {
 
-        LOGE("parseTBT: magic does not match");
+        LOGE("file is corrupted. magic bytes do not match. expected: TBT, actual: %c%c%c", out.header.magic[0], out.header.magic[1], out.header.magic[2]);
 
         return ERR;
     }
 
     if constexpr (0x68 <= VERSION) {
-
-        auto restToCheck = std::vector<uint8_t>(data + HEADER_SIZE, data + len);
         
         if (len != out.header.totalByteCount) {
 
-            LOGE("parseTBT: bad byte count. expected: %" PRIu32 " actual: %zu", out.header.totalByteCount, len);
+            LOGE("file is corrupted. file byte counts do not match. expected: %" PRIu32 ", actual: %zu", out.header.totalByteCount, len);
 
             return ERR;
         }
+        
+        auto restToCheck = std::vector<uint8_t>(data + HEADER_SIZE, data + len);
         
         auto crc32Rest = crc32_checksum(restToCheck);
         
         if (crc32Rest != out.header.crc32Rest) {
 
-            LOGE("parseTBT: bad crc32Rest. expected: %" PRIu32 " actual: %" PRIu32,  out.header.crc32Rest, crc32Rest);
+            LOGE("file is corrupted. CRC-32 of rest of file does not match. expected: %" PRIu32 ", actual: %" PRIu32,  out.header.crc32Rest, crc32Rest);
 
             return ERR;
         }
@@ -97,18 +101,17 @@ parseTbtBytes(
 
         if (crc32Header != out.header.crc32Header) {
 
-            LOGE("parseTBT: bad crc32Header. expected: %" PRIu32 " actual: %" PRIu32, out.header.crc32Header, crc32Header);
+            LOGE("file is corrupted. CRC-32 of header does not match. expected: %" PRIu32 ", actual: %" PRIu32, out.header.crc32Header, crc32Header);
 
             return ERR;
         }
     }
 
-    if (!(out.header.versionString[0] == 3 || out.header.versionString[0] == 4)) {
+    //
+    // no need to return ERR from here and below: just assert
+    //
 
-        LOGE("parseTBT: versionString is weird");
-
-        return ERR;
-    }
+    ASSERT(out.header.versionString[0] == 3 || out.header.versionString[0] == 4);
 
     if constexpr (0x70 <= VERSION) {
 
@@ -153,30 +156,6 @@ parseTbtBytes(
     } else {
 
         ASSERT(out.header.tempo2_unused == 0);
-    }
-
-    if constexpr (0x72 < VERSION) {
-
-        LOGE("parseTBT: This file was created with a later version of TabIt. You'll need to upgrade to TabIt version %s or later in order to open this file.", out.header.versionString.data() + 1);
-
-        return ERR;
-    }
-
-    if constexpr (0x70 <= VERSION) {
-
-        if (32000 < out.header.barCount) {
-
-            LOGE("parseTBT: Unable to load the file because it contains more bars than this version of TabIt supports");
-
-            return ERR;
-        }
-    }
-
-    if (15 < out.header.trackCount) {
-
-        LOGE("parseTBT: Unable to load the file because it contains more tracks than this version of TabIt supports");
-
-        return ERR;
     }
     
     const uint8_t *it2;
