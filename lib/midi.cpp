@@ -215,8 +215,8 @@ computeTempoMap(
 
     for (uint8_t track = 0; track < t.header.trackCount; track++) {
 
+        double tick_d = 0.0;
         uint32_t tick = 0;
-        double actualSpace = 0.0;
 
         uint32_t trackSpaceCount;
         if constexpr (0x70 <= VERSION) {
@@ -261,12 +261,12 @@ computeTempoMap(
                 //
                 // The denominator of the Alternate Time Region for this space. For example, for triplets, this is 2.
                 //
-                uint8_t denominator = 1;
+                double denominator = 1.0;
 
                 //
                 // The numerator of the Alternate Time Region for this space. For example, for triplets, this is 3.
                 //
-                uint8_t numerator = 1;
+                double numerator = 1.0;
 
                 if constexpr (0x70 <= VERSION) {
 
@@ -281,18 +281,18 @@ computeTempoMap(
 
                             const auto &alternateTimeRegion = alternateTimeRegionsIt->second;
 
-                            denominator = alternateTimeRegion[0];
+                            denominator = static_cast<double>(alternateTimeRegion[0]);
 
-                            numerator = alternateTimeRegion[1];
+                            numerator = static_cast<double>(alternateTimeRegion[1]);
                         }
                     }
                 }
 
-                double actualSpaceInc = (static_cast<double>(denominator) / static_cast<double>(numerator));
+                double tickInc = denominator * TICKS_PER_SPACE_D / numerator;
 
-                actualSpace += actualSpaceInc;
+                tick_d += tickInc;
 
-                tick = static_cast<uint32_t>(round(actualSpace * static_cast<double>(TICKS_PER_SPACE)));
+                tick = static_cast<uint32_t>(round(tick_d));
             }
         }
     }
@@ -345,6 +345,7 @@ exportMidiBytes(
     // Track 0
     //
     {
+        double tick_d = 0.0;
         uint32_t tick = 0;
         uint32_t lastEventTick = 0;
 
@@ -436,7 +437,9 @@ exportMidiBytes(
             // tmp.insert(tmp.end(), { 0x00, 0xFF, 0x05, 0x11 }); // lyric
             // tmp.insert(tmp.end(), { 0x73, 0x70, 0x61, 0x63, 0x65, 0x20, 0x30, 0x20, 0x74, 0x65, 0x6d, 0x70, 0x6f, 0x20, 0x31, 0x32, 0x30, });
         
-            tick = space * TICKS_PER_SPACE;
+            tick_d = space * TICKS_PER_SPACE_D;
+
+            tick = static_cast<uint32_t>(round(tick_d));
         }
 
         tmp.insert(tmp.end(), {
@@ -509,8 +512,8 @@ exportMidiBytes(
         uint8_t pitchBendLSB = (pitchBend & 0b01111111);
         uint8_t pitchBendMSB = ((pitchBend >> 7) & 0b01111111);
 
+        double tick_d = 0.0;
         uint32_t tick = 0;
-        double actualSpace = 0.0;
         uint32_t lastEventTick = 0;
         std::array<uint8_t, STRINGS_PER_TRACK> currentlyPlayingStrings{};
 
@@ -1102,12 +1105,12 @@ exportMidiBytes(
                 //
                 // The denominator of the Alternate Time Region for this space. For example, for triplets, this is 2.
                 //
-                uint8_t denominator = 1;
+                double denominator = 1.0;
 
                 //
                 // The numerator of the Alternate Time Region for this space. For example, for triplets, this is 3.
                 //
-                uint8_t numerator = 1;
+                double numerator = 1.0;
 
                 if constexpr (0x70 <= VERSION) {
 
@@ -1122,18 +1125,18 @@ exportMidiBytes(
 
                             const auto &alternateTimeRegion = alternateTimeRegionsIt->second;
 
-                            denominator = alternateTimeRegion[0];
+                            denominator = static_cast<double>(alternateTimeRegion[0]);
 
-                            numerator = alternateTimeRegion[1];
+                            numerator = static_cast<double>(alternateTimeRegion[1]);
                         }
                     }
                 }
 
-                double actualSpaceInc = (static_cast<double>(denominator) / static_cast<double>(numerator));
+                double tickInc = denominator * TICKS_PER_SPACE_D / numerator;
 
-                actualSpace += actualSpaceInc;
+                tick_d += tickInc;
 
-                tick = static_cast<uint32_t>(round(actualSpace * static_cast<double>(TICKS_PER_SPACE)));
+                tick = static_cast<uint32_t>(round(tick_d));
             }
 
         } // for space

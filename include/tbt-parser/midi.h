@@ -23,3 +23,4 @@
 
 const uint8_t TICKS_PER_BEAT = 0xc0; // 192
 const uint8_t TICKS_PER_SPACE = (TICKS_PER_BEAT / 4); // 48
+const double TICKS_PER_SPACE_D = TICKS_PER_SPACE;
