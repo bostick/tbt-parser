@@ -47,9 +47,8 @@
 
 template <uint8_t VERSION, typename tbt_file_t>
 Status
-parseTbtBytes(
-    const uint8_t *data,
-    size_t len,
+TparseTbtBytes(
+    const std::vector<uint8_t> data,
     tbt_file_t &out) {
 
     //
@@ -60,7 +59,7 @@ parseTbtBytes(
     // parse header
     //
 
-    const uint8_t *headerToParse = data + 0;
+    const uint8_t *headerToParse = data.data() + 0;
 
     memcpy(&out.header, headerToParse, HEADER_SIZE);
 
@@ -77,14 +76,14 @@ parseTbtBytes(
 
     if constexpr (0x68 <= VERSION) {
         
-        if (len != out.header.totalByteCount) {
+        if (data.size() != out.header.totalByteCount) {
 
-            LOGE("file is corrupted. file byte counts do not match. expected: %" PRIu32 ", actual: %zu", out.header.totalByteCount, len);
+            LOGE("file is corrupted. file byte counts do not match. expected: %" PRIu32 ", actual: %zu", out.header.totalByteCount, data.size());
 
             return ERR;
         }
         
-        auto restToCheck = std::vector<uint8_t>(data + HEADER_SIZE, data + len);
+        auto restToCheck = std::vector<uint8_t>(data.data() + HEADER_SIZE, data.data() + data.size());
         
         auto crc32Rest = crc32_checksum(restToCheck);
         
@@ -95,7 +94,7 @@ parseTbtBytes(
             return ERR;
         }
 
-        auto headerToCheck = std::vector<uint8_t>(data + 0, data + HEADER_SIZE - 4);
+        auto headerToCheck = std::vector<uint8_t>(data.data() + 0, data.data() + HEADER_SIZE - 4);
 
         auto crc32Header = crc32_checksum(headerToCheck);
 
@@ -190,8 +189,8 @@ parseTbtBytes(
             }
 
             auto metadataToInflate = std::vector<uint8_t>(
-                data + HEADER_SIZE,
-                data + HEADER_SIZE + out.header.compressedMetadataLen);
+                data.data() + HEADER_SIZE,
+                data.data() + HEADER_SIZE + out.header.compressedMetadataLen);
 
             std::vector<uint8_t> metadataInflated;
 
@@ -255,8 +254,8 @@ parseTbtBytes(
             }
 
             auto metadataToParse = std::vector<uint8_t>(
-                data + HEADER_SIZE,
-                data + HEADER_SIZE + metadataLen);
+                data.data() + HEADER_SIZE,
+                data.data() + HEADER_SIZE + metadataLen);
 
             auto it = metadataToParse.cbegin();
 
@@ -272,7 +271,7 @@ parseTbtBytes(
             // now read the remaining title, artist, and comment
             //
             
-            it2 = data + HEADER_SIZE + metadataLen;
+            it2 = data.data() + HEADER_SIZE + metadataLen;
             
             auto strLen = *it2;
             
@@ -307,8 +306,8 @@ parseTbtBytes(
         if constexpr (0x6e <= VERSION) {
 
             auto bodyToInflate = std::vector<uint8_t>(
-                data + HEADER_SIZE + out.header.compressedMetadataLen,
-                data + len);
+                data.data() + HEADER_SIZE + out.header.compressedMetadataLen,
+                data.data() + data.size());
 
             auto ret = zlib_inflate(bodyToInflate, bodyToParse);
 
@@ -320,7 +319,7 @@ parseTbtBytes(
 
             bodyToParse = std::vector<uint8_t>(
                 it2,
-                data + len);
+                data.data() + data.size());
         }
 
         auto it = bodyToParse.cbegin();
@@ -341,7 +340,7 @@ parseTbtBytes(
 Status
 parseTbtFile(
     const char *path,
-    tbt_file *out) {
+    tbt_file &out) {
     
     FILE *file = fopen(path, "rb");
 
@@ -398,10 +397,17 @@ parseTbtFile(
 
         return ERR;
     }
-    
-    
-    auto versionNumber = buf[3];
 
+    return parseTbtBytes(buf, out);
+}
+    
+
+Status
+parseTbtBytes(
+    const std::vector<uint8_t> data,
+    tbt_file &out) {
+
+    auto versionNumber = data[3];
 
     Status ret;
 
@@ -409,156 +415,156 @@ parseTbtFile(
     case 0x72: {
         
         tbt_file71 t;
-        ret = parseTbtBytes<0x72, tbt_file71>(buf.data(), len, t);
+        ret = TparseTbtBytes<0x72, tbt_file71>(data, t);
 
         if (ret != OK) {
             return ret;
         }
 
-        *out = new tbt_file71{t};
+        out = new tbt_file71{t};
         
         break;
     }
     case 0x71: {
         
         tbt_file71 t;
-        ret = parseTbtBytes<0x71, tbt_file71>(buf.data(), len, t);
+        ret = TparseTbtBytes<0x71, tbt_file71>(data, t);
 
         if (ret != OK) {
             return ret;
         }
 
-        *out = new tbt_file71{t};
+        out = new tbt_file71{t};
         
         break;
     }
     case 0x70: {
         
         tbt_file70 t;
-        ret = parseTbtBytes<0x70, tbt_file70>(buf.data(), len, t);
+        ret = TparseTbtBytes<0x70, tbt_file70>(data, t);
 
         if (ret != OK) {
             return ret;
         }
 
-        *out = new tbt_file70{t};
+        out = new tbt_file70{t};
         
         break;
     }
     case 0x6f: {
         
         tbt_file6f t;
-        ret = parseTbtBytes<0x6f, tbt_file6f>(buf.data(), len, t);
+        ret = TparseTbtBytes<0x6f, tbt_file6f>(data, t);
 
         if (ret != OK) {
             return ret;
         }
 
-        *out = new tbt_file6f{t};
+        out = new tbt_file6f{t};
         
         break;
     }
     case 0x6e: {
         
         tbt_file6e t;
-        ret = parseTbtBytes<0x6e, tbt_file6e>(buf.data(), len, t);
+        ret = TparseTbtBytes<0x6e, tbt_file6e>(data, t);
 
         if (ret != OK) {
             return ret;
         }
 
-        *out = new tbt_file6e{t};
+        out = new tbt_file6e{t};
         
         break;
     }
     case 0x6b: {
         
         tbt_file6b t;
-        ret = parseTbtBytes<0x6b, tbt_file6b>(buf.data(), len, t);
+        ret = TparseTbtBytes<0x6b, tbt_file6b>(data, t);
 
         if (ret != OK) {
             return ret;
         }
 
-        *out = new tbt_file6b{t};
+        out = new tbt_file6b{t};
         
         break;
     }
     case 0x6a: {
         
         tbt_file6a t;
-        ret = parseTbtBytes<0x6a, tbt_file6a>(buf.data(), len, t);
+        ret = TparseTbtBytes<0x6a, tbt_file6a>(data, t);
 
         if (ret != OK) {
             return ret;
         }
 
-        *out = new tbt_file6a{t};
+        out = new tbt_file6a{t};
         
         break;
     }
     case 0x69: {
         
         tbt_file68 t;
-        ret = parseTbtBytes<0x69, tbt_file68>(buf.data(), len, t);
+        ret = TparseTbtBytes<0x69, tbt_file68>(data, t);
 
         if (ret != OK) {
             return ret;
         }
 
-        *out = new tbt_file68{t};
+        out = new tbt_file68{t};
         
         break;
     }
     case 0x68: {
         
         tbt_file68 t;
-        ret = parseTbtBytes<0x68, tbt_file68>(buf.data(), len, t);
+        ret = TparseTbtBytes<0x68, tbt_file68>(data, t);
 
         if (ret != OK) {
             return ret;
         }
 
-        *out = new tbt_file68{t};
+        out = new tbt_file68{t};
         
         break;
     }
     case 0x67: {
         
         tbt_file65 t;
-        ret = parseTbtBytes<0x67, tbt_file65>(buf.data(), len, t);
+        ret = TparseTbtBytes<0x67, tbt_file65>(data, t);
 
         if (ret != OK) {
             return ret;
         }
 
-        *out = new tbt_file65{t};
+        out = new tbt_file65{t};
         
         break;
     }
     case 0x66: {
         
         tbt_file65 t;
-        ret = parseTbtBytes<0x66, tbt_file65>(buf.data(), len, t);
+        ret = TparseTbtBytes<0x66, tbt_file65>(data, t);
 
         if (ret != OK) {
             return ret;
         }
 
-        *out = new tbt_file65{t};
+        out = new tbt_file65{t};
         
         break;
     }
     case 0x65: {
         
         tbt_file65 t;
-        ret = parseTbtBytes<0x65, tbt_file65>(buf.data(), len, t);
+        ret = TparseTbtBytes<0x65, tbt_file65>(data, t);
 
         if (ret != OK) {
             return ret;
         }
 
-        *out = new tbt_file65{t};
+        out = new tbt_file65{t};
         
         break;
     }
