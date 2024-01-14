@@ -213,7 +213,7 @@ struct tbt_track_metadata71 {
 
 #pragma pack(pop)
 
-static_assert(sizeof(tbt_track_metadata71) == 30);
+static_assert(sizeof(tbt_track_metadata71) == 30, "size of tbt_track_metadata71 is not correct");
 
 #pragma pack(push, 1)
 
@@ -250,7 +250,7 @@ struct tbt_track_metadata70 {
 
 #pragma pack(pop)
 
-static_assert(sizeof(tbt_track_metadata70) == 27);
+static_assert(sizeof(tbt_track_metadata70) == 27, "size of tbt_track_metadata70 is not correct");
 
 #pragma pack(push, 1)
 
@@ -285,7 +285,7 @@ struct tbt_track_metadata6e {
 
 #pragma pack(pop)
 
-static_assert(sizeof(tbt_track_metadata6e) == 23);
+static_assert(sizeof(tbt_track_metadata6e) == 23, "size of tbt_track_metadata6e is not correct");
 
 #pragma pack(push, 1)
 
@@ -314,7 +314,7 @@ struct tbt_track_metadata6b {
 
 #pragma pack(pop)
 
-static_assert(sizeof(tbt_track_metadata6b) == 19);
+static_assert(sizeof(tbt_track_metadata6b) == 19, "size of tbt_track_metadata6b is not correct");
 
 #pragma pack(push, 1)
 
@@ -341,7 +341,7 @@ struct tbt_track_metadata6a {
 
 #pragma pack(pop)
 
-static_assert(sizeof(tbt_track_metadata6a) == 15);
+static_assert(sizeof(tbt_track_metadata6a) == 15, "size of tbt_track_metadata6a is not correct");
 
 #pragma pack(push, 1)
 
@@ -363,7 +363,7 @@ struct tbt_track_metadata65 {
 
 #pragma pack(pop)
 
-static_assert(sizeof(tbt_track_metadata65) == 13);
+static_assert(sizeof(tbt_track_metadata65) == 13, "size of tbt_track_metadata65 is not correct");
 
 
 struct tbt_metadata71 {
