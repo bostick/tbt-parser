@@ -301,7 +301,7 @@ computeTempoMap(
 
 template <uint8_t VERSION, typename tbt_file_t, size_t STRINGS_PER_TRACK>
 Status
-exportMidiBytes(
+TexportMidiBytes(
     const tbt_file_t &t,
     std::vector<uint8_t> &out) {
 
@@ -1210,13 +1210,9 @@ exportMidiBytes(
 
 
 Status
-exportMidiFile(
+exportMidiBytes(
     const tbt_file t,
-    const char *path) {
-
-    std::vector<uint8_t> midiBytes;
-
-    Status ret;
+    std::vector<uint8_t> &out) {
 
     auto versionNumber = reinterpret_cast<const uint8_t *>(t)[3];
 
@@ -1225,102 +1221,91 @@ exportMidiFile(
 
         auto t71 = *reinterpret_cast<const tbt_file71 *>(t);
         
-        ret = exportMidiBytes<0x72, tbt_file71, 8>(t71, midiBytes);
-        
-        break;
+        return TexportMidiBytes<0x72, tbt_file71, 8>(t71, out);
     }
     case 0x71: {
         
         auto t71 = *reinterpret_cast<const tbt_file71 *>(t);
         
-        ret = exportMidiBytes<0x71, tbt_file71, 8>(t71, midiBytes);
-        
-        break;
+        return TexportMidiBytes<0x71, tbt_file71, 8>(t71, out);
     }
     case 0x70: {
         
         auto t70 = *reinterpret_cast<const tbt_file70 *>(t);
         
-        ret = exportMidiBytes<0x70, tbt_file70, 8>(t70, midiBytes);
-        
-        break;
+        return TexportMidiBytes<0x70, tbt_file70, 8>(t70, out);
     }
     case 0x6f: {
         
         auto t6f = *reinterpret_cast<const tbt_file6f *>(t);
         
-        ret = exportMidiBytes<0x6f, tbt_file6f, 8>(t6f, midiBytes);
-        
-        break;
+        return TexportMidiBytes<0x6f, tbt_file6f, 8>(t6f, out);
     }
     case 0x6e: {
         
         auto t6e = *reinterpret_cast<const tbt_file6e *>(t);
         
-        ret = exportMidiBytes<0x6e, tbt_file6e, 8>(t6e, midiBytes);
-        
-        break;
+        return TexportMidiBytes<0x6e, tbt_file6e, 8>(t6e, out);
     }
     case 0x6b: {
         
         auto t6b = *reinterpret_cast<const tbt_file6b *>(t);
         
-        ret = exportMidiBytes<0x6b, tbt_file6b, 8>(t6b, midiBytes);
-        
-        break;
+        return TexportMidiBytes<0x6b, tbt_file6b, 8>(t6b, out);
     }
     case 0x6a: {
         
         auto t6a = *reinterpret_cast<const tbt_file6a *>(t);
         
-        ret = exportMidiBytes<0x6a, tbt_file6a, 6>(t6a, midiBytes);
-        
-        break;
+        return TexportMidiBytes<0x6a, tbt_file6a, 6>(t6a, out);
     }
     case 0x69: {
         
         auto t68 = *reinterpret_cast<const tbt_file68 *>(t);
         
-        ret = exportMidiBytes<0x69, tbt_file68, 6>(t68, midiBytes);
-        
-        break;
+        return TexportMidiBytes<0x69, tbt_file68, 6>(t68, out);
     }
     case 0x68: {
         
         auto t68 = *reinterpret_cast<const tbt_file68 *>(t);
         
-        ret = exportMidiBytes<0x68, tbt_file68, 6>(t68, midiBytes);
-        
-        break;
+        return TexportMidiBytes<0x68, tbt_file68, 6>(t68, out);
     }
     case 0x67: {
         
         auto t65 = *reinterpret_cast<const tbt_file65 *>(t);
         
-        ret = exportMidiBytes<0x67, tbt_file65, 6>(t65, midiBytes);
-        
-        break;
+        return TexportMidiBytes<0x67, tbt_file65, 6>(t65, out);
     }
     case 0x66: {
         
         auto t65 = *reinterpret_cast<const tbt_file65 *>(t);
         
-        ret = exportMidiBytes<0x66, tbt_file65, 6>(t65, midiBytes);
-        
-        break;
+        return TexportMidiBytes<0x66, tbt_file65, 6>(t65, out);
     }
     case 0x65: {
         
         auto t65 = *reinterpret_cast<const tbt_file65 *>(t);
         
-        ret = exportMidiBytes<0x65, tbt_file65, 6>(t65, midiBytes);
-        
-        break;
+        return TexportMidiBytes<0x65, tbt_file65, 6>(t65, out);
     }
     default:
         ASSERT(false);
         return ERR;
     }
+}
+
+
+Status
+exportMidiFile(
+    const tbt_file t,
+    const char *path) {
+
+    std::vector<uint8_t> midiBytes;
+
+    Status ret;
+
+    ret = exportMidiBytes(t, midiBytes);
 
     if (ret != OK) {
         return ret;

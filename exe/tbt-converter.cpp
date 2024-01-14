@@ -73,7 +73,7 @@ int main(int argc, const char *argv[]) {
 
 	LOGI("parsing...");
 
-	Status ret = parseTbtFile(inputFile.c_str(), &t);
+	Status ret = parseTbtFile(inputFile.c_str(), t);
 
 	if (ret != OK) {
 		return ret;

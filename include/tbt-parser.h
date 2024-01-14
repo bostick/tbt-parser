@@ -551,11 +551,15 @@ enum Status {
 typedef void *tbt_file;
 
 
-Status parseTbtFile(const char *path, tbt_file *out);
+Status parseTbtFile(const char *path, tbt_file &out);
+
+Status parseTbtBytes(const std::vector<uint8_t> data, tbt_file &out);
 
 const std::array<uint8_t, HEADER_SIZE> tbtFileHeader(const tbt_file t);
 
 Status exportMidiFile(const tbt_file t, const char *path);
+
+Status exportMidiBytes(const tbt_file t, std::vector<uint8_t> &out);
 
 void releaseTbtFile(tbt_file t);
 
