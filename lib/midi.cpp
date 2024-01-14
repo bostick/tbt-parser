@@ -395,7 +395,7 @@ TexportMidiBytes(
             lastEventTick = tick;
         }
 
-        for (uint32_t space = 0; space < barsSpaceCount + 1; space++) { // + 1 for any still playing at end
+        for (uint32_t space = 0; space < barsSpaceCount; space++) {
 
             //
             // Emit tempo changes
