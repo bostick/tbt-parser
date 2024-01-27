@@ -29,7 +29,7 @@ set(CPP_LIB_SOURCES
     file.cpp
 
     midi.cpp
-    tbt-file.cpp
+    tbt.cpp
     tbt-parser-util.cpp
 )
 
