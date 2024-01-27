@@ -25,6 +25,7 @@
 
 #include <string>
 #include <cstring>
+#include <cstdlib>
 
 
 int main(int argc, const char *argv[]) {
@@ -34,7 +35,7 @@ int main(int argc, const char *argv[]) {
 
 	if (argc == 1) {
 		LOGI("usage: tbt-converter --input-file XXX [--output-file YYY]");
-		exit(0);
+		return EXIT_SUCCESS;
 	}
 
 	std::string inputFile;
@@ -58,7 +59,7 @@ int main(int argc, const char *argv[]) {
 
 	if (inputFile.empty()) {
 		LOGE("input file is missing");
-		exit(1);
+		return EXIT_FAILURE;
 	}
 
 	if (outputFile.empty()) {
@@ -204,7 +205,7 @@ int main(int argc, const char *argv[]) {
 
 	releaseTbtFile(t);
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 
