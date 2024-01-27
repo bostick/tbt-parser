@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "common/status.h"
+
 #include <array>
 #include <vector>
 #include <map>
@@ -540,11 +542,6 @@ struct tbt_file65 {
     tbt_header65 header;
     tbt_metadata65 metadata;
     tbt_body65 body;
-};
-
-enum Status {
-    OK,
-    ERR
 };
 
 
