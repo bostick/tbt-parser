@@ -41,8 +41,6 @@ Status computeDeltaListCount(const std::vector<uint8_t> &deltaList, uint32_t *ac
 
 std::array<uint8_t, 4> toDigitsBE(uint32_t value);
 
-std::vector<uint8_t> toVLQ(uint32_t value);
-
 std::string fromPascal1String(std::vector<uint8_t> data);
 
 std::string fromPascal2String(std::vector<uint8_t> data);

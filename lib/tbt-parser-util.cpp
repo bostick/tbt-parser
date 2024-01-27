@@ -332,32 +332,6 @@ std::array<uint8_t, 4> toDigitsBE(uint32_t value) {
 }
 
 
-//
-// adapted from:
-// https://www.rosettacode.org/wiki/Variable-length_quantity#C++
-//
-std::vector<uint8_t> toVLQ(uint32_t value) {
-
-    uint8_t i;
-    for (i = 9; i > 0; i--) {
-        if (value & 127ULL << i * 7) {
-            break;
-        }
-    }
-
-    std::vector<uint8_t> out;
-    out.reserve(i);
-    
-    for (uint8_t j = 0; j <= i; j++) {
-        out.push_back(((value >> ((i - j) * 7)) & 127) | 128);
-    }
-
-    out[i] ^= 128;
-
-    return out;
-}
-
-
 std::string fromPascal1String(std::vector<uint8_t> data) {
     
     uint8_t len = *(data.data() + 0);
