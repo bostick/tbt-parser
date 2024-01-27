@@ -16,13 +16,12 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#define _CRT_SECURE_NO_DEPRECATE // disable warnings about fopen being insecure on MSVC
-
 #include "tbt-parser/midi.h"
 
 #include "tbt-parser/tbt-parser-util.h"
 
 #include "common/assert.h"
+#include "common/file.h"
 #include "common/logging.h"
 
 #include <cinttypes>
@@ -1311,25 +1310,11 @@ exportMidiFile(
         return ret;
     }
 
-    FILE *file = fopen(path, "wb");
+    ret = saveFile(path, midiBytes);
 
-    if (!file) {
-
-        LOGE("cannot open %s\n", path);
-
-        return ERR;
+    if (ret != OK) {
+        return ret;
     }
-
-    auto r = fwrite(midiBytes.data(), sizeof(uint8_t), midiBytes.size(), file);
-
-    if (r != midiBytes.size()) {
-
-        LOGE("fwrite failed");
-
-        return ERR;
-    }
-
-    fclose(file);
 
     return OK;
 }

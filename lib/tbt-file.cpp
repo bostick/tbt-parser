@@ -16,14 +16,13 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#define _CRT_SECURE_NO_DEPRECATE // disable warnings about fopen being insecure on MSVC
-
 #include "tbt-parser.h"
 
 #include "tbt-parser/midi.h"
 #include "tbt-parser/tbt-parser-util.h"
 
 #include "common/assert.h"
+#include "common/file.h"
 #include "common/logging.h"
 
 #include <cinttypes>
@@ -342,56 +341,27 @@ parseTbtFile(
     const char *path,
     tbt_file &out) {
     
-    FILE *file = fopen(path, "rb");
+    Status ret;
 
-    if (!file) {
+    std::vector<uint8_t> buf;
 
-        LOGE("cannot open %s\n", path);
+    ret = openFile(path, buf);
 
-        return ERR;
+    if (ret != OK) {
+
+        return ret;
     }
 
-    if (fseek(file, 0, SEEK_END)) {
-
-        LOGE("fseek failed");
-
-        return ERR;
-    }
-
-    long res = ftell(file);
-
-    if (res < 0) {
-
-        LOGE("ftell failed");
-
-        return ERR;
-    }
-
-    size_t len = static_cast<size_t>(res);
-
-    rewind(file);
-
-    auto buf = std::vector<uint8_t>(len);
-
-    size_t r = fread(buf.data(), sizeof(uint8_t), len, file);
-
-    if (r != len) {
-
-        LOGE("fread failed");
-
-        return ERR;
-    }
-
-    fclose(file);
-
+    auto len = buf.size();
 
     if (len == 0) {
         
         LOGE("empty file");
 
         return ERR;
-        
-    } else if (len < HEADER_SIZE) {
+    }
+
+    if (len < HEADER_SIZE) {
         
         LOGE("file is too small to be parsed. size: %zu", len);
 
