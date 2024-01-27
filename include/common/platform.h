@@ -30,6 +30,7 @@
 
 #define IS_PLATFORM_ANDROID 1
 #define PLATFORM PLATFORM_ANDROID
+#define PLATFORM_STRING "android"
 
 #elif __APPLE__
 
@@ -39,11 +40,13 @@
 
 #define IS_PLATFORM_IOS 1
 #define PLATFORM PLATFORM_IOS
+#define PLATFORM_STRING "ios"
 
 #elif TARGET_OS_OSX
 
 #define IS_PLATFORM_MACOS 1
 #define PLATFORM PLATFORM_MACOS
+#define PLATFORM_STRING "macos"
 
 #else // TARGET_OS_IOS
 #error Unknown Apple platform
@@ -53,11 +56,13 @@
 
 #define IS_PLATFORM_WINDOWS 1
 #define PLATFORM PLATFORM_WINDOWS
+#define PLATFORM_STRING "windows"
 
 #elif defined(__linux__)
 
 #define IS_PLATFORM_LINUX 1
 #define PLATFORM PLATFORM_LINUX
+#define PLATFORM_STRING "linux"
 
 #else
 #error Unknown platform
