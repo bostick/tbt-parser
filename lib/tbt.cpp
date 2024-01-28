@@ -391,7 +391,7 @@ parseTbtBytes(
             return ret;
         }
 
-        out = new tbt_file71{t};
+        out = t;
         
         break;
     }
@@ -404,7 +404,7 @@ parseTbtBytes(
             return ret;
         }
 
-        out = new tbt_file71{t};
+        out = t;
         
         break;
     }
@@ -417,7 +417,7 @@ parseTbtBytes(
             return ret;
         }
 
-        out = new tbt_file70{t};
+        out = t;
         
         break;
     }
@@ -430,7 +430,7 @@ parseTbtBytes(
             return ret;
         }
 
-        out = new tbt_file6f{t};
+        out = t;
         
         break;
     }
@@ -443,7 +443,7 @@ parseTbtBytes(
             return ret;
         }
 
-        out = new tbt_file6e{t};
+        out = t;
         
         break;
     }
@@ -456,7 +456,7 @@ parseTbtBytes(
             return ret;
         }
 
-        out = new tbt_file6b{t};
+        out = t;
         
         break;
     }
@@ -469,7 +469,7 @@ parseTbtBytes(
             return ret;
         }
 
-        out = new tbt_file6a{t};
+        out = t;
         
         break;
     }
@@ -482,7 +482,7 @@ parseTbtBytes(
             return ret;
         }
 
-        out = new tbt_file68{t};
+        out = t;
         
         break;
     }
@@ -495,7 +495,7 @@ parseTbtBytes(
             return ret;
         }
 
-        out = new tbt_file68{t};
+        out = t;
         
         break;
     }
@@ -508,7 +508,7 @@ parseTbtBytes(
             return ret;
         }
 
-        out = new tbt_file65{t};
+        out = t;
         
         break;
     }
@@ -521,7 +521,7 @@ parseTbtBytes(
             return ret;
         }
 
-        out = new tbt_file65{t};
+        out = t;
         
         break;
     }
@@ -534,7 +534,7 @@ parseTbtBytes(
             return ret;
         }
 
-        out = new tbt_file65{t};
+        out = t;
         
         break;
     }
@@ -549,83 +549,82 @@ parseTbtBytes(
 }
 
 
-const std::array<uint8_t, HEADER_SIZE> tbtFileHeader(const tbt_file t) {
+struct VersionNumberVisitor {
+    
+    uint8_t operator()(const tbt_file65& t) {
+        return t.header.versionNumber;
+    }
 
-    auto header = *reinterpret_cast<std::array<uint8_t, HEADER_SIZE> *>(t);
-    return header;
+    uint8_t operator()(const tbt_file68& t) {
+        return t.header.versionNumber;
+    }
+
+    uint8_t operator()(const tbt_file6a& t) {
+        return t.header.versionNumber;
+    }
+
+    uint8_t operator()(const tbt_file6b& t) {
+        return t.header.versionNumber;
+    }
+
+    uint8_t operator()(const tbt_file6e& t) {
+        return t.header.versionNumber;
+    }
+
+    uint8_t operator()(const tbt_file6f& t) {
+        return t.header.versionNumber;
+    }
+
+    uint8_t operator()(const tbt_file70& t) {
+        return t.header.versionNumber;
+    }
+
+    uint8_t operator()(const tbt_file71& t) {
+        return t.header.versionNumber;
+    }
+};
+
+uint8_t tbtFileVersionNumber(const tbt_file t) {
+    return std::visit(VersionNumberVisitor{}, t);
 }
 
+struct VersionStringVisitor {
+    
+    std::array<uint8_t, 5> operator()(const tbt_file65& t) {
+        return t.header.versionString;
+    }
 
-void releaseTbtFile(tbt_file t) {
+    std::array<uint8_t, 5> operator()(const tbt_file68& t) {
+        return t.header.versionString;
+    }
 
-    auto versionNumber = reinterpret_cast<const uint8_t *>(t)[3];
+    std::array<uint8_t, 5> operator()(const tbt_file6a& t) {
+        return t.header.versionString;
+    }
 
-    switch (versionNumber) {
-    case 0x72:
-    case 0x71: {
-        
-        auto t71 = reinterpret_cast<tbt_file71 *>(t);
-        
-        delete t71;
-        
-        break;
+    std::array<uint8_t, 5> operator()(const tbt_file6b& t) {
+        return t.header.versionString;
     }
-    case 0x70: {
-        
-        auto t70 = reinterpret_cast<tbt_file70 *>(t);
-        
-        delete t70;
-        
-        break;
+
+    std::array<uint8_t, 5> operator()(const tbt_file6e& t) {
+        return t.header.versionString;
     }
-    case 0x6f:
-    case 0x6e: {
-        
-        auto t6e = reinterpret_cast<tbt_file6e *>(t);
-        
-        delete t6e;
-        
-        break;
+
+    std::array<uint8_t, 5> operator()(const tbt_file6f& t) {
+        return t.header.versionString;
     }
-    case 0x6b: {
-        
-        auto t6b = reinterpret_cast<tbt_file6b *>(t);
-        
-        delete t6b;
-        
-        break;
+
+    std::array<uint8_t, 5> operator()(const tbt_file70& t) {
+        return t.header.versionString;
     }
-    case 0x6a: {
-        
-        auto t6a = reinterpret_cast<tbt_file6a *>(t);
-        
-        delete t6a;
-        
-        break;
+
+    std::array<uint8_t, 5> operator()(const tbt_file71& t) {
+        return t.header.versionString;
     }
-    case 0x69:
-    case 0x68: {
-        
-        auto t68 = reinterpret_cast<tbt_file68 *>(t);
-        
-        delete t68;
-        
-        break;
-    }
-    case 0x67:
-    case 0x66:
-    case 0x65: {
-        
-        auto t65 = reinterpret_cast<tbt_file65 *>(t);
-        
-        delete t65;
-        
-        break;
-    }
-    default:
-        ASSERT(false);
-        break;
-    }
+};
+
+std::array<uint8_t, 5> tbtFileVersionString(const tbt_file t) {
+    return std::visit(VersionStringVisitor{}, t);
 }
 
 
