@@ -23,6 +23,7 @@
 #include <array>
 #include <vector>
 #include <map>
+#include <variant>
 #include <cstdint>
 #include <cstddef> // for size_t
 
@@ -544,21 +545,20 @@ struct tbt_file65 {
     tbt_body65 body;
 };
 
-
-typedef void *tbt_file;
+using tbt_file = std::variant<tbt_file65, tbt_file68, tbt_file6a, tbt_file6b, tbt_file6e, tbt_file6f, tbt_file70, tbt_file71>;
 
 
 Status parseTbtFile(const char *path, tbt_file &out);
 
 Status parseTbtBytes(const std::vector<uint8_t> data, tbt_file &out);
 
-const std::array<uint8_t, HEADER_SIZE> tbtFileHeader(const tbt_file t);
+uint8_t tbtFileVersionNumber(const tbt_file t);
+
+std::array<uint8_t, 5> tbtFileVersionString(const tbt_file t);
 
 Status exportMidiFile(const tbt_file t, const char *path);
 
 Status exportMidiBytes(const tbt_file t, std::vector<uint8_t> &out);
-
-void releaseTbtFile(tbt_file t);
 
 
 

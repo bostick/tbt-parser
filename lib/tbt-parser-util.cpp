@@ -333,10 +333,14 @@ std::array<uint8_t, 4> toDigitsBE(uint32_t value) {
 
 
 std::string fromPascal1String(std::vector<uint8_t> data) {
-    
-    uint8_t len = *(data.data() + 0);
+    return fromPascal1String(data.data());
+}
 
-    std::vector<char> cstrData(data.data() + 1, data.data() + 1 + len + 1);
+std::string fromPascal1String(const uint8_t *data) {
+    
+    uint8_t len = *(data + 0);
+
+    std::vector<char> cstrData(data + 1, data + 1 + len + 1);
 
     cstrData[len] = '\0';
 

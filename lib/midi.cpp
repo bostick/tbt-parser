@@ -1239,78 +1239,78 @@ exportMidiBytes(
     const tbt_file t,
     std::vector<uint8_t> &out) {
 
-    auto versionNumber = reinterpret_cast<const uint8_t *>(t)[3];
+    auto versionNumber = tbtFileVersionNumber(t);
 
     switch (versionNumber) {
     case 0x72: {
 
-        auto t71 = *reinterpret_cast<const tbt_file71 *>(t);
+        auto t71 = std::get<tbt_file71>(t);
         
         return TexportMidiBytes<0x72, tbt_file71, 8>(t71, out);
     }
     case 0x71: {
         
-        auto t71 = *reinterpret_cast<const tbt_file71 *>(t);
+        auto t71 = std::get<tbt_file71>(t);
         
         return TexportMidiBytes<0x71, tbt_file71, 8>(t71, out);
     }
     case 0x70: {
         
-        auto t70 = *reinterpret_cast<const tbt_file70 *>(t);
+        auto t70 = std::get<tbt_file70>(t);
         
         return TexportMidiBytes<0x70, tbt_file70, 8>(t70, out);
     }
     case 0x6f: {
         
-        auto t6f = *reinterpret_cast<const tbt_file6f *>(t);
+        auto t6f = std::get<tbt_file6f>(t);
         
         return TexportMidiBytes<0x6f, tbt_file6f, 8>(t6f, out);
     }
     case 0x6e: {
         
-        auto t6e = *reinterpret_cast<const tbt_file6e *>(t);
+        auto t6e = std::get<tbt_file6e>(t);
         
         return TexportMidiBytes<0x6e, tbt_file6e, 8>(t6e, out);
     }
     case 0x6b: {
         
-        auto t6b = *reinterpret_cast<const tbt_file6b *>(t);
+        auto t6b = std::get<tbt_file6b>(t);
         
         return TexportMidiBytes<0x6b, tbt_file6b, 8>(t6b, out);
     }
     case 0x6a: {
         
-        auto t6a = *reinterpret_cast<const tbt_file6a *>(t);
+        auto t6a = std::get<tbt_file6a>(t);
         
         return TexportMidiBytes<0x6a, tbt_file6a, 6>(t6a, out);
     }
     case 0x69: {
         
-        auto t68 = *reinterpret_cast<const tbt_file68 *>(t);
+        auto t68 = std::get<tbt_file68>(t);
         
         return TexportMidiBytes<0x69, tbt_file68, 6>(t68, out);
     }
     case 0x68: {
         
-        auto t68 = *reinterpret_cast<const tbt_file68 *>(t);
+        auto t68 = std::get<tbt_file68>(t);
         
         return TexportMidiBytes<0x68, tbt_file68, 6>(t68, out);
     }
     case 0x67: {
         
-        auto t65 = *reinterpret_cast<const tbt_file65 *>(t);
+        auto t65 = std::get<tbt_file65>(t);
         
         return TexportMidiBytes<0x67, tbt_file65, 6>(t65, out);
     }
     case 0x66: {
         
-        auto t65 = *reinterpret_cast<const tbt_file65 *>(t);
+        auto t65 = std::get<tbt_file65>(t);
         
         return TexportMidiBytes<0x66, tbt_file65, 6>(t65, out);
     }
     case 0x65: {
         
-        auto t65 = *reinterpret_cast<const tbt_file65 *>(t);
+        auto t65 = std::get<tbt_file65>(t);
         
         return TexportMidiBytes<0x65, tbt_file65, 6>(t65, out);
     }
