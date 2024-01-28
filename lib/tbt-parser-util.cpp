@@ -316,17 +316,29 @@ computeDeltaListCount(
 }
 
 
+std::array<uint8_t, 2> toDigitsBE(uint16_t value) {
+
+    std::array<uint8_t, 2> arr{};
+
+    arr[1] = value & 0xffu;
+    value >>= 8;
+    arr[0] = value & 0xffu;
+
+    return arr;
+}
+
+
 std::array<uint8_t, 4> toDigitsBE(uint32_t value) {
 
     std::array<uint8_t, 4> arr{};
 
-    arr[3] = value & 0xff;
+    arr[3] = value & 0xffu;
     value >>= 8;
-    arr[2] = value & 0xff;
+    arr[2] = value & 0xffu;
     value >>= 8;
-    arr[1] = value & 0xff;
+    arr[1] = value & 0xffu;
     value >>= 8;
-    arr[0] = value & 0xff;
+    arr[0] = value & 0xffu;
 
     return arr;
 }

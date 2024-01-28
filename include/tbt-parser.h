@@ -548,6 +548,118 @@ struct tbt_file65 {
 using tbt_file = std::variant<tbt_file65, tbt_file68, tbt_file6a, tbt_file6b, tbt_file6e, tbt_file6f, tbt_file70, tbt_file71>;
 
 
+struct midi_header {
+    uint16_t format;
+    uint16_t trackCount;
+    uint16_t division;
+};
+
+
+struct NullEvent {
+    uint32_t deltaTime;
+};
+
+struct TimeSignatureEvent {
+    uint32_t deltaTime;
+    uint8_t numerator;
+    uint8_t denominator; // (as 2^d)
+    uint8_t ticksPerMetronomeClick;
+    uint8_t notated32notesInMIDIQuarterNotes;
+};
+
+struct TempoChangeEvent {
+    uint32_t deltaTime;
+    uint32_t microsPerBeat;
+};
+
+struct EndOfTrackEvent {
+    uint32_t deltaTime;
+};
+
+struct ProgramChangeEvent {
+    uint32_t deltaTime;
+    uint8_t channel;
+    uint8_t midiProgram;
+};
+
+struct PanEvent {
+    uint32_t deltaTime;
+    uint8_t channel;
+    uint8_t pan;
+};
+
+struct ReverbEvent {
+    uint32_t deltaTime;
+    uint8_t channel;
+    uint8_t reverb;
+};
+
+struct ChorusEvent {
+    uint32_t deltaTime;
+    uint8_t channel;
+    uint8_t chorus;
+};
+
+struct ModulationEvent {
+    uint32_t deltaTime;
+    uint8_t channel;
+    uint8_t modulation;
+};
+
+struct RPNParameterMSBEvent {
+    uint32_t deltaTime;
+    uint8_t channel;
+    uint8_t rpnParameterMSB;
+};
+
+struct RPNParameterLSBEvent {
+    uint32_t deltaTime;
+    uint8_t channel;
+    uint8_t rpnParameterLSB;
+};
+
+struct DataEntryMSBEvent {
+    uint32_t deltaTime;
+    uint8_t channel;
+    uint8_t dataEntryMSB;
+};
+
+struct DataEntryLSBEvent {
+    uint32_t deltaTime;
+    uint8_t channel;
+    uint8_t dataEntryLSB;
+};
+
+struct PitchBendEvent {
+    uint32_t deltaTime;
+    uint8_t channel;
+    int16_t pitchBend;
+};
+
+struct NoteOffEvent {
+    uint32_t deltaTime;
+    uint8_t channel;
+    uint8_t midiNote;
+    uint8_t velocity;
+};
+
+struct NoteOnEvent {
+    uint32_t deltaTime;
+    uint8_t channel;
+    uint8_t midiNote;
+    uint8_t velocity;
+};
+
+using midi_track_event = std::variant<NullEvent, TimeSignatureEvent, TempoChangeEvent, EndOfTrackEvent, ProgramChangeEvent, PanEvent,
+    ReverbEvent, ChorusEvent, ModulationEvent, RPNParameterMSBEvent, RPNParameterLSBEvent, DataEntryMSBEvent, DataEntryLSBEvent,
+    PitchBendEvent, NoteOffEvent, NoteOnEvent>;
+
+struct midi_file {
+    midi_header header;
+    std::vector<std::vector<midi_track_event>> tracks;
+};
+
+
 Status parseTbtFile(const char *path, tbt_file &out);
 
 Status parseTbtBytes(const std::vector<uint8_t> data, tbt_file &out);
@@ -556,9 +668,11 @@ uint8_t tbtFileVersionNumber(const tbt_file t);
 
 std::array<uint8_t, 5> tbtFileVersionString(const tbt_file t);
 
-Status exportMidiFile(const tbt_file t, const char *path);
+Status convertToMidi(const tbt_file t, midi_file &m);
 
-Status exportMidiBytes(const tbt_file t, std::vector<uint8_t> &out);
+Status exportMidiFile(const midi_file m, const char *path);
+
+Status exportMidiBytes(const midi_file m, std::vector<uint8_t> &out);
 
 
 

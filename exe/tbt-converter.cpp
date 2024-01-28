@@ -110,7 +110,15 @@ int main(int argc, const char *argv[]) {
 
     LOGI("exporting...");
 
-	ret = exportMidiFile(t, outputFile.c_str());
+    midi_file m;
+
+    ret = convertToMidi(t, m);
+
+    if (ret != OK) {
+		return ret;
+	}
+
+	ret = exportMidiFile(m, outputFile.c_str());
 
 	if (ret != OK) {
 		return ret;

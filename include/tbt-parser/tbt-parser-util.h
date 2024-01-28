@@ -39,6 +39,7 @@ Status zlib_inflate(const std::vector<uint8_t> &data, std::vector<uint8_t> &acc)
 
 Status computeDeltaListCount(const std::vector<uint8_t> &deltaList, uint32_t *acc);
 
+std::array<uint8_t, 2> toDigitsBE(uint16_t value);
 std::array<uint8_t, 4> toDigitsBE(uint32_t value);
 
 std::string fromPascal1String(std::vector<uint8_t> data);
