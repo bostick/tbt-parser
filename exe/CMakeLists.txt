@@ -18,15 +18,28 @@
 
 cmake_minimum_required(VERSION 3.5)
 
-set(CPP_EXE_CONVERTER_SOURCES
+set(CPP_EXE_TBT_CONVERTER_SOURCES
     tbt-converter.cpp
 )
 
+set(CPP_EXE_MIDI_INFO_SOURCES
+    midi-info.cpp
+)
+
 add_executable(tbt-converter-exe
-    ${CPP_EXE_CONVERTER_SOURCES}
+    ${CPP_EXE_TBT_CONVERTER_SOURCES}
+)
+
+add_executable(midi-info-exe
+    ${CPP_EXE_MIDI_INFO_SOURCES}
 )
 
 target_link_libraries(tbt-converter-exe
+    PRIVATE
+        tbt-parser-static-lib
+)
+
+target_link_libraries(midi-info-exe
     PRIVATE
         tbt-parser-static-lib
 )
@@ -36,9 +49,21 @@ target_include_directories(tbt-converter-exe
         ../include/
 )
 
+target_include_directories(midi-info-exe
+    PRIVATE
+        ../include/
+)
+
 set_target_properties(tbt-converter-exe
     PROPERTIES
         OUTPUT_NAME tbt-converter
+        CXX_STANDARD 20
+        CXX_STANDARD_REQUIRED ON
+)
+
+set_target_properties(midi-info-exe
+    PROPERTIES
+        OUTPUT_NAME midi-info
         CXX_STANDARD 20
         CXX_STANDARD_REQUIRED ON
 )
@@ -52,12 +77,24 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 target_compile_options(tbt-converter-exe PRIVATE
     -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion
 )
+target_compile_options(midi-info-exe PRIVATE
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion
+)
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 target_compile_options(tbt-converter-exe PRIVATE
     -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion
 )
+target_compile_options(midi-info-exe PRIVATE
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion
+)
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 target_compile_options(tbt-converter-exe PRIVATE
+    #
+    # Zc:preprocessor is needed for handling __VA_OPT__(,)
+    #
+    /Zc:preprocessor /WX /W4
+)
+target_compile_options(midi-info-exe PRIVATE
     #
     # Zc:preprocessor is needed for handling __VA_OPT__(,)
     #

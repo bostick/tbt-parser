@@ -674,6 +674,10 @@ Status exportMidiFile(const midi_file m, const char *path);
 
 Status exportMidiBytes(const midi_file m, std::vector<uint8_t> &out);
 
+Status parseMidiFile(const char *path, midi_file &out);
+
+Status parseMidiBytes(const std::vector<uint8_t> data, midi_file &out);
+
 
 
 

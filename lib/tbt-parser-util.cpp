@@ -50,6 +50,46 @@ uint32_t parseLE4(const uint8_t *data) {
 }
 
 
+uint16_t parseBE2(std::vector<uint8_t>::const_iterator &it) {
+    return static_cast<uint16_t>((*it++ << 8) | (*it++ << 0));
+}
+
+
+uint32_t parseBE4(std::vector<uint8_t>::const_iterator &it) {
+    return static_cast<uint32_t>((*it++ << 24) | (*it++ << 16) | (*it++ << 8) | (*it++ << 0));
+}
+
+
+Status
+parseVLQ(
+    std::vector<uint8_t>::const_iterator &it,
+    const std::vector<uint8_t>::const_iterator end,
+    uint32_t &out) {
+
+    out = 0;
+
+    while (true) {
+
+        if (it + 1 > end) {
+
+            LOGE("out of data");
+
+            return ERR;
+        }
+
+        auto b = *it++;
+
+        out = (out << 7) | (b & 0b01111111);
+
+        if ((b & 0b10000000) == 0b00000000) {
+            break;
+        }
+    }
+
+    return OK;
+}
+
+
 std::vector<uint8_t>
 readPascal2String(
     std::vector<uint8_t>::const_iterator &it) {

@@ -28,6 +28,15 @@ uint16_t parseLE2(const uint8_t *data);
 uint32_t parseLE4(std::vector<uint8_t>::const_iterator &it);
 uint32_t parseLE4(const uint8_t *data);
 
+uint16_t parseBE2(std::vector<uint8_t>::const_iterator &it);
+uint32_t parseBE4(std::vector<uint8_t>::const_iterator &it);
+
+Status
+parseVLQ(
+	std::vector<uint8_t>::const_iterator &it,
+	const std::vector<uint8_t>::const_iterator end,
+	uint32_t &out);
+
 std::vector<uint8_t> readPascal2String(std::vector<uint8_t>::const_iterator &it);
 
 std::vector<uint8_t> parseDeltaListChunk(std::vector<uint8_t>::const_iterator &it);
