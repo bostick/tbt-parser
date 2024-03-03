@@ -1,6 +1,6 @@
 
 # tbt-parser
-A parser and MIDI converter for .tbt TabIt files
+A C++ parser and MIDI converter for .tbt TabIt files
 
 The .tbt TabIt file format is described here:
 
