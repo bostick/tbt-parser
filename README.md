@@ -11,6 +11,7 @@ The .tbt TabIt file format is described here:
 
 tbt-parser depends on zlib and uses CMake for building.
 
+tbt-parser requires a C++17 compiler because of features such as `constexpr if`.
 
 ```
 cd cpp
