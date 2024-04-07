@@ -379,9 +379,9 @@ computeDeltaListCount(
             CHECK(s.size() == 2, "unhandled");
 
             //
-            // parses s[0][1] and s[1][0] as a single short
+            // parse s[0][1] and s[1][0] as a single short
             //
-            *acc += parseLE2(&s[0][1]);
+            *acc += parseLE2(s[0][1], s[1][0]);
 
         } else {
 

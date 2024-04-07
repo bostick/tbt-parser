@@ -66,9 +66,9 @@ expandDeltaList(
             CHECK(s.size() == 2, "unhandled");
 
             //
-            // parses s[0][1] and s[1][0] as a single short
+            // parse s[0][1] and s[1][0] as a single short
             //
-            n = parseLE2(&s[0][1]);
+            n = parseLE2(s[0][1], s[1][0]);
 
             y = s[1][1];
 
