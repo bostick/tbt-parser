@@ -1,4 +1,4 @@
-// Copyright (C) 2023 by Brenton Bostick
+// Copyright (C) 2024 by Brenton Bostick
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 // associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -16,47 +16,22 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+#pragma once
 
-#define TAG "partitionInto"
+#include "common/status.h"
 
+#define CHECK(cond, msg, ...) \
+   do { \
+      if (!(cond)) { \
+         LOGE(msg __VA_OPT__(,) __VA_ARGS__); \
+         return ERR; \
+      } \
+   } while (0)
 
-//
-// partition into parts of size s
-//
-
-
-template <uint32_t S>
-Status
-partitionInto(
-    const std::vector<uint8_t> &data,
-    std::vector<std::array<uint8_t, S> > &out) {
-
-    CHECK(data.size() % S == 0, "unhandled");
-
-    for (size_t i = 0; i < data.size(); i += S) {
-
-        std::array<uint8_t, S> part;
-
-        for (size_t j = 0; j < S; j++) {
-            part[j] = data[i + j];
-        }
-
-        out.push_back(part);
-    }
-
-    return OK;
-}
-
-
-#undef TAG
-
-
-
-
-
-
-
-
-
-
-
+#define CHECK_NOT(cond, msg, ...) \
+   do { \
+      if ((cond)) { \
+         LOGE(msg __VA_OPT__(,) __VA_ARGS__); \
+         return ERR; \
+      } \
+   } while (0)

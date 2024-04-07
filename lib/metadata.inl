@@ -32,7 +32,34 @@ parseMetadata(
     const std::vector<uint8_t>::const_iterator end,
     tbt_file_t &out) {
 
-    (void)end;
+    if constexpr (0x71 <= VERSION) {
+
+        CHECK(it + sizeof(tbt_track_metadata71) * out.header.trackCount <= end, "unhandled");
+
+    } else if constexpr (0x70 <= VERSION) {
+
+        CHECK(it + sizeof(tbt_track_metadata70) * out.header.trackCount <= end, "unhandled");
+
+    } else if constexpr (0x6e <= VERSION) {
+
+        CHECK(it + sizeof(tbt_track_metadata6e) * out.header.trackCount <= end, "unhandled");
+
+    } else if constexpr (0x6b <= VERSION) {
+
+        CHECK(it + sizeof(tbt_track_metadata6b) * out.header.trackCount <= end, "unhandled");
+
+    } else if constexpr (0x6a <= VERSION) {
+
+        CHECK(it + sizeof(tbt_track_metadata6a) * out.header.trackCount <= end, "unhandled");
+
+    } else if constexpr (0x65 <= VERSION) {
+
+        CHECK(it + sizeof(tbt_track_metadata65) * out.header.trackCount <= end, "unhandled");
+
+    } else {
+
+        ASSERT(false);
+    }
 
     if constexpr (0x70 <= VERSION) {
         for (uint8_t track = 0; track < out.header.trackCount; track++) {

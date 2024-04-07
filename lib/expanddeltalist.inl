@@ -63,7 +63,7 @@ expandDeltaList(
 
         if (s[0][0] == 0) {
 
-            ASSERT(s.size() == 2);
+            CHECK(s.size() == 2, "unhandled");
 
             //
             // parses s[0][1] and s[1][0] as a single short
@@ -95,7 +95,7 @@ expandDeltaList(
 
         if (space == newSpace) {
 
-            ASSERT(slot < newSlot);
+            CHECK(slot < newSlot, "unhandled");
 
             //
             // continue filling current space;

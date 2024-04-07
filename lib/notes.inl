@@ -67,7 +67,7 @@ parseNotesMapList(
                 return ret;
             }
 
-            ASSERT(vsqCount <= (STRINGS_PER_TRACK + STRINGS_PER_TRACK + 4) * trackSpaceCount);
+            CHECK(vsqCount <= (STRINGS_PER_TRACK + STRINGS_PER_TRACK + 4) * trackSpaceCount, "unhandled");
 
             if (vsqCount == (STRINGS_PER_TRACK + STRINGS_PER_TRACK + 4) * trackSpaceCount) {
                 break;

@@ -64,7 +64,7 @@ parseTrackEffectChangesMapList(
             uint16_t r = parseLE2(part[4], part[5]);
             uint16_t v = parseLE2(part[6], part[7]);
 
-            ASSERT(r == 0x02);
+            CHECK(r == 0x02, "unhandled");
 
             space += s;
 

@@ -19,6 +19,7 @@
 #include "tbt-parser/tbt-parser-util.h"
 
 #include "common/assert.h"
+#include "common/check.h"
 #include "common/logging.h"
 
 #include "zlib.h"
@@ -70,7 +71,11 @@ readPascal2String(
 
     auto begin = it;
 
+    CHECK(it + 2 <= end, "out of data");
+
     auto len = parseLE2(*it++, *it++);
+
+    CHECK(it + len <= end, "out of data");
 
     out = std::vector<char>(begin, it + len);
     it += len;
@@ -85,11 +90,13 @@ parseDeltaListChunk(
     const std::vector<uint8_t>::const_iterator end,
     std::vector<uint8_t> &out) {
 
-    (void)end;
+    CHECK(it + 2 <= end, "out of data");
 
     auto count = parseLE2(*it++, *it++);
 
-    ASSERT(count <= 0x1000);
+    CHECK(count <= 0x1000, "out of data");
+
+    CHECK(it + 2 <= end, "out of data");
 
     out = std::vector<uint8_t>(it, it + 2 * count);
     it += 2 * count;
@@ -104,13 +111,15 @@ parseChunk4(
     const std::vector<uint8_t>::const_iterator end,
     std::vector<uint8_t> &out) {
 
-    (void)end;
+    CHECK(it + 4 <= end, "out of data");
 
     auto count = parseLE4(*it++, *it++, *it++, *it++);
 
     static const int MAX_SIGNED_INT32 = 0x7fffffff;
 
-    ASSERT(count <= MAX_SIGNED_INT32);
+    CHECK(count <= MAX_SIGNED_INT32, "unhandled");
+
+    CHECK(it + static_cast<int32_t>(count) <= end, "unhandled");
 
     out = std::vector<uint8_t>(it, it + static_cast<int32_t>(count));
     it += static_cast<int32_t>(count);
@@ -322,7 +331,7 @@ computeDeltaListCount(
 
         if (s[0][0] == 0) {
 
-            ASSERT(s.size() == 2);
+            CHECK(s.size() == 2, "unhandled");
 
             //
             // parses s[0][1] and s[1][0] as a single short

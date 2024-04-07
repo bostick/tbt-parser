@@ -21,6 +21,7 @@
 #include "tbt-parser/tbt-parser-util.h"
 
 #include "common/assert.h"
+#include "common/check.h"
 #include "common/file.h"
 #include "common/logging.h"
 

@@ -34,6 +34,8 @@ parseBarsMap(
 
     if constexpr (0x70 <= VERSION) {
 
+        CHECK(it + out.header.barCount * 6 <= end, "unhandled");
+        
         std::vector<uint8_t> data(it, it + out.header.barCount * 6);
         it += out.header.barCount * 6;
 
@@ -90,7 +92,7 @@ parseBarsMap(
                 return ret;
             }
 
-            ASSERT(sqCount <= barsSpaceCount);
+            CHECK(sqCount <= barsSpaceCount, "unhandled");
 
             if (sqCount == barsSpaceCount) {
                 break;

@@ -63,7 +63,7 @@ parseAlternateTimeRegionsMapList(
                 return ret;
             }
 
-            ASSERT(dsqCount <= 2 * trackSpaceCount);
+            CHECK(dsqCount <= 2 * trackSpaceCount, "unhandled");
 
             if (dsqCount == 2 * trackSpaceCount) {
                 break;
@@ -112,7 +112,7 @@ parseAlternateTimeRegionsMapList(
 
         alternateTimeRegionsCorrection = round(alternateTimeRegionsCorrection);
 
-        ASSERT(out.metadata.tracks[track].spaceCount == out.body.barsSpaceCount + static_cast<uint32_t>(alternateTimeRegionsCorrection));
+        CHECK(out.metadata.tracks[track].spaceCount == out.body.barsSpaceCount + static_cast<uint32_t>(alternateTimeRegionsCorrection), "unhandled");
 
         out.body.alternateTimeRegionsMapList.push_back(alternateTimeRegionsMap);
     }

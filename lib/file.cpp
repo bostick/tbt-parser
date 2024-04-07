@@ -20,6 +20,7 @@
 
 #include "common/file.h"
 
+#include "common/check.h"
 #include "common/logging.h"
 
 #include <cstdio>
@@ -32,28 +33,15 @@ openFile(
     
     FILE *file = fopen(path, "rb");
 
-    if (!file) {
+    CHECK(file, "cannot open %s", path);
 
-        LOGE("cannot open %s\n", path);
-
-        return ERR;
-    }
-
-    if (fseek(file, 0, SEEK_END)) {
-
-        LOGE("fseek failed");
-
-        return ERR;
-    }
+    int fres = fseek(file, 0, SEEK_END);
+    
+    CHECK_NOT(fres, "fseek failed");
 
     long res = ftell(file);
 
-    if (res < 0) {
-
-        LOGE("ftell failed");
-
-        return ERR;
-    }
+    CHECK_NOT(res < 0, "ftell failed");
 
     size_t len = static_cast<size_t>(res);
 
@@ -63,14 +51,11 @@ openFile(
 
     size_t r = fread(out.data(), sizeof(uint8_t), len, file);
 
-    if (r != len) {
+    CHECK(r == len, "fread failed");
 
-        LOGE("fread failed");
+    fres = fclose(file);
 
-        return ERR;
-    }
-
-    fclose(file);
+    CHECK_NOT(fres, "fclose failed");
 
     return OK;
 }
@@ -83,23 +68,15 @@ saveFile(
 
     FILE *file = fopen(path, "wb");
 
-    if (!file) {
-
-        LOGE("cannot open %s\n", path);
-
-        return ERR;
-    }
+    CHECK(file, "cannot open %s", path);
 
     auto r = fwrite(buf.data(), sizeof(uint8_t), buf.size(), file);
 
-    if (r != buf.size()) {
+    CHECK(r == buf.size(), "fwrite failed");
 
-        LOGE("fwrite failed");
+    int fres = fclose(file);
 
-        return ERR;
-    }
-
-    fclose(file);
+    CHECK_NOT(fres, "fclose failed");
 
     return OK;
 }
