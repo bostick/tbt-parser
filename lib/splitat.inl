@@ -18,34 +18,26 @@
 
 
 //
-// adapted from:
-// https://subscription.packtpub.com/book/programming/9781803248714/11/ch11lvl1sec14/build-your-own-algorithm-split
-//
 // Elements that match predicate are kept.
 //
 template <typename It, typename Oc, typename Pred>
 void splitAt(It it, It end_it, Oc &dest, Pred f) {
+
     using SliceContainer = typename Oc::value_type;
     while (it != end_it) {
 
         SliceContainer dest_elm{};
 
-        auto slice{it};
+        while (it != end_it) {
+            
+            dest_elm.push_back(*it);
 
-        while (slice != end_it) {
-
-            dest_elm.push_back(*slice);
-
-            if (!f(*slice)) {
+            if (!f(*it++)) {
                 break;
             }
-
-            slice++;
         }
 
         dest.push_back(dest_elm);
-
-        it = ++slice;
     }
 }
 
