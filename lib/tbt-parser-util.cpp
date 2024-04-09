@@ -280,9 +280,21 @@ zlib_inflate(
 
     /* decompress until deflate stream ends or end of file */
     do {
-        strm.avail_in = static_cast<uInt>(end - it);
-        strm.next_in = const_cast<uint8_t *>(&*it);
+        
+        ASSERT(it <= end);
+        
+        if (it + CHUNK <= end) {
+            strm.avail_in = CHUNK;
+        } else {
+            strm.avail_in = static_cast<uInt>(end - it);
+        }
 
+        if (strm.avail_in == 0) {
+            break;
+        }
+        
+        strm.next_in = const_cast<uint8_t *>(&*it);
+        
         /* run inflate() on input until output buffer not full */
 
         uint8_t out[CHUNK];
@@ -312,7 +324,21 @@ zlib_inflate(
             acc.insert(acc.end(), out, out + have);
 
         } while (strm.avail_out == 0);
+        
+        if (it + CHUNK < end) {
+            strm.avail_in = CHUNK;
+            it += CHUNK;
+        } else {
+             
+            //
+            // no more input
+            //
 
+            it = end;
+
+            break;
+        }
+        
     /* done when inflate() says it's done */
     } while (ret != Z_STREAM_END);
 
