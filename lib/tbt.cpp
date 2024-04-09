@@ -369,22 +369,6 @@ parseTbtFile(
         return ret;
     }
 
-    auto len = buf.size();
-
-    if (len == 0) {
-        
-        LOGE("empty file");
-
-        return ERR;
-    }
-
-    if (len < HEADER_SIZE) {
-        
-        LOGE("file is too small to be parsed. size: %zu", len);
-
-        return ERR;
-    }
-
     auto buf_it = buf.cbegin();
 
     auto buf_end = buf.cend();
@@ -398,6 +382,12 @@ parseTbtBytes(
     std::vector<uint8_t>::const_iterator &it,
     const std::vector<uint8_t>::const_iterator end,
     tbt_file &out) {
+
+    auto len = end - it;
+
+    CHECK(len != 0, "empty file");
+
+    CHECK_NOT(len <= HEADER_SIZE, "file is too small to be parsed. size: %zu", len);
 
     auto versionNumber_it = it + 3;
 
