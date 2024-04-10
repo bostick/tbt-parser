@@ -40,6 +40,11 @@ uint16_t parseLE2(const uint8_t *data) {
 }
 
 
+uint16_t parseLE2(uint8_t b0, uint8_t b1) {
+    return static_cast<uint16_t>((b0 << 0) | (b1 << 8));
+}
+
+
 uint32_t parseLE4(std::vector<uint8_t>::const_iterator &it) {
     return static_cast<uint32_t>((*it++ << 0) | (*it++ << 8) | (*it++ << 16) | (*it++ << 24));
 }
@@ -50,50 +55,67 @@ uint32_t parseLE4(const uint8_t *data) {
 }
 
 
-std::vector<uint8_t>
+uint32_t parseLE4(uint8_t b0, uint8_t b1, uint8_t b2, uint8_t b3) {
+    return static_cast<uint32_t>((b0 << 0) | (b1 << 8) | (b2 << 16) | (b3 << 24));
+}
+
+
+Status
 readPascal2String(
-    std::vector<uint8_t>::const_iterator &it) {
+    std::vector<uint8_t>::const_iterator &it,
+    const std::vector<uint8_t>::const_iterator end,
+    std::vector<char> &out) {
+
+    (void)end;
 
     auto begin = it;
 
-    auto len = parseLE2(it);
+    auto len = parseLE2(*it++, *it++);
 
-    auto str = std::vector<uint8_t>(begin, it + len);
+    out = std::vector<char>(begin, it + len);
     it += len;
 
-    return str;
+    return OK;
 }
 
 
-std::vector<uint8_t>
+Status
 parseDeltaListChunk(
-    std::vector<uint8_t>::const_iterator &it) {
+    std::vector<uint8_t>::const_iterator &it,
+    const std::vector<uint8_t>::const_iterator end,
+    std::vector<uint8_t> &out) {
 
-    auto count = parseLE2(it);
+    (void)end;
+
+    auto count = parseLE2(*it++, *it++);
 
     ASSERT(count <= 0x1000);
 
-    auto chunk = std::vector<uint8_t>(it, it + 2 * count);
+    out = std::vector<uint8_t>(it, it + 2 * count);
     it += 2 * count;
 
-    return chunk;
+    return OK;
 }
 
 
-std::vector<uint8_t>
+Status
 parseChunk4(
-    std::vector<uint8_t>::const_iterator &it) {
+    std::vector<uint8_t>::const_iterator &it,
+    const std::vector<uint8_t>::const_iterator end,
+    std::vector<uint8_t> &out) {
 
-    auto count = parseLE4(it);
+    (void)end;
+
+    auto count = parseLE4(*it++, *it++, *it++, *it++);
 
     static const int MAX_SIGNED_INT32 = 0x7fffffff;
 
     ASSERT(count <= MAX_SIGNED_INT32);
 
-    auto chunk = std::vector<uint8_t>(it, it + static_cast<int32_t>(count));
+    out = std::vector<uint8_t>(it, it + static_cast<int32_t>(count));
     it += static_cast<int32_t>(count);
 
-    return chunk;
+    return OK;
 }
 
 
@@ -146,12 +168,14 @@ uint32_t table[256] = {
 // clang-format on
 
 
-uint32_t crc32_checksum(const std::vector<uint8_t> &data) {
+uint32_t crc32_checksum(
+    std::vector<uint8_t>::const_iterator &it,
+    const std::vector<uint8_t>::const_iterator end) {
 
     uint32_t acc = 0xffffffff;
 
-    for (uint8_t b : data) {
-        acc = table[(acc & 0xff) ^ b] ^ (acc >> 8);
+    while (it < end) {
+        acc = table[(acc & 0xff) ^ *it++] ^ (acc >> 8);
     }
 
     return acc ^ 0xffffffff;
@@ -180,7 +204,8 @@ void zerr(int ret);
    is an error reading or writing the files. */
 Status
 zlib_inflate(
-    const std::vector<uint8_t> &data,
+    std::vector<uint8_t>::const_iterator &it,
+    const std::vector<uint8_t>::const_iterator end,
     std::vector<uint8_t> &acc) {
 
     int ret;
@@ -201,8 +226,8 @@ zlib_inflate(
 
     /* decompress until deflate stream ends or end of file */
     do {
-        strm.avail_in = static_cast<uInt>(data.size());
-        strm.next_in = const_cast<uint8_t *>(data.data());
+        strm.avail_in = static_cast<uInt>(end - it);
+        strm.next_in = const_cast<uint8_t *>(&*it);
 
         /* run inflate() on input until output buffer not full */
 
@@ -344,13 +369,9 @@ std::array<uint8_t, 4> toDigitsBE(uint32_t value) {
 }
 
 
-std::string fromPascal1String(std::vector<uint8_t> data) {
-    return fromPascal1String(data.data());
-}
+std::string fromPascal1String(const char *data) {
 
-std::string fromPascal1String(const uint8_t *data) {
-
-    uint8_t len = *(data + 0);
+    uint8_t len = static_cast<uint8_t>(*(data + 0));
 
     std::vector<char> cstrData(data + 1, data + 1 + len + 1);
 
@@ -359,11 +380,11 @@ std::string fromPascal1String(const uint8_t *data) {
     return { cstrData.data() };
 }
 
-std::string fromPascal2String(std::vector<uint8_t> data) {
+std::string fromPascal2String(const char *data) {
 
-    uint16_t len = parseLE2(data.data());
+    uint16_t len = parseLE2(reinterpret_cast<const uint8_t *>(data));
 
-    std::vector<char> cstrData(data.data() + 2, data.data() + 2 + len + 1);
+    std::vector<char> cstrData(data + 2, data + 2 + len + 1);
 
     cstrData[len] = '\0';
 

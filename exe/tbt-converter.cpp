@@ -134,90 +134,90 @@ int main(int argc, const char *argv[]) {
     
 void InfoVisitor::operator()(const tbt_file65 &t) {
     
-    LOGI("title: %s", fromPascal1String(t.metadata.title).data());
+    LOGI("title: %s", fromPascal1String(t.metadata.title.data()).data());
 
-    LOGI("artist: %s", fromPascal1String(t.metadata.artist).data());
+    LOGI("artist: %s", fromPascal1String(t.metadata.artist.data()).data());
 
-    // LOGI("%s", fromPascal1String(t.metadata.comment).data());
+    // LOGI("%s", fromPascal1String(t.metadata.comment.data()).data());
 }
 
 void InfoVisitor::operator()(const tbt_file68 &t) {
     
-    LOGI("title: %s", fromPascal1String(t.metadata.title).data());
+    LOGI("title: %s", fromPascal1String(t.metadata.title.data()).data());
 
-    LOGI("artist: %s", fromPascal1String(t.metadata.artist).data());
+    LOGI("artist: %s", fromPascal1String(t.metadata.artist.data()).data());
 
-    // LOGI("%s", fromPascal1String(t.metadata.comment).data());
+    // LOGI("%s", fromPascal1String(t.metadata.comment.data()).data());
 }
 
 void InfoVisitor::operator()(const tbt_file6a &t) {
     
-    LOGI("title: %s", fromPascal1String(t.metadata.title).data());
+    LOGI("title: %s", fromPascal1String(t.metadata.title.data()).data());
 
-    LOGI("artist: %s", fromPascal1String(t.metadata.artist).data());
+    LOGI("artist: %s", fromPascal1String(t.metadata.artist.data()).data());
 
-    // LOGI("%s", fromPascal1String(t.metadata.comment).data());
+    // LOGI("%s", fromPascal1String(t.metadata.comment.data()).data());
 }
 
 void InfoVisitor::operator()(const tbt_file6b &t) {
     
-    LOGI("title: %s", fromPascal1String(t.metadata.title).data());
+    LOGI("title: %s", fromPascal1String(t.metadata.title.data()).data());
 
-    LOGI("artist: %s", fromPascal1String(t.metadata.artist).data());
+    LOGI("artist: %s", fromPascal1String(t.metadata.artist.data()).data());
 
-    // LOGI("%s", fromPascal1String(t.metadata.comment).data());
+    // LOGI("%s", fromPascal1String(t.metadata.comment.data()).data());
 }
 
 void InfoVisitor::operator()(const tbt_file6e &t) {
     
-    LOGI("title: %s", fromPascal2String(t.metadata.title).data());
+    LOGI("title: %s", fromPascal2String(t.metadata.title.data()).data());
 
-    LOGI("artist: %s", fromPascal2String(t.metadata.artist).data());
+    LOGI("artist: %s", fromPascal2String(t.metadata.artist.data()).data());
 
-    LOGI("album: %s", fromPascal2String(t.metadata.album).data());
+    LOGI("album: %s", fromPascal2String(t.metadata.album.data()).data());
 
-    LOGI("transcribed by: %s", fromPascal2String(t.metadata.transcribedBy).data());
+    LOGI("transcribed by: %s", fromPascal2String(t.metadata.transcribedBy.data()).data());
 
-    // LOGI("%s", fromPascal2String(t.metadata.comment).data());
+    // LOGI("%s", fromPascal2String(t.metadata.comment.data()).data());
 }
 
 void InfoVisitor::operator()(const tbt_file6f &t) {
     
-    LOGI("title: %s", fromPascal2String(t.metadata.title).data());
+    LOGI("title: %s", fromPascal2String(t.metadata.title.data()).data());
 
-    LOGI("artist: %s", fromPascal2String(t.metadata.artist).data());
+    LOGI("artist: %s", fromPascal2String(t.metadata.artist.data()).data());
 
-    LOGI("album: %s", fromPascal2String(t.metadata.album).data());
+    LOGI("album: %s", fromPascal2String(t.metadata.album.data()).data());
 
-    LOGI("transcribed by: %s", fromPascal2String(t.metadata.transcribedBy).data());
+    LOGI("transcribed by: %s", fromPascal2String(t.metadata.transcribedBy.data()).data());
 
-    // LOGI("%s", fromPascal2String(t.metadata.comment).data());
+    // LOGI("%s", fromPascal2String(t.metadata.comment.data()).data());
 }
 
 void InfoVisitor::operator()(const tbt_file70 &t) {
     
-    LOGI("title: %s", fromPascal2String(t.metadata.title).data());
+    LOGI("title: %s", fromPascal2String(t.metadata.title.data()).data());
 
-    LOGI("artist: %s", fromPascal2String(t.metadata.artist).data());
+    LOGI("artist: %s", fromPascal2String(t.metadata.artist.data()).data());
 
-    LOGI("album: %s", fromPascal2String(t.metadata.album).data());
+    LOGI("album: %s", fromPascal2String(t.metadata.album.data()).data());
 
-    LOGI("transcribed by: %s", fromPascal2String(t.metadata.transcribedBy).data());
+    LOGI("transcribed by: %s", fromPascal2String(t.metadata.transcribedBy.data()).data());
 
-    // LOGI("%s", fromPascal2String(t.metadata.comment).data());
+    // LOGI("%s", fromPascal2String(t.metadata.comment.data()).data());
 }
 
 void InfoVisitor::operator()(const tbt_file71 &t) {
     
-    LOGI("title: %s", fromPascal2String(t.metadata.title).data());
+    LOGI("title: %s", fromPascal2String(t.metadata.title.data()).data());
 
-    LOGI("artist: %s", fromPascal2String(t.metadata.artist).data());
+    LOGI("artist: %s", fromPascal2String(t.metadata.artist.data()).data());
 
-    LOGI("album: %s", fromPascal2String(t.metadata.album).data());
+    LOGI("album: %s", fromPascal2String(t.metadata.album.data()).data());
 
-    LOGI("transcribed by: %s", fromPascal2String(t.metadata.transcribedBy).data());
+    LOGI("transcribed by: %s", fromPascal2String(t.metadata.transcribedBy.data()).data());
 
-    // LOGI("%s", fromPascal2String(t.metadata.comment).data());
+    // LOGI("%s", fromPascal2String(t.metadata.comment.data()).data());
 }
 
 

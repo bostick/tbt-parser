@@ -29,6 +29,7 @@ template <uint8_t VERSION, typename tbt_file_t>
 Status
 parseTrackEffectChangesMapList(
     std::vector<uint8_t>::const_iterator &it,
+    const std::vector<uint8_t>::const_iterator end,
     tbt_file_t &out) {
 
     out.body.trackEffectChangesMapList.clear();
@@ -36,13 +37,19 @@ parseTrackEffectChangesMapList(
 
     for (uint8_t track = 0; track < out.header.trackCount; track++) {
 
-        std::vector<uint8_t> arrayList = parseChunk4(it);
+        std::vector<uint8_t> arrayList;
+
+        Status ret = parseChunk4(it, end, arrayList);
+
+        if (ret != OK) {
+            return ret;
+        }
 
         std::map<uint32_t, std::vector<tbt_track_effect_change> > trackEffectChangesMap;
 
         std::vector<std::array<uint8_t, 8> > parts;
 
-        Status ret = partitionInto<8>(arrayList, parts);
+        ret = partitionInto<8>(arrayList, parts);
 
         if (ret != OK) {
             return ret;
@@ -52,10 +59,10 @@ parseTrackEffectChangesMapList(
 
         for (const auto &part : parts) {
 
-            uint16_t s = parseLE2(&part[0]);
-            uint16_t e = parseLE2(&part[2]);
-            uint16_t r = parseLE2(&part[4]);
-            uint16_t v = parseLE2(&part[6]);
+            uint16_t s = parseLE2(part[0], part[1]);
+            uint16_t e = parseLE2(part[2], part[3]);
+            uint16_t r = parseLE2(part[4], part[5]);
+            uint16_t v = parseLE2(part[6], part[7]);
 
             ASSERT(r == 0x02);
 

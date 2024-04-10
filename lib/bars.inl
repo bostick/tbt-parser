@@ -29,6 +29,7 @@ template <uint8_t VERSION, typename tbt_file_t>
 Status
 parseBarsMap(
     std::vector<uint8_t>::const_iterator &it,
+    const std::vector<uint8_t>::const_iterator end,
     tbt_file_t &out) {
 
     if constexpr (0x70 <= VERSION) {
@@ -52,7 +53,7 @@ parseBarsMap(
 
             uint32_t space = out.body.barsSpaceCount;
 
-            out.body.barsSpaceCount += parseLE4(part.data());
+            out.body.barsSpaceCount += parseLE4(part[0], part[1], part[2], part[3]);
 
             out.body.barsMap[space] = { part[4], part[5] };
         }
@@ -73,11 +74,17 @@ parseBarsMap(
 
         while (true) {
 
-            std::vector<uint8_t> deltaList = parseDeltaListChunk(it);
+            std::vector<uint8_t> deltaList;
+
+            Status ret = parseDeltaListChunk(it, end, deltaList);
+
+            if (ret != OK) {
+                return ret;
+            }
 
             barsDeltaListAcc.insert(barsDeltaListAcc.end(), deltaList.cbegin(), deltaList.cend());
 
-            Status ret = computeDeltaListCount(deltaList, &sqCount);
+            ret = computeDeltaListCount(deltaList, &sqCount);
 
             if (ret != OK) {
                 return ret;

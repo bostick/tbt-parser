@@ -1149,7 +1149,7 @@ TconvertToMidi(
 
 Status
 convertToMidi(
-    const tbt_file t,
+    const tbt_file &t,
     midi_file &out) {
 
     auto versionNumber = tbtFileVersionNumber(t);
@@ -1274,7 +1274,7 @@ struct EventVisitor {
 
 Status
 exportMidiBytes(
-    const midi_file m,
+    const midi_file &m,
     std::vector<uint8_t> &out) {
 
     out.clear();
@@ -1321,7 +1321,7 @@ exportMidiBytes(
 
 Status
 exportMidiFile(
-    const midi_file m,
+    const midi_file &m,
     const char *path) {
 
     std::vector<uint8_t> data;

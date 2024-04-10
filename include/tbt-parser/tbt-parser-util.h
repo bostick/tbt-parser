@@ -25,27 +25,48 @@
 
 uint16_t parseLE2(std::vector<uint8_t>::const_iterator &it);
 uint16_t parseLE2(const uint8_t *data);
+uint16_t parseLE2(uint8_t b0, uint8_t b1);
+
 uint32_t parseLE4(std::vector<uint8_t>::const_iterator &it);
 uint32_t parseLE4(const uint8_t *data);
+uint32_t parseLE4(uint8_t b0, uint8_t b1, uint8_t b2, uint8_t b3);
 
-std::vector<uint8_t> readPascal2String(std::vector<uint8_t>::const_iterator &it);
 
-std::vector<uint8_t> parseDeltaListChunk(std::vector<uint8_t>::const_iterator &it);
-std::vector<uint8_t> parseChunk4(std::vector<uint8_t>::const_iterator &it);
+Status
+readPascal2String(
+    std::vector<uint8_t>::const_iterator &it,
+    const std::vector<uint8_t>::const_iterator end,
+    std::vector<char> &out);
 
-uint32_t crc32_checksum(const std::vector<uint8_t> &data);
+Status
+parseDeltaListChunk(
+    std::vector<uint8_t>::const_iterator &it,
+    const std::vector<uint8_t>::const_iterator end,
+    std::vector<uint8_t> &out);
 
-Status zlib_inflate(const std::vector<uint8_t> &data, std::vector<uint8_t> &acc);
+Status
+parseChunk4(
+    std::vector<uint8_t>::const_iterator &it,
+    const std::vector<uint8_t>::const_iterator end,
+    std::vector<uint8_t> &out);
+
+uint32_t crc32_checksum(
+    std::vector<uint8_t>::const_iterator &it,
+    const std::vector<uint8_t>::const_iterator end);
+
+Status zlib_inflate(
+    std::vector<uint8_t>::const_iterator &it,
+    const std::vector<uint8_t>::const_iterator end,
+    std::vector<uint8_t> &acc);
 
 Status computeDeltaListCount(const std::vector<uint8_t> &deltaList, uint32_t *acc);
 
 std::array<uint8_t, 2> toDigitsBE(uint16_t value);
 std::array<uint8_t, 4> toDigitsBE(uint32_t value);
 
-std::string fromPascal1String(std::vector<uint8_t> data);
-std::string fromPascal1String(const uint8_t *data);
+std::string fromPascal1String(const char *data);
 
-std::string fromPascal2String(std::vector<uint8_t> data);
+std::string fromPascal2String(const char *data);
 
 
 

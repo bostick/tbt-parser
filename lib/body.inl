@@ -29,6 +29,7 @@ template <uint8_t VERSION, typename tbt_file_t>
 Status
 parseBody(
     std::vector<uint8_t>::const_iterator &it,
+    const std::vector<uint8_t>::const_iterator end,
     tbt_file_t &out) {
 
     //
@@ -37,7 +38,7 @@ parseBody(
 
     Status ret;
 
-    ret = parseBarsMap<VERSION, tbt_file_t>(it, out);
+    ret = parseBarsMap<VERSION, tbt_file_t>(it, end, out);
 
     if (ret != OK) {
         return ret;
@@ -49,11 +50,11 @@ parseBody(
 
     if constexpr (0x6b <= VERSION) {
 
-        ret = parseNotesMapList<VERSION, tbt_file_t, 8>(it, out);
+        ret = parseNotesMapList<VERSION, tbt_file_t, 8>(it, end, out);
 
     } else {
 
-        ret = parseNotesMapList<VERSION, tbt_file_t, 6>(it, out);
+        ret = parseNotesMapList<VERSION, tbt_file_t, 6>(it, end, out);
     }
 
     if (ret != OK) {
@@ -70,7 +71,7 @@ parseBody(
 
         if (hasAlternateTimeRegions) {
 
-            ret = parseAlternateTimeRegionsMapList<VERSION, tbt_file_t>(it, out);
+            ret = parseAlternateTimeRegionsMapList<VERSION, tbt_file_t>(it, end, out);
 
             if (ret != OK) {
                 return ret;
@@ -84,7 +85,7 @@ parseBody(
 
     if constexpr (0x71 <= VERSION) {
 
-        ret = parseTrackEffectChangesMapList<VERSION, tbt_file_t>(it, out);
+        ret = parseTrackEffectChangesMapList<VERSION, tbt_file_t>(it, end, out);
 
         if (ret != OK) {
             return ret;

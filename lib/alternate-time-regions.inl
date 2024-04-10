@@ -29,6 +29,7 @@ template <uint8_t VERSION, typename tbt_file_t>
 Status
 parseAlternateTimeRegionsMapList(
     std::vector<uint8_t>::const_iterator &it,
+    const std::vector<uint8_t>::const_iterator end,
     tbt_file_t &out) {
 
     out.body.alternateTimeRegionsMapList.clear();
@@ -43,14 +44,20 @@ parseAlternateTimeRegionsMapList(
 
         while (true) {
 
-            std::vector<uint8_t> deltaList = parseDeltaListChunk(it);
+            std::vector<uint8_t> deltaList;
+
+            Status ret = parseDeltaListChunk(it, end, deltaList);
+
+            if (ret != OK) {
+                return ret;
+            }
 
             alternateTimeRegionsDeltaListAcc.insert(
                 alternateTimeRegionsDeltaListAcc.end(),
                 deltaList.cbegin(),
                 deltaList.cend());
 
-            Status ret = computeDeltaListCount(deltaList, &dsqCount);
+            ret = computeDeltaListCount(deltaList, &dsqCount);
 
             if (ret != OK) {
                 return ret;

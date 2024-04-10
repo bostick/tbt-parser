@@ -24,6 +24,7 @@
 #include <vector>
 #include <map>
 #include <variant>
+#include <string>
 #include <cstdint>
 #include <cstddef> // for size_t
 
@@ -45,7 +46,7 @@ struct tbt_header70 {
     uint8_t trackCount;
 
     // Pascal1 string
-    std::array<uint8_t, 5> versionString;
+    std::array<char, 5> versionString;
 
     uint8_t featureBitfield;
 
@@ -73,7 +74,7 @@ struct tbt_header6f {
     uint8_t trackCount;
 
     // Pascal1 string
-    std::array<uint8_t, 5> versionString;
+    std::array<char, 5> versionString;
 
     uint8_t featureBitfield;
 
@@ -101,7 +102,7 @@ struct tbt_header6e {
     uint8_t trackCount;
 
     // Pascal1 string
-    std::array<uint8_t, 5> versionString;
+    std::array<char, 5> versionString;
 
     uint8_t featureBitfield;
 
@@ -129,7 +130,7 @@ struct tbt_header68 {
     uint8_t trackCount;
 
     // Pascal1 string
-    std::array<uint8_t, 5> versionString;
+    std::array<char, 5> versionString;
 
     uint8_t featureBitfield;
 
@@ -157,7 +158,7 @@ struct tbt_header65 {
     uint8_t trackCount;
 
     // Pascal1 string
-    std::array<uint8_t, 5> versionString;
+    std::array<char, 5> versionString;
 
     uint8_t featureBitfield;
 
@@ -372,15 +373,15 @@ static_assert(sizeof(tbt_track_metadata65) == 13, "size of tbt_track_metadata65 
 struct tbt_metadata71 {
 
     // Pascal2 string
-    std::vector<uint8_t> title;
+    std::vector<char> title;
     // Pascal2 string
-    std::vector<uint8_t> artist;
+    std::vector<char> artist;
     // Pascal2 string
-    std::vector<uint8_t> album;
+    std::vector<char> album;
     // Pascal2 string
-    std::vector<uint8_t> transcribedBy;
+    std::vector<char> transcribedBy;
     // Pascal2 string
-    std::vector<uint8_t> comment;
+    std::vector<char> comment;
 
     std::vector<tbt_track_metadata71> tracks;
 };
@@ -388,15 +389,15 @@ struct tbt_metadata71 {
 struct tbt_metadata70 {
 
     // Pascal2 string
-    std::vector<uint8_t> title;
+    std::vector<char> title;
     // Pascal2 string
-    std::vector<uint8_t> artist;
+    std::vector<char> artist;
     // Pascal2 string
-    std::vector<uint8_t> album;
+    std::vector<char> album;
     // Pascal2 string
-    std::vector<uint8_t> transcribedBy;
+    std::vector<char> transcribedBy;
     // Pascal2 string
-    std::vector<uint8_t> comment;
+    std::vector<char> comment;
 
     std::vector<tbt_track_metadata70> tracks;
 };
@@ -404,15 +405,15 @@ struct tbt_metadata70 {
 struct tbt_metadata6e {
 
     // Pascal2 string
-    std::vector<uint8_t> title;
+    std::vector<char> title;
     // Pascal2 string
-    std::vector<uint8_t> artist;
+    std::vector<char> artist;
     // Pascal2 string
-    std::vector<uint8_t> album;
+    std::vector<char> album;
     // Pascal2 string
-    std::vector<uint8_t> transcribedBy;
+    std::vector<char> transcribedBy;
     // Pascal2 string
-    std::vector<uint8_t> comment;
+    std::vector<char> comment;
 
     std::vector<tbt_track_metadata6e> tracks;
 };
@@ -420,11 +421,11 @@ struct tbt_metadata6e {
 struct tbt_metadata6b {
 
     // Pascal1 string
-    std::vector<uint8_t> title;
+    std::vector<char> title;
     // Pascal1 string
-    std::vector<uint8_t> artist;
+    std::vector<char> artist;
     // Pascal1 string
-    std::vector<uint8_t> comment;
+    std::vector<char> comment;
 
     std::vector<tbt_track_metadata6b> tracks;
 };
@@ -432,11 +433,11 @@ struct tbt_metadata6b {
 struct tbt_metadata6a {
 
     // Pascal1 string
-    std::vector<uint8_t> title;
+    std::vector<char> title;
     // Pascal1 string
-    std::vector<uint8_t> artist;
+    std::vector<char> artist;
     // Pascal1 string
-    std::vector<uint8_t> comment;
+    std::vector<char> comment;
 
     std::vector<tbt_track_metadata6a> tracks;
 };
@@ -444,11 +445,11 @@ struct tbt_metadata6a {
 struct tbt_metadata65 {
 
     // Pascal1 string
-    std::vector<uint8_t> title;
+    std::vector<char> title;
     // Pascal1 string
-    std::vector<uint8_t> artist;
+    std::vector<char> artist;
     // Pascal1 string
-    std::vector<uint8_t> comment;
+    std::vector<char> comment;
 
     std::vector<tbt_track_metadata65> tracks;
 };
@@ -662,17 +663,20 @@ struct midi_file {
 
 Status parseTbtFile(const char *path, tbt_file &out);
 
-Status parseTbtBytes(const std::vector<uint8_t> data, tbt_file &out);
+Status parseTbtBytes(
+    std::vector<uint8_t>::const_iterator &it,
+    const std::vector<uint8_t>::const_iterator end,
+    tbt_file &out);
 
-uint8_t tbtFileVersionNumber(const tbt_file t);
+uint8_t tbtFileVersionNumber(const tbt_file &t);
 
-std::array<uint8_t, 5> tbtFileVersionString(const tbt_file t);
+std::string tbtFileVersionString(const tbt_file &t);
 
-Status convertToMidi(const tbt_file t, midi_file &m);
+Status convertToMidi(const tbt_file &t, midi_file &m);
 
-Status exportMidiFile(const midi_file m, const char *path);
+Status exportMidiFile(const midi_file &m, const char *path);
 
-Status exportMidiBytes(const midi_file m, std::vector<uint8_t> &out);
+Status exportMidiBytes(const midi_file &m, std::vector<uint8_t> &out);
 
 
 

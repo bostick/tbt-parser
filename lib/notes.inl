@@ -29,6 +29,7 @@ template <uint8_t VERSION, typename tbt_file_t, size_t STRINGS_PER_TRACK>
 Status
 parseNotesMapList(
     std::vector<uint8_t>::const_iterator &it,
+    const std::vector<uint8_t>::const_iterator end,
     tbt_file_t &out) {
 
     out.body.notesMapList.clear();
@@ -50,11 +51,17 @@ parseNotesMapList(
 
         while (true) {
 
-            auto deltaList = parseDeltaListChunk(it);
+            std::vector<uint8_t> deltaList;
+
+            Status ret = parseDeltaListChunk(it, end, deltaList);
+
+            if (ret != OK) {
+                return ret;
+            }
 
             notesDeltaListAcc.insert(notesDeltaListAcc.end(), deltaList.cbegin(), deltaList.cend());
 
-            Status ret = computeDeltaListCount(deltaList, &vsqCount);
+            ret = computeDeltaListCount(deltaList, &vsqCount);
 
             if (ret != OK) {
                 return ret;
