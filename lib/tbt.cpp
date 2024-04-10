@@ -53,7 +53,7 @@ TparseTbtBytes(
     //
     // https://bostick.github.io/tabit-file-format/description/tabit-file-format-description.html#header
     //
-    
+
     //
     // parse header
     //
@@ -74,18 +74,18 @@ TparseTbtBytes(
     }
 
     if constexpr (0x68 <= VERSION) {
-        
+
         if (data.size() != out.header.totalByteCount) {
 
             LOGE("file is corrupted. file byte counts do not match. expected: %" PRIu32 ", actual: %zu", out.header.totalByteCount, data.size());
 
             return ERR;
         }
-        
+
         auto restToCheck = std::vector<uint8_t>(data.data() + HEADER_SIZE, data.data() + data.size());
-        
+
         auto crc32Rest = crc32_checksum(restToCheck);
-        
+
         if (crc32Rest != out.header.crc32Rest) {
 
             LOGE("file is corrupted. CRC-32 of rest of file does not match. expected: %" PRIu32 ", actual: %" PRIu32,  out.header.crc32Rest, crc32Rest);
@@ -137,7 +137,7 @@ TparseTbtBytes(
         ;
 
     } else {
-        
+
         ASSERT(out.header.lastNonEmptySpace_unused == 0);
     }
 
@@ -218,13 +218,13 @@ TparseTbtBytes(
             //
 
             out.metadata.title = readPascal2String(it);
-            
+
             out.metadata.artist = readPascal2String(it);
-            
+
             out.metadata.album = readPascal2String(it);
-            
+
             out.metadata.transcribedBy = readPascal2String(it);
-            
+
             out.metadata.comment = readPascal2String(it);
 
             ASSERT(it == metadataToParse.cend());
@@ -331,7 +331,7 @@ TparseTbtBytes(
 
         ASSERT(it == bodyToParse.cend());
     }
-      
+
     return OK;
 }
 
@@ -348,7 +348,6 @@ parseTbtFile(
     ret = openFile(path, buf);
 
     if (ret != OK) {
-
         return ret;
     }
 
@@ -383,7 +382,7 @@ parseTbtBytes(
 
     switch (versionNumber) {
     case 0x72: {
-        
+
         tbt_file71 t;
         ret = TparseTbtBytes<0x72, tbt_file71>(data, t);
 
@@ -396,7 +395,7 @@ parseTbtBytes(
         break;
     }
     case 0x71: {
-        
+
         tbt_file71 t;
         ret = TparseTbtBytes<0x71, tbt_file71>(data, t);
 
@@ -409,7 +408,7 @@ parseTbtBytes(
         break;
     }
     case 0x70: {
-        
+
         tbt_file70 t;
         ret = TparseTbtBytes<0x70, tbt_file70>(data, t);
 
@@ -422,7 +421,7 @@ parseTbtBytes(
         break;
     }
     case 0x6f: {
-        
+
         tbt_file6f t;
         ret = TparseTbtBytes<0x6f, tbt_file6f>(data, t);
 
@@ -435,7 +434,7 @@ parseTbtBytes(
         break;
     }
     case 0x6e: {
-        
+
         tbt_file6e t;
         ret = TparseTbtBytes<0x6e, tbt_file6e>(data, t);
 
@@ -448,7 +447,7 @@ parseTbtBytes(
         break;
     }
     case 0x6b: {
-        
+
         tbt_file6b t;
         ret = TparseTbtBytes<0x6b, tbt_file6b>(data, t);
 
@@ -461,7 +460,7 @@ parseTbtBytes(
         break;
     }
     case 0x6a: {
-        
+
         tbt_file6a t;
         ret = TparseTbtBytes<0x6a, tbt_file6a>(data, t);
 
@@ -474,7 +473,7 @@ parseTbtBytes(
         break;
     }
     case 0x69: {
-        
+
         tbt_file68 t;
         ret = TparseTbtBytes<0x69, tbt_file68>(data, t);
 
@@ -487,7 +486,7 @@ parseTbtBytes(
         break;
     }
     case 0x68: {
-        
+
         tbt_file68 t;
         ret = TparseTbtBytes<0x68, tbt_file68>(data, t);
 
@@ -500,7 +499,7 @@ parseTbtBytes(
         break;
     }
     case 0x67: {
-        
+
         tbt_file65 t;
         ret = TparseTbtBytes<0x67, tbt_file65>(data, t);
 
@@ -513,7 +512,7 @@ parseTbtBytes(
         break;
     }
     case 0x66: {
-        
+
         tbt_file65 t;
         ret = TparseTbtBytes<0x66, tbt_file65>(data, t);
 
@@ -526,7 +525,7 @@ parseTbtBytes(
         break;
     }
     case 0x65: {
-        
+
         tbt_file65 t;
         ret = TparseTbtBytes<0x65, tbt_file65>(data, t);
 
@@ -539,7 +538,7 @@ parseTbtBytes(
         break;
     }
     default:
-        
+
         LOGE("unrecognized tbt file version: 0x%02x", versionNumber);
 
         return ERR;
@@ -551,79 +550,79 @@ parseTbtBytes(
 
 struct VersionNumberVisitor {
     
-    uint8_t operator()(const tbt_file65& t) {
+    uint8_t operator()(const tbt_file65 &t) {
         return t.header.versionNumber;
     }
 
-    uint8_t operator()(const tbt_file68& t) {
+    uint8_t operator()(const tbt_file68 &t) {
         return t.header.versionNumber;
     }
 
-    uint8_t operator()(const tbt_file6a& t) {
+    uint8_t operator()(const tbt_file6a &t) {
         return t.header.versionNumber;
     }
 
-    uint8_t operator()(const tbt_file6b& t) {
+    uint8_t operator()(const tbt_file6b &t) {
         return t.header.versionNumber;
     }
 
-    uint8_t operator()(const tbt_file6e& t) {
+    uint8_t operator()(const tbt_file6e &t) {
         return t.header.versionNumber;
     }
 
-    uint8_t operator()(const tbt_file6f& t) {
+    uint8_t operator()(const tbt_file6f &t) {
         return t.header.versionNumber;
     }
 
-    uint8_t operator()(const tbt_file70& t) {
+    uint8_t operator()(const tbt_file70 &t) {
         return t.header.versionNumber;
     }
 
-    uint8_t operator()(const tbt_file71& t) {
+    uint8_t operator()(const tbt_file71 &t) {
         return t.header.versionNumber;
     }
 };
 
-uint8_t tbtFileVersionNumber(const tbt_file t) {
+uint8_t tbtFileVersionNumber(const tbt_file &t) {
     return std::visit(VersionNumberVisitor{}, t);
 }
 
 struct VersionStringVisitor {
     
-    std::array<uint8_t, 5> operator()(const tbt_file65& t) {
+    std::array<uint8_t, 5> operator()(const tbt_file65 &t) {
         return t.header.versionString;
     }
 
-    std::array<uint8_t, 5> operator()(const tbt_file68& t) {
+    std::array<uint8_t, 5> operator()(const tbt_file68 &t) {
         return t.header.versionString;
     }
 
-    std::array<uint8_t, 5> operator()(const tbt_file6a& t) {
+    std::array<uint8_t, 5> operator()(const tbt_file6a &t) {
         return t.header.versionString;
     }
 
-    std::array<uint8_t, 5> operator()(const tbt_file6b& t) {
+    std::array<uint8_t, 5> operator()(const tbt_file6b &t) {
         return t.header.versionString;
     }
 
-    std::array<uint8_t, 5> operator()(const tbt_file6e& t) {
+    std::array<uint8_t, 5> operator()(const tbt_file6e &t) {
         return t.header.versionString;
     }
 
-    std::array<uint8_t, 5> operator()(const tbt_file6f& t) {
+    std::array<uint8_t, 5> operator()(const tbt_file6f &t) {
         return t.header.versionString;
     }
 
-    std::array<uint8_t, 5> operator()(const tbt_file70& t) {
+    std::array<uint8_t, 5> operator()(const tbt_file70 &t) {
         return t.header.versionString;
     }
 
-    std::array<uint8_t, 5> operator()(const tbt_file71& t) {
+    std::array<uint8_t, 5> operator()(const tbt_file71 &t) {
         return t.header.versionString;
     }
 };
 
-std::array<uint8_t, 5> tbtFileVersionString(const tbt_file t) {
+std::array<uint8_t, 5> tbtFileVersionString(const tbt_file &t) {
     return std::visit(VersionStringVisitor{}, t);
 }
 

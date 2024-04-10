@@ -30,79 +30,81 @@
 
 struct InfoVisitor {
     
-    void operator()(const tbt_file65& t);
+    void operator()(const tbt_file65 &t);
 
-    void operator()(const tbt_file68& t);
+    void operator()(const tbt_file68 &t);
 
-    void operator()(const tbt_file6a& t);
+    void operator()(const tbt_file6a &t);
 
-    void operator()(const tbt_file6b& t);
+    void operator()(const tbt_file6b &t);
 
-    void operator()(const tbt_file6e& t);
+    void operator()(const tbt_file6e &t);
 
-    void operator()(const tbt_file6f& t);
+    void operator()(const tbt_file6f &t);
 
-    void operator()(const tbt_file70& t);
+    void operator()(const tbt_file70 &t);
 
-    void operator()(const tbt_file71& t);
+    void operator()(const tbt_file71 &t);
 };
 
 
 int main(int argc, const char *argv[]) {
 
-	LOGI("tbt converter v1.0.1");
-	LOGI("Copyright (C) 2023 by Brenton Bostick");
+    LOGI("tbt converter v1.0.1");
+    LOGI("Copyright (C) 2023 by Brenton Bostick");
 
-	if (argc == 1) {
-		LOGI("usage: tbt-converter --input-file XXX [--output-file YYY]");
-		return EXIT_SUCCESS;
-	}
+    if (argc == 1) {
+        LOGI("usage: tbt-converter --input-file XXX [--output-file YYY]");
+        return EXIT_SUCCESS;
+    }
 
-	std::string inputFile;
-	std::string outputFile;
+    std::string inputFile;
+    std::string outputFile;
 
-	for (int i = 0; i < argc; i++) {
+    for (int i = 0; i < argc; i++) {
 
-		if (strcmp(argv[i], "--input-file") == 0) {
+        if (strcmp(argv[i], "--input-file") == 0) {
 
-			i++;
+            i++;
 
-			inputFile = argv[i];
+            inputFile = argv[i];
 
-		} else if (strcmp(argv[i], "--output-file") == 0) {
+        } else if (strcmp(argv[i], "--output-file") == 0) {
 
-			i++;
+            i++;
 
-			outputFile = argv[i];
-		}
-	}
+            outputFile = argv[i];
+        }
+    }
 
-	if (inputFile.empty()) {
-		LOGE("input file is missing");
-		return EXIT_FAILURE;
-	}
+    if (inputFile.empty()) {
 
-	if (outputFile.empty()) {
-		outputFile = "out.mid";
-	}
+        LOGE("input file is missing");
+        
+        return EXIT_FAILURE;
+    }
 
-	LOGI("input file: %s", inputFile.c_str());
-	LOGI("output file: %s", outputFile.c_str());
+    if (outputFile.empty()) {
+        outputFile = "out.mid";
+    }
+
+    LOGI("input file: %s", inputFile.c_str());
+    LOGI("output file: %s", outputFile.c_str());
 
 
-	tbt_file t;
+    tbt_file t;
 
-	LOGI("parsing...");
+    LOGI("parsing...");
 
-	Status ret = parseTbtFile(inputFile.c_str(), t);
+    Status ret = parseTbtFile(inputFile.c_str(), t);
 
-	if (ret != OK) {
-		return ret;
-	}
+    if (ret != OK) {
+        return ret;
+    }
 
     auto versionNumber = tbtFileVersionNumber(t);
 
-	auto versionString = tbtFileVersionString(t);
+    auto versionString = tbtFileVersionString(t);
 
     LOGI("tbt file version: %s (0x%02x)", fromPascal1String(versionString.data()).c_str(), versionNumber);
 
@@ -115,22 +117,22 @@ int main(int argc, const char *argv[]) {
     ret = convertToMidi(t, m);
 
     if (ret != OK) {
-		return ret;
-	}
+        return ret;
+    }
 
-	ret = exportMidiFile(m, outputFile.c_str());
+    ret = exportMidiFile(m, outputFile.c_str());
 
-	if (ret != OK) {
-		return ret;
-	}
+    if (ret != OK) {
+        return ret;
+    }
 
-	LOGI("finished!");
+    LOGI("finished!");
 
     return EXIT_SUCCESS;
 }
 
     
-void InfoVisitor::operator()(const tbt_file65& t) {
+void InfoVisitor::operator()(const tbt_file65 &t) {
     
     LOGI("title: %s", fromPascal1String(t.metadata.title).data());
 
@@ -139,7 +141,7 @@ void InfoVisitor::operator()(const tbt_file65& t) {
     // LOGI("%s", fromPascal1String(t.metadata.comment).data());
 }
 
-void InfoVisitor::operator()(const tbt_file68& t) {
+void InfoVisitor::operator()(const tbt_file68 &t) {
     
     LOGI("title: %s", fromPascal1String(t.metadata.title).data());
 
@@ -148,7 +150,7 @@ void InfoVisitor::operator()(const tbt_file68& t) {
     // LOGI("%s", fromPascal1String(t.metadata.comment).data());
 }
 
-void InfoVisitor::operator()(const tbt_file6a& t) {
+void InfoVisitor::operator()(const tbt_file6a &t) {
     
     LOGI("title: %s", fromPascal1String(t.metadata.title).data());
 
@@ -157,7 +159,7 @@ void InfoVisitor::operator()(const tbt_file6a& t) {
     // LOGI("%s", fromPascal1String(t.metadata.comment).data());
 }
 
-void InfoVisitor::operator()(const tbt_file6b& t) {
+void InfoVisitor::operator()(const tbt_file6b &t) {
     
     LOGI("title: %s", fromPascal1String(t.metadata.title).data());
 
@@ -166,7 +168,7 @@ void InfoVisitor::operator()(const tbt_file6b& t) {
     // LOGI("%s", fromPascal1String(t.metadata.comment).data());
 }
 
-void InfoVisitor::operator()(const tbt_file6e& t) {
+void InfoVisitor::operator()(const tbt_file6e &t) {
     
     LOGI("title: %s", fromPascal2String(t.metadata.title).data());
 
@@ -179,7 +181,7 @@ void InfoVisitor::operator()(const tbt_file6e& t) {
     // LOGI("%s", fromPascal2String(t.metadata.comment).data());
 }
 
-void InfoVisitor::operator()(const tbt_file6f& t) {
+void InfoVisitor::operator()(const tbt_file6f &t) {
     
     LOGI("title: %s", fromPascal2String(t.metadata.title).data());
 
@@ -192,7 +194,7 @@ void InfoVisitor::operator()(const tbt_file6f& t) {
     // LOGI("%s", fromPascal2String(t.metadata.comment).data());
 }
 
-void InfoVisitor::operator()(const tbt_file70& t) {
+void InfoVisitor::operator()(const tbt_file70 &t) {
     
     LOGI("title: %s", fromPascal2String(t.metadata.title).data());
 
@@ -205,7 +207,7 @@ void InfoVisitor::operator()(const tbt_file70& t) {
     // LOGI("%s", fromPascal2String(t.metadata.comment).data());
 }
 
-void InfoVisitor::operator()(const tbt_file71& t) {
+void InfoVisitor::operator()(const tbt_file71 &t) {
     
     LOGI("title: %s", fromPascal2String(t.metadata.title).data());
 

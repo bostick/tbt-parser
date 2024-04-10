@@ -34,10 +34,13 @@ partitionInto(
     ASSERT(data.size() % S == 0);
 
     for (size_t i = 0; i < data.size(); i += S) {
+
         std::array<uint8_t, S> part;
+
         for (size_t j = 0; j < S; j++) {
             part[j] = data[i + j];
         }
+
         out.push_back(part);
     }
 

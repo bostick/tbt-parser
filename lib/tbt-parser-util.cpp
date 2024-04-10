@@ -349,7 +349,7 @@ std::string fromPascal1String(std::vector<uint8_t> data) {
 }
 
 std::string fromPascal1String(const uint8_t *data) {
-    
+
     uint8_t len = *(data + 0);
 
     std::vector<char> cstrData(data + 1, data + 1 + len + 1);
@@ -360,7 +360,7 @@ std::string fromPascal1String(const uint8_t *data) {
 }
 
 std::string fromPascal2String(std::vector<uint8_t> data) {
-    
+
     uint16_t len = parseLE2(data.data());
 
     std::vector<char> cstrData(data.data() + 2, data.data() + 2 + len + 1);
