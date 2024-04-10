@@ -18,12 +18,12 @@
 
 cmake_minimum_required(VERSION 3.5)
 
-set(CPP_EXE_CONVERTER_SOURCES
+set(CPP_EXE_TBT_CONVERTER_SOURCES
     tbt-converter.cpp
 )
 
 add_executable(tbt-converter-exe
-    ${CPP_EXE_CONVERTER_SOURCES}
+    ${CPP_EXE_TBT_CONVERTER_SOURCES}
 )
 
 target_link_libraries(tbt-converter-exe

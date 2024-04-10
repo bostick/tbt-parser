@@ -25,9 +25,10 @@
 #include "common/file.h"
 #include "common/logging.h"
 
+#include <algorithm> // for remove
 #include <cinttypes>
 #include <cmath> // for round
-#include <algorithm> // for remove
+#include <cstring> // for memcmp
 
 
 #define TAG "midi"
@@ -1557,6 +1558,529 @@ void EventVisitor::operator()(const NullEvent &e) {
 }
 
 
+Status
+parseMidiFile(
+    const char *path,
+    midi_file &out) {
+    
+    Status ret;
+
+    std::vector<uint8_t> buf;
+
+    ret = openFile(path, buf);
+
+    if (ret != OK) {
+        return ret;
+    }
+
+    CHECK_NOT(buf.size() == 0, "empty file");
+
+    auto buf_it = buf.cbegin();
+
+    auto buf_end = buf.cend();
+
+    return parseMidiBytes(buf_it, buf_end, out);
+}
+
+
+
+struct chunk {
+    std::array<uint8_t, 4> type;
+    std::vector<uint8_t> data;
+};
+
+
+Status
+parseChunk(
+    std::vector<uint8_t>::const_iterator &it,
+    const std::vector<uint8_t>::const_iterator end,
+    chunk &out) {
+
+    CHECK(it + 4 <= end, "out of data");
+
+    out.type[0] = *it++;
+    out.type[1] = *it++;
+    out.type[2] = *it++;
+    out.type[3] = *it++;
+
+    CHECK(it + 4 <= end, "out of data");
+
+    uint32_t len = parseBE4(*it++, *it++, *it++, *it++);
+    
+    CHECK(it + len <= end, "out of data");
+    
+    out.data = std::vector<uint8_t>(it, it + len);
+    it += len;
+
+    return OK;
+}
+
+
+Status
+parseHeader(
+    std::vector<uint8_t>::const_iterator &it,
+    const std::vector<uint8_t>::const_iterator end,
+    midi_file &out) {
+
+    Status ret;
+
+    chunk c;
+
+    ret = parseChunk(it, end, c);
+
+    if (ret != OK) {
+        return ret;
+    }
+
+    CHECK(memcmp(c.type.data(), "MThd", 4) == 0, "expected MThd type");
+
+    auto it2 = c.data.cbegin();
+
+    auto end2 = c.data.cend();
+
+    CHECK(it + 2 <= end, "out of data");
+
+    out.header.format = parseBE2(*it++, *it++);
+
+    CHECK(it + 2 <= end, "out of data");
+
+    out.header.trackCount = parseBE2(*it++, *it++);
+
+    CHECK(it + 2 <= end, "out of data");
+
+    out.header.division = parseBE2(*it++, *it++);
+
+    if (it2 != end2) {
+        LOGW("bytes after header: %zu", (c.data.cend() - it2));
+    }
+
+    return OK;
+}
+
+
+Status
+parseTrackEvent(
+    std::vector<uint8_t>::const_iterator &it,
+    const std::vector<uint8_t>::const_iterator end,
+    uint8_t &running,
+    midi_track_event &out) {
+
+    Status ret;
+
+    uint32_t deltaTime;
+
+    ret = parseVLQ(it, end, deltaTime);
+
+    if (ret != OK) {
+        return ret;
+    }
+
+    CHECK(it + 1 <= end, "out of data");
+
+    auto b = *it++;
+
+    uint8_t hi;
+    uint8_t lo;
+
+    if ((b & 0b10000000) == 0b00000000) {
+
+        //
+        // use running status
+        //
+
+        CHECK((running & 0b10000000) == 0b10000000, "running status is not set");
+
+        hi = (running & 0b11110000);
+        lo = (running & 0b00001111);
+
+        //
+        // b is already set
+        //
+
+    } else if (b == 0xff) {
+
+        //
+        // ignore running status
+        //
+
+        hi = (b & 0b11110000);
+        lo = (b & 0b00001111);
+
+        CHECK(it + 1 <= end, "out of data");
+
+        b = *it++;
+
+    } else if ((b & 0b11110000) == 0b11110000) {
+
+        //
+        // cancel running status
+        //
+
+        running = 0xff;
+
+        hi = (b & 0b11110000);
+        lo = (b & 0b00001111);
+
+        CHECK(it + 1 <= end, "out of data");
+
+        b = *it++;
+
+    } else {
+
+        //
+        // set running status
+        //
+
+        running = b;
+
+        hi = (b & 0b11110000);
+        lo = (b & 0b00001111);
+
+        CHECK(it + 1 <= end, "out of data");
+
+        b = *it++;
+    }
+
+    switch (hi) {
+    case 0x80: {
+
+        auto channel = lo;
+
+        uint8_t midiNote = (b & 0b01111111);
+
+        CHECK(it + 1 <= end, "out of data");
+
+        b = *it++;
+
+        uint8_t velocity = (b & 0b01111111);
+
+        out = NoteOffEvent{deltaTime, channel, midiNote, velocity};
+
+        return OK;
+    }
+    case 0x90: {
+
+        auto channel = lo;
+
+        uint8_t midiNote = (b & 0b01111111);
+        
+        CHECK(it + 1 <= end, "out of data");
+
+        b = *it++;
+
+        uint8_t velocity = (b & 0b01111111);
+
+        out = NoteOnEvent{deltaTime, channel, midiNote, velocity};
+
+        return OK;
+    }
+    case 0xa0: {
+
+        //
+        // Polyphonic Key Pressure (Aftertouch)
+        //
+        
+        CHECK(it + 1 <= end, "out of data");
+
+        it += 1;
+
+        out = NullEvent{};
+
+        return OK;
+    }
+    case 0xb0: {
+
+        //
+        // control change
+        //
+
+        auto channel = lo;
+
+        auto controller = b;
+
+        CHECK(it + 1 <= end, "out of data");
+
+        b = *it++;
+
+        switch (controller) {
+        case 0x01:
+            out = ModulationEvent{deltaTime, channel, b};
+            return OK;
+        case 0x06:
+            out = DataEntryMSBEvent{deltaTime, channel, b};
+            return OK;
+        case 0x0a:
+            out = PanEvent{deltaTime, channel, b};
+            return OK;
+        case 0x26:
+            out = DataEntryLSBEvent{deltaTime, channel, b};
+            return OK;
+        case 0x5b:
+            out = ReverbEvent{deltaTime, channel, b};
+            return OK;
+        case 0x5d:
+            out = ChorusEvent{deltaTime, channel, b};
+            return OK;
+        case 0x64:
+            out = RPNParameterLSBEvent{deltaTime, channel, b};
+            return OK;
+        case 0x65:
+            out = RPNParameterMSBEvent{deltaTime, channel, b};
+            return OK;
+        default:
+            out = NullEvent{deltaTime};
+            return OK;
+        }
+    }
+    case 0xc0: {
+
+        auto channel = lo;
+
+        auto midiProgram = static_cast<uint8_t>(b & 0b01111111);
+
+        out = ProgramChangeEvent{deltaTime, channel, midiProgram};
+
+        return OK;
+    }
+    case 0xd0: {
+
+        //
+        // Channel Pressure (After-touch)
+        //
+
+        out = NullEvent{};
+
+        return OK;
+    }
+    case 0xe0: {
+
+        auto channel = lo;
+
+        uint8_t pitchBendLSB = (b & 0b01111111);
+        
+        CHECK(it + 1 <= end, "out of data");
+
+        b = *it++;
+
+        uint8_t pitchBendMSB = (b & 0b01111111);
+
+        auto pitchBend = static_cast<int16_t>((pitchBendMSB << 7) | pitchBendLSB);
+
+        out = PitchBendEvent{deltaTime, channel, pitchBend};
+
+        return OK;
+    }
+    case 0xf0: {
+
+        if (lo == 0x00) {
+
+            //
+            // SysEx
+            //
+
+            std::vector<uint8_t> tmp;
+
+            tmp.push_back(b);
+
+            while (true) {
+
+                if (b == 0xf7) {
+                    break;
+                }
+
+                CHECK(it + 1 <= end, "out of data");
+
+                b = *it++;
+
+                tmp.push_back(b);
+            }
+
+            out = NullEvent{};
+
+            return OK;
+
+        } else if (lo == 0x0f) {
+
+            //
+            // meta event
+            //
+
+            uint32_t len;
+
+            ret = parseVLQ(it, end, len);
+
+            if (ret != OK) {
+                return ret;
+            }
+
+            CHECK(it + len <= end, "out of data");
+
+            switch (b) {
+            case 0x2f: {
+
+                CHECK(len == 0, "len != 0");
+
+                out = EndOfTrackEvent{deltaTime};
+
+                return OK;
+            }
+            case 0x51: {
+
+                CHECK(len == 3, "len != 3");
+
+                auto microsPerBeat = static_cast<uint32_t>((*it++ << 0) | (*it++ << 8) | (*it++ << 16));
+
+                out = TempoChangeEvent{deltaTime, microsPerBeat};
+
+                return OK;
+            }
+            case 0x58: {
+
+                CHECK(len == 4, "len != 4");
+
+                auto numerator = *it++;
+
+                auto denominator = *it++;
+
+                auto ticksPerMetronomeClick = *it++;
+
+                auto notated32notesInMIDIQuarterNotes = *it++;
+
+                out = TimeSignatureEvent{deltaTime, numerator, denominator, ticksPerMetronomeClick, notated32notesInMIDIQuarterNotes};
+
+                return OK;
+            }
+            case 0x00: // Sequence Number
+            case 0x01: // Text
+            case 0x02: // Copyright
+            case 0x03: // Sequence/Track Name
+            case 0x04: // Instrument Name
+            case 0x05: // Lyric
+            case 0x06: // Marker
+            case 0x07: // Cue Point
+            case 0x08: // Program Name
+            case 0x09: // Device Name
+            case 0x20: // MIDI Channel
+            case 0x21: // MIDI Port
+            case 0x54: // SMPTE Offset
+            case 0x59: // Key Signature
+            case 0x7f: { // Sequencer Specific Meta-Event
+
+                it += len;
+
+                out = NullEvent{deltaTime};
+
+                return OK;
+            }
+            default: {
+
+                LOGE("unrecognized meta event byte: %d (0x%02x)", b, b);
+
+                return ERR;
+            }
+            }
+
+        } else {
+
+            LOGE("unrecognized event byte: %d (0x%02x)", (hi | lo), (hi | lo));
+
+            return ERR;
+        }
+
+    }
+    default: {
+
+        LOGE("unrecognized event byte: %d (0x%02x)", (hi | lo), (hi | lo));
+
+        return ERR;
+    }
+    }
+}
+
+
+Status
+parseTrack(
+    std::vector<uint8_t>::const_iterator &it,
+    const std::vector<uint8_t>::const_iterator end,
+    midi_file &out) {
+
+    uint8_t running = 0xff;
+
+    Status ret;
+
+    chunk c;
+
+    ret = parseChunk(it, end, c);
+
+    if (ret != OK) {
+        return ret;
+    }
+
+    CHECK(memcmp(c.type.data(), "MTrk", 4) == 0, "expected MTrk type");
+
+    std::vector<midi_track_event> track;
+
+    auto it2 = c.data.cbegin();
+
+    while (true) {
+
+        midi_track_event e;
+
+        ret = parseTrackEvent(it2, c.data.cend(), running, e);
+
+        if (ret != OK) {
+            return ret;
+        }
+
+        if (!std::holds_alternative<NullEvent>(e)) {
+            track.push_back(e);
+        }
+
+        if (std::holds_alternative<EndOfTrackEvent>(e)) {
+
+            if (it2 != c.data.cend()) {
+                LOGW("bytes after EndOfTrack: %zu", (c.data.cend() - it2));
+            }
+
+            break;
+        }
+    }
+
+    out.tracks.push_back(track);
+
+    return OK;
+}
+
+
+Status
+parseMidiBytes(
+    std::vector<uint8_t>::const_iterator &it,
+    const std::vector<uint8_t>::const_iterator end,
+    midi_file &out) {
+
+    Status ret;
+
+    ret = parseHeader(it, end, out);
+
+    if (ret != OK) {
+        return ret;
+    }
+
+    for (int i = 0; i < out.header.trackCount; i++) {
+
+        ret = parseTrack(it, end, out);
+
+        if (ret != OK) {
+            return ret;
+        }
+    }
+
+    if (it != end) {
+        LOGW("bytes after all tracks: %zu", (end - it));
+    }
+
+    return OK;
+}
 
 
 

@@ -31,6 +31,18 @@ uint32_t parseLE4(std::vector<uint8_t>::const_iterator &it);
 uint32_t parseLE4(const uint8_t *data);
 uint32_t parseLE4(uint8_t b0, uint8_t b1, uint8_t b2, uint8_t b3);
 
+uint16_t parseBE2(std::vector<uint8_t>::const_iterator &it);
+uint16_t parseBE2(uint8_t b0, uint8_t b1);
+
+uint32_t parseBE4(std::vector<uint8_t>::const_iterator &it);
+uint32_t parseBE4(uint8_t b0, uint8_t b1, uint8_t b2, uint8_t b3);
+
+
+Status
+parseVLQ(
+    std::vector<uint8_t>::const_iterator &it,
+    const std::vector<uint8_t>::const_iterator end,
+    uint32_t &out);
 
 Status
 readPascal2String(
