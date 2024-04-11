@@ -24,6 +24,17 @@ cmake -DZLIB_ROOT=/opt/homebrew/Cellar/zlib/1.3/ ..
 cmake --build .
 ```
 
+With GTest for testing:
+```
+cd cpp
+mkdir build-test
+cd build-test
+cmake -DBUILD_TESTS=ON -DGTEST_ROOT=/Users/brenton/development/github/googletest/build/install ..
+cmake --build . --target tbt-test-exe
+
+test/tbt-test
+```
+
 
 ## How to use
 

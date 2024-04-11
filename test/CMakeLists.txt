@@ -1,4 +1,4 @@
-# Copyright (C) 2023 by Brenton Bostick
+# Copyright (C) 2024 by Brenton Bostick
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 # associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -16,23 +16,47 @@
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.14)
 
-project(tbt-parser)
-
-
-enable_testing()
+cmake_policy(SET CMP0144 NEW)
 
 
-add_subdirectory(lib)
+find_package(GTest REQUIRED)
 
-if(BUILD_TESTS)
 
-add_subdirectory(test)
+set(CPP_TEST_SOURCES
+	TestMidi.cpp
+)
 
-endif(BUILD_TESTS)
+add_executable(tbt-test-exe
+	${CPP_TEST_SOURCES}
+)
 
-add_subdirectory(exe)
+target_link_libraries(tbt-test-exe
+	PRIVATE
+		tbt-parser-static-lib
+		${GTEST_BOTH_LIBRARIES}
+)
+
+target_include_directories(tbt-test-exe
+	PRIVATE
+		${GTEST_INCLUDE_DIRS}
+		../include/
+		${COMMON_DIR}/include
+)
+
+target_compile_options(tbt-test-exe PRIVATE
+    -Wall -Wextra -pedantic -Werror
+)
+
+set_target_properties(tbt-test-exe
+	PROPERTIES
+		OUTPUT_NAME tbt-test
+		CXX_STANDARD 20
+		CXX_STANDARD_REQUIRED ON
+)
+
+
 
 
 

@@ -26,6 +26,7 @@
 #include "common/logging.h"
 
 #include <algorithm> // for remove
+#include <set>
 #include <cinttypes>
 #include <cmath> // for round
 #include <cstring> // for memcmp
@@ -214,6 +215,12 @@ computeTempoMap(
 
     for (uint8_t track = 0; track < t.header.trackCount; track++) {
 
+        //
+        // tick_d and tick are the MIDI ticks
+        // monotonic
+        // tick_d is double because of alternate time regions
+        // tick is integer rounded version of tick_d
+        //
         double tick_d = 0.0;
         uint32_t tick = 0;
 
@@ -226,7 +233,14 @@ computeTempoMap(
             trackSpaceCount = 4000;
         }
 
-        for (uint32_t space = 0; space < trackSpaceCount; space++) {
+        //
+        // space is the visible space on screen for each track
+        // integer
+        // does not take alternate time regions into account
+        // not monotonic
+        // may skip around because of repeats
+        //
+        for (uint32_t space = 0; space < trackSpaceCount;) {
 
             if constexpr (VERSION == 0x72) {
 
@@ -288,10 +302,10 @@ computeTempoMap(
                 }
 
                 double tickInc = denominator * TICKS_PER_SPACE_D / numerator;
-
                 tick_d += tickInc;
-
                 tick = static_cast<uint32_t>(round(tick_d));
+
+                space++;
             }
         }
     }
@@ -355,6 +369,12 @@ TconvertToMidi(
 
     computeChannelMap<VERSION>(t, channelMap);
 
+    std::set<uint32_t> openSpaceSet;
+
+    //
+    // actual space of close -> ( actual space of open, [ number of repeats for each track ] )
+    //
+    std::map<uint32_t, std::pair<uint32_t, std::vector<int> > > repeatCloseMap;
 
     out.header = midi_header{
         1, // format
@@ -369,9 +389,18 @@ TconvertToMidi(
     // Track 0
     //
     {
+        //
+        // tick_d and tick are the MIDI ticks
+        // monotonic
+        // tick_d is double because of alternate time regions
+        // tick is integer rounded version of tick_d
+        //
         double tick_d = 0.0;
         uint32_t tick = 0;
+        
         uint32_t lastEventTick = 0;
+
+        uint32_t lastOpenSpace = 0;
 
         tmp.clear();
 
@@ -395,9 +424,10 @@ TconvertToMidi(
             }
 
             //
-            // Use floating point here for better accuracy
+            // TabIt uses floor(), but using round() is more accurate
             //
-            auto microsPerBeat = static_cast<uint32_t>(round(MICROS_PER_MINUTE / static_cast<double>(tempoBPM)));
+            // auto microsPerBeat = static_cast<uint32_t>(round(MICROS_PER_MINUTE / static_cast<double>(tempoBPM)));
+            auto microsPerBeat = static_cast<uint32_t>(floor(MICROS_PER_MINUTE / static_cast<double>(tempoBPM)));
 
             tmp.push_back(TempoChangeEvent{
                 0, // delta time
@@ -407,7 +437,18 @@ TconvertToMidi(
             lastEventTick = tick;
         }
 
-        for (uint32_t space = 0; space < barsSpaceCount; space++) {
+        bool currentlyOpen = false;
+        bool savedClose = false;
+        uint8_t savedRepeats = 0;
+
+        //
+        // space is the visible space on screen for each track
+        // integer
+        // does not take alternate time regions into account
+        // not monotonic
+        // may skip around because of repeats
+        //
+        for (uint32_t space = 0; space < barsSpaceCount;) {
 
             //
             // Emit tempo changes
@@ -418,9 +459,10 @@ TconvertToMidi(
                 uint16_t tempoBPM = tempoMapIt->second;
 
                 //
-                // Use floating point here for better accuracy
+                // TabIt uses floor(), but using round() is more accurate
                 //
-                auto microsPerBeat = static_cast<uint32_t>(round(MICROS_PER_MINUTE / static_cast<double>(tempoBPM)));
+                // auto microsPerBeat = static_cast<uint32_t>(round(MICROS_PER_MINUTE / static_cast<double>(tempoBPM)));
+                auto microsPerBeat = static_cast<uint32_t>(floor(MICROS_PER_MINUTE / static_cast<double>(tempoBPM)));
 
                 uint32_t diff = tick - lastEventTick;
 
@@ -430,6 +472,100 @@ TconvertToMidi(
                 });
 
                 lastEventTick = tick;
+            }
+
+            //
+            // Setup repeats:
+            // setup repeatCloseMap and openSpaceSet
+            //
+            if constexpr (0x70 <= VERSION) {
+                
+                const auto &barsMapIt = t.body.barsMap.find(space);
+                if (barsMapIt != t.body.barsMap.end()) {
+
+                    const auto &bar = barsMapIt->second;
+
+                    if (savedClose) {
+
+                        repeatCloseMap[space - 1] = std::make_pair(lastOpenSpace, std::vector<int>(t.header.trackCount, savedRepeats));
+
+                        savedClose = false;
+                    }
+
+                    if ((bar[0] & CLOSEREPEAT_MASK_GE70) == CLOSEREPEAT_MASK_GE70) {
+
+                        //
+                        // save for next bar line
+                        //
+
+                        savedClose = true;
+                        savedRepeats = bar[1];
+
+                        currentlyOpen = false;
+                    }
+
+                    if ((bar[0] & OPENREPEAT_MASK_GE70) == OPENREPEAT_MASK_GE70) {
+
+                        if (currentlyOpen) {
+                            LOGW("repeat open at space %d is ignored", lastOpenSpace);
+                        } else {
+                            currentlyOpen = true;
+                        }
+                        
+                        lastOpenSpace = space;
+                        openSpaceSet.insert(lastOpenSpace);
+                    }
+                }
+
+            } else {
+                
+                const auto &barsMapIt = t.body.barsMap.find(space);
+                if (barsMapIt != t.body.barsMap.end()) {
+
+                    const auto &bar = barsMapIt->second;
+
+                    auto change = static_cast<tbt_bar_line>(bar[0] & 0b00001111);
+
+                    switch (change) {
+                    case CLOSE: {
+                        
+                        auto value = (bar[0] & 0b11110000) >> 4;
+
+                        repeatCloseMap[space] = std::make_pair(lastOpenSpace, std::vector<int>(t.header.trackCount, value));
+
+                        lastOpenSpace = space + 1;
+                        openSpaceSet.insert(lastOpenSpace);
+
+                        currentlyOpen = false;
+
+                        break;
+                    }
+                    case OPEN: {
+
+                        if (currentlyOpen) {
+                            LOGW("repeat open at space %d is ignored", lastOpenSpace);
+                        } else {
+                            currentlyOpen = true;
+                        }
+
+                        lastOpenSpace = space;
+                        openSpaceSet.insert(lastOpenSpace);
+
+                        break;
+                    }
+                    case SINGLE:
+                    case DOUBLE:
+                        //
+                        // nothing to do
+                        //
+                        break;
+                    default:
+
+                        ASSERT(false);
+                        
+                        break;
+                    }
+                }
             }
 
             //     every bar: lyric for current bars ?
@@ -442,6 +578,18 @@ TconvertToMidi(
             tick_d = space * TICKS_PER_SPACE_D;
 
             tick = static_cast<uint32_t>(round(tick_d));
+
+            space++;
+        }
+
+        //
+        // and make sure to handle close repeat at very end of song
+        //
+        if (savedClose) {
+
+            repeatCloseMap[barsSpaceCount - 1] = std::make_pair(lastOpenSpace, std::vector<int>(t.header.trackCount, savedRepeats));
+
+            savedClose = false;
         }
 
         tmp.push_back(EndOfTrackEvent{
@@ -502,9 +650,23 @@ TconvertToMidi(
         //
         pitchBend = static_cast<int16_t>(round(((static_cast<double>(pitchBend) + 2400.0) * 16383.0) / (2.0 * 2400.0)));
 
+        //
+        // tick_d and tick are the MIDI ticks
+        // monotonic
+        // tick_d is double because of alternate time regions
+        // tick is integer rounded version of tick_d
+        //
         double tick_d = 0.0;
         uint32_t tick = 0;
+        
+        //
+        // actualSpace is the actual space for each track
+        // taking alternate time regions into account
+        //
+        double actualSpace = 0.0;
+
         uint32_t lastEventTick = 0;
+
         std::array<uint8_t, STRINGS_PER_TRACK> currentlyPlayingStrings{};
 
         tmp.clear();
@@ -583,8 +745,35 @@ TconvertToMidi(
             trackSpaceCount = 4000;
         }
 
-        for (uint32_t space = 0; space < trackSpaceCount; space++) {
+        //
+        // actualSpace -> track space
+        //
+        std::map<uint32_t, uint32_t> spaceMap;
+
+        //
+        // space is the visible space on screen for each track
+        // integer
+        // does not take alternate time regions into account
+        // not monotonic
+        // may skip around because of repeats
+        //
+        for (uint32_t space = 0; space < trackSpaceCount;) {
             
+            {
+                //
+                // if there is an open repeat at this actual space, then store the track space for later
+                //
+
+                auto flooredActualSpace = static_cast<uint32_t>(floor(actualSpace));
+
+                if (openSpaceSet.find(flooredActualSpace) != openSpaceSet.end()) {
+
+                    if (spaceMap.find(flooredActualSpace) == spaceMap.end()) {
+                        spaceMap[flooredActualSpace] = space;
+                    }
+                }
+            }
+
             const auto &notesMapIt = notesMap.find(space);
 
             //
@@ -1088,6 +1277,48 @@ TconvertToMidi(
                 tick_d += tickInc;
 
                 tick = static_cast<uint32_t>(round(tick_d));
+
+                auto flooredActualSpace = static_cast<uint32_t>(floor(actualSpace));
+
+                const auto &repeatCloseMapIt = repeatCloseMap.find(flooredActualSpace);
+
+                if (repeatCloseMapIt != repeatCloseMap.end()) {
+
+                    //
+                    // there is a repeat close at this space
+                    //
+
+                    // p = ( actual space of open, [ number of repeats for each track ] )
+                    auto &p = repeatCloseMapIt->second;
+
+                    auto &repeats = p.second;
+
+                    //
+                    // how many repeats are left?
+                    //
+
+                    if (repeats[track] > 0) {
+
+                        const auto &open = p.first;
+
+                        //
+                        // jump to the repeat open
+                        //
+
+                        space = spaceMap[open];
+
+                        actualSpace = static_cast<double>(open);
+
+                        repeats[track]--;
+
+                        continue;
+                    }
+                }
+
+                double actualSpaceInc = denominator / numerator;
+                actualSpace += actualSpaceInc;
+
+                space++;
             }
 
         } // for space

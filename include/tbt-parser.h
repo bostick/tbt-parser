@@ -497,6 +497,19 @@ struct tbt_body65 {
     std::vector<std::map<uint32_t, std::array<uint8_t, 16> > > notesMapList;
 };
 
+enum tbt_bar_line : uint8_t {
+    SINGLE = 1,
+    CLOSE = 2,
+    OPEN = 3,
+    DOUBLE = 4,
+};
+
+//
+// masks for barsMapGE70
+//
+const uint8_t DOUBLEBAR_MASK_GE70 =   0b00000001;
+const uint8_t OPENREPEAT_MASK_GE70 =  0b00000010;
+const uint8_t CLOSEREPEAT_MASK_GE70 = 0b00000100;
 
 struct tbt_file71 {
     tbt_header70 header;
