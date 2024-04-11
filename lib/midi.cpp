@@ -2076,8 +2076,391 @@ parseMidiBytes(
 }
 
 
+midi_file_times
+midiFileTimes(const midi_file &m) {
+
+    //
+    // first build tempo map
+    //
+
+    //
+    // tick -> microsPerTick
+    //
+    std::map<int32_t, double> tempoMap;
+
+    for (auto &track : m.tracks) {
+
+        int32_t runningTick = 0;
+
+        for (auto &e : track) {
+
+            #pragma warning( push )
+            #pragma warning( disable : 4456 ) // warning C4456: declaration of 'e2' hides previous local declaration
+
+            if (auto e2 = std::get_if<TempoChangeEvent>(&e)) {
+
+                runningTick += e2->deltaTime;
+
+                auto microsPerTick = static_cast<double>(e2->microsPerBeat) / TICKS_PER_BEAT_D;
+
+                const auto &tempoMapIt = tempoMap.find(runningTick);
+                if (tempoMapIt != tempoMap.end()) {
+                    if (tempoMapIt->second != microsPerTick) {
+                        LOGW("tick %d has conflicting tempo changes: %f, %f", runningTick, tempoMapIt->second, microsPerTick);
+                    }
+                }
+
+                tempoMap[runningTick] = microsPerTick;
+
+            } else if (auto e2 = std::get_if<NullEvent>(&e)) {
+
+                runningTick += e2->deltaTime;
+
+            } else if (auto e2 = std::get_if<TimeSignatureEvent>(&e)) {
+
+                runningTick += e2->deltaTime;
+
+            } else if (auto e2 = std::get_if<EndOfTrackEvent>(&e)) {
+
+                runningTick += e2->deltaTime;
+
+            } else if (auto e2 = std::get_if<ProgramChangeEvent>(&e)) {
+
+                runningTick += e2->deltaTime;
+
+            } else if (auto e2 = std::get_if<PanEvent>(&e)) {
+
+                runningTick += e2->deltaTime;
+
+            } else if (auto e2 = std::get_if<ReverbEvent>(&e)) {
+
+                runningTick += e2->deltaTime;
+
+            } else if (auto e2 = std::get_if<ChorusEvent>(&e)) {
+
+                runningTick += e2->deltaTime;
+
+            } else if (auto e2 = std::get_if<ModulationEvent>(&e)) {
+
+                runningTick += e2->deltaTime;
+
+            } else if (auto e2 = std::get_if<RPNParameterMSBEvent>(&e)) {
+
+                runningTick += e2->deltaTime;
+
+            } else if (auto e2 = std::get_if<RPNParameterLSBEvent>(&e)) {
+
+                runningTick += e2->deltaTime;
+
+            } else if (auto e2 = std::get_if<DataEntryMSBEvent>(&e)) {
+
+                runningTick += e2->deltaTime;
+
+            } else if (auto e2 = std::get_if<DataEntryLSBEvent>(&e)) {
+
+                runningTick += e2->deltaTime;
+
+            } else if (auto e2 = std::get_if<PitchBendEvent>(&e)) {
+
+                runningTick += e2->deltaTime;
+
+            } else if (auto e2 = std::get_if<NoteOffEvent>(&e)) {
+
+                runningTick += e2->deltaTime;
+
+            } else if (auto e2 = std::get_if<NoteOnEvent>(&e)) {
+
+                runningTick += e2->deltaTime;
+
+            } else {
+
+                ASSERT(false);
+            }
+
+            #pragma warning( pop )
+        }
+    }
+
+    int32_t lastNoteOnTick = -1;
+    int32_t lastNoteOffTick = -1;
+    int32_t lastEndOfTrackTick = -1;
+    int32_t lastTempoChangeTick = -1;
+    double lastMicrosPerTick = 0.0;
+
+    for (auto &track : m.tracks) {
+
+        int32_t runningTick = 0;
+
+        for (auto &e : track) {
+
+            #pragma warning( push )
+            #pragma warning( disable : 4456 ) // warning C4456: declaration of 'e2' hides previous local declaration
+
+            if (auto e2 = std::get_if<NullEvent>(&e)) {
+
+                runningTick += e2->deltaTime;
+
+            } else if (auto e2 = std::get_if<TimeSignatureEvent>(&e)) {
+
+                runningTick += e2->deltaTime;
+
+            } else if (auto e2 = std::get_if<TempoChangeEvent>(&e)) {
+
+                runningTick += e2->deltaTime;
+
+                if (runningTick > lastTempoChangeTick) {
+                    lastTempoChangeTick = runningTick;
+                    lastMicrosPerTick = static_cast<double>(e2->microsPerBeat) / TICKS_PER_BEAT_D;
+                }
+
+            } else if (auto e2 = std::get_if<EndOfTrackEvent>(&e)) {
+
+                runningTick += e2->deltaTime;
+
+                if (runningTick > lastEndOfTrackTick) {
+                    lastEndOfTrackTick = runningTick;
+                }
+
+            } else if (auto e2 = std::get_if<ProgramChangeEvent>(&e)) {
+
+                runningTick += e2->deltaTime;
+
+            } else if (auto e2 = std::get_if<PanEvent>(&e)) {
+
+                runningTick += e2->deltaTime;
+
+            } else if (auto e2 = std::get_if<ReverbEvent>(&e)) {
+
+                runningTick += e2->deltaTime;
+
+            } else if (auto e2 = std::get_if<ChorusEvent>(&e)) {
+
+                runningTick += e2->deltaTime;
+
+            } else if (auto e2 = std::get_if<ModulationEvent>(&e)) {
+
+                runningTick += e2->deltaTime;
+
+            } else if (auto e2 = std::get_if<RPNParameterMSBEvent>(&e)) {
+
+                runningTick += e2->deltaTime;
+
+            } else if (auto e2 = std::get_if<RPNParameterLSBEvent>(&e)) {
+
+                runningTick += e2->deltaTime;
+
+            } else if (auto e2 = std::get_if<DataEntryMSBEvent>(&e)) {
+
+                runningTick += e2->deltaTime;
+
+            } else if (auto e2 = std::get_if<DataEntryLSBEvent>(&e)) {
+
+                runningTick += e2->deltaTime;
+
+            } else if (auto e2 = std::get_if<PitchBendEvent>(&e)) {
+
+                runningTick += e2->deltaTime;
+
+            } else if (auto e2 = std::get_if<NoteOffEvent>(&e)) {
+
+                runningTick += e2->deltaTime;
+
+                if (runningTick > lastNoteOffTick) {
+                    lastNoteOffTick = runningTick;
+                }
+
+            } else if (auto e2 = std::get_if<NoteOnEvent>(&e)) {
+
+                runningTick += e2->deltaTime;
+
+                if (runningTick > lastNoteOnTick) {
+                    lastNoteOnTick = runningTick;
+                }
+
+            } else {
+
+                ASSERT(false);
+            }
+
+            #pragma warning( pop )
+        }
+    }
 
 
+    //
+    // insert actual ticks for these events
+    //
+
+    auto it = tempoMap.lower_bound(lastNoteOnTick);
+    if (it != tempoMap.end()) {
+        tempoMap[lastNoteOnTick] = it->second;
+    } else {
+        tempoMap[lastNoteOnTick] = lastMicrosPerTick;
+    }
+
+    it = tempoMap.lower_bound(lastNoteOffTick);
+    if (it != tempoMap.end()) {
+        tempoMap[lastNoteOffTick] = it->second;
+    } else {
+        tempoMap[lastNoteOffTick] = lastMicrosPerTick;
+    }
+
+    it = tempoMap.lower_bound(lastEndOfTrackTick);
+    if (it != tempoMap.end()) {
+        tempoMap[lastEndOfTrackTick] = it->second;
+    } else {
+        tempoMap[lastEndOfTrackTick] = lastMicrosPerTick;
+    }
+
+    //
+    // compute actual times for events
+    //
+
+    double runningMicros = 0.0;
+    double lastNoteOnMicros = 0.0;
+    double lastNoteOffMicros = 0.0;
+    double lastEndOfTrackMicros = 0.0;
+
+    int32_t lastTick = 0;
+    lastMicrosPerTick = 0.0;
+    for (const auto &x : tempoMap) {
+        auto tick = x.first;
+        auto microsPerTick = x.second;
+
+        runningMicros += (tick - lastTick) * lastMicrosPerTick;
+
+        if (tick == lastNoteOnTick) {
+            lastNoteOnMicros = runningMicros;
+        }
+        if (tick == lastNoteOffTick) {
+            lastNoteOffMicros = runningMicros;
+        }
+        if (tick == lastEndOfTrackTick) {
+            lastEndOfTrackMicros = runningMicros;
+        }
+
+        lastTick = tick;
+        lastMicrosPerTick = microsPerTick;
+    }
+
+    midi_file_times times = { lastNoteOnMicros, lastNoteOffMicros, lastEndOfTrackMicros };
+
+    return times;
+}
+
+
+struct InfoVisitor {
+    
+    void operator()(const TimeSignatureEvent &e);
+
+    void operator()(const TempoChangeEvent &e);
+
+    void operator()(const EndOfTrackEvent &e);
+
+    void operator()(const ProgramChangeEvent &e);
+
+    void operator()(const PanEvent &e);
+
+    void operator()(const ReverbEvent &e);
+
+    void operator()(const ChorusEvent &e);
+
+    void operator()(const ModulationEvent &e);
+
+    void operator()(const RPNParameterMSBEvent &e);
+
+    void operator()(const RPNParameterLSBEvent &e);
+
+    void operator()(const DataEntryMSBEvent &e);
+
+    void operator()(const DataEntryLSBEvent &e);
+
+    void operator()(const PitchBendEvent &e);
+
+    void operator()(const NoteOffEvent &e);
+
+    void operator()(const NoteOnEvent &e);
+
+    void operator()(const NullEvent &e);
+};
+
+void
+midiFileInfo(const midi_file &m) {
+
+    InfoVisitor infoVisitor{};
+
+    for (auto &track : m.tracks) {
+
+        for (auto &e : track) {
+            std::visit(infoVisitor, e);
+        }
+    }
+}
+
+
+void InfoVisitor::operator()(const TimeSignatureEvent &e) {
+    (void)e;
+}
+
+void InfoVisitor::operator()(const TempoChangeEvent &e) {
+    (void)e;
+}
+
+void InfoVisitor::operator()(const EndOfTrackEvent &e) {
+    (void)e;
+}
+
+void InfoVisitor::operator()(const ProgramChangeEvent &e) {
+    (void)e;
+}
+
+void InfoVisitor::operator()(const PanEvent &e) {
+    (void)e;
+}
+
+void InfoVisitor::operator()(const ReverbEvent &e) {
+    (void)e;
+}
+
+void InfoVisitor::operator()(const ChorusEvent &e) {
+    (void)e;
+}
+
+void InfoVisitor::operator()(const ModulationEvent &e) {
+    (void)e;
+}
+
+void InfoVisitor::operator()(const RPNParameterMSBEvent &e) {
+    (void)e;
+}
+
+void InfoVisitor::operator()(const RPNParameterLSBEvent &e) {
+    (void)e;
+}
+
+void InfoVisitor::operator()(const DataEntryMSBEvent &e) {
+    (void)e;
+}
+
+void InfoVisitor::operator()(const DataEntryLSBEvent &e) {
+    (void)e;
+}
+
+void InfoVisitor::operator()(const PitchBendEvent &e) {
+    (void)e;
+}
+
+void InfoVisitor::operator()(const NoteOffEvent &e) {
+    (void)e;
+}
+
+void InfoVisitor::operator()(const NoteOnEvent &e) {
+    (void)e;
+}
+
+void InfoVisitor::operator()(const NullEvent &e) {
+    (void)e;
+}
 
 
 

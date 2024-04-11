@@ -59,11 +59,11 @@ set_target_properties(tbt-parser-static-lib
 #
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 target_compile_options(tbt-parser-static-lib PRIVATE
-    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas
 )
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 target_compile_options(tbt-parser-static-lib PRIVATE
-    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas
 )
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 target_compile_options(tbt-parser-static-lib PRIVATE

@@ -685,6 +685,15 @@ Status parseMidiBytes(
     const std::vector<uint8_t>::const_iterator end,
     midi_file &out);
 
+struct midi_file_times {
+    double lastNoteOnMicros;
+    double lastNoteOffMicros;
+    double lastEndOfTrackMicros;
+};
+
+midi_file_times midiFileTimes(const midi_file &m);
+
+void midiFileInfo(const midi_file &m);
 
 
 
