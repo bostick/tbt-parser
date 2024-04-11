@@ -690,6 +690,8 @@ uint8_t tbtFileVersionNumber(const tbt_file &t);
 
 std::string tbtFileVersionString(const tbt_file &t);
 
+void tbtFileInfo(const tbt_file &t);
+
 Status convertToMidi(const tbt_file &t, midi_file &m);
 
 Status exportMidiFile(const midi_file &m, const char *path);

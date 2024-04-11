@@ -28,7 +28,7 @@
 #include <algorithm> // for remove
 #include <set>
 #include <cinttypes>
-#include <cmath> // for round
+#include <cmath> // for round, floor, fmod
 #include <cstring> // for memcmp
 
 
@@ -2402,6 +2402,9 @@ midiFileTimes(const midi_file &m) {
         }
     }
 
+    //
+    // important to start < 0, because 0 is a valid tick
+    //
     int32_t lastNoteOnTick = -1;
     int32_t lastNoteOffTick = -1;
     int32_t lastEndOfTrackTick = -1;
@@ -2574,124 +2577,105 @@ midiFileTimes(const midi_file &m) {
 }
 
 
-struct InfoVisitor {
+struct EventInfoVisitor {
     
-    void operator()(const TimeSignatureEvent &e);
+    void operator()(const TimeSignatureEvent &e) {
+        (void)e;
+    }
 
-    void operator()(const TempoChangeEvent &e);
+    void operator()(const TempoChangeEvent &e) {
+        (void)e;
+    }
 
-    void operator()(const EndOfTrackEvent &e);
+    void operator()(const EndOfTrackEvent &e) {
+        (void)e;
+    }
 
-    void operator()(const ProgramChangeEvent &e);
+    void operator()(const ProgramChangeEvent &e) {
+        (void)e;
+    }
 
-    void operator()(const PanEvent &e);
+    void operator()(const PanEvent &e) {
+        (void)e;
+    }
 
-    void operator()(const ReverbEvent &e);
+    void operator()(const ReverbEvent &e) {
+        (void)e;
+    }
 
-    void operator()(const ChorusEvent &e);
+    void operator()(const ChorusEvent &e) {
+        (void)e;
+    }
 
-    void operator()(const ModulationEvent &e);
+    void operator()(const ModulationEvent &e) {
+        (void)e;
+    }
 
-    void operator()(const RPNParameterMSBEvent &e);
+    void operator()(const RPNParameterMSBEvent &e) {
+        (void)e;
+    }
 
-    void operator()(const RPNParameterLSBEvent &e);
+    void operator()(const RPNParameterLSBEvent &e) {
+        (void)e;
+    }
 
-    void operator()(const DataEntryMSBEvent &e);
+    void operator()(const DataEntryMSBEvent &e) {
+        (void)e;
+    }
 
-    void operator()(const DataEntryLSBEvent &e);
+    void operator()(const DataEntryLSBEvent &e) {
+        (void)e;
+    }
 
-    void operator()(const PitchBendEvent &e);
+    void operator()(const PitchBendEvent &e) {
+        (void)e;
+    }
 
-    void operator()(const NoteOffEvent &e);
+    void operator()(const NoteOffEvent &e) {
+        (void)e;
+    }
 
-    void operator()(const NoteOnEvent &e);
+    void operator()(const NoteOnEvent &e) {
+        (void)e;
+    }
 
-    void operator()(const NullEvent &e);
+    void operator()(const NullEvent &e) {
+        (void)e;
+    }
 
-    void operator()(const TrackNameEvent &e);
+    void operator()(const TrackNameEvent &e) {
+        LOGI("Track Name: %s", e.name.c_str());
+    }
+
 };
 
 void
 midiFileInfo(const midi_file &m) {
 
-    InfoVisitor infoVisitor{};
+    LOGI("Track Count: %d", m.header.trackCount);
+
+    EventInfoVisitor eventInfoVisitor{};
 
     for (auto &track : m.tracks) {
 
         for (auto &e : track) {
-            std::visit(infoVisitor, e);
+            std::visit(eventInfoVisitor, e);
         }
     }
+
+    auto times = midiFileTimes(m);
+
+    double lastNoteOnSec = times.lastNoteOnMicros / 1e6;
+    double lastNoteOffSec = times.lastNoteOffMicros / 1e6;
+    double lastEndOfTrackSec = times.lastEndOfTrackMicros / 1e6;
+
+    LOGI("times (second):");
+    LOGI("    lastNoteOn: %.0f:%05.2f", floor(lastNoteOnSec / 60.0), fmod(lastNoteOnSec, 60.0));
+    LOGI("   lastNoteOff: %.0f:%05.2f", floor(lastNoteOffSec / 60.0), fmod(lastNoteOffSec, 60.0));
+    LOGI("lastEndOfTrack: %.0f:%05.2f", floor(lastEndOfTrackSec / 60.0), fmod(lastEndOfTrackSec, 60.0));
 }
 
 
-void InfoVisitor::operator()(const TimeSignatureEvent &e) {
-    (void)e;
-}
-
-void InfoVisitor::operator()(const TempoChangeEvent &e) {
-    (void)e;
-}
-
-void InfoVisitor::operator()(const EndOfTrackEvent &e) {
-    (void)e;
-}
-
-void InfoVisitor::operator()(const ProgramChangeEvent &e) {
-    (void)e;
-}
-
-void InfoVisitor::operator()(const PanEvent &e) {
-    (void)e;
-}
-
-void InfoVisitor::operator()(const ReverbEvent &e) {
-    (void)e;
-}
-
-void InfoVisitor::operator()(const ChorusEvent &e) {
-    (void)e;
-}
-
-void InfoVisitor::operator()(const ModulationEvent &e) {
-    (void)e;
-}
-
-void InfoVisitor::operator()(const RPNParameterMSBEvent &e) {
-    (void)e;
-}
-
-void InfoVisitor::operator()(const RPNParameterLSBEvent &e) {
-    (void)e;
-}
-
-void InfoVisitor::operator()(const DataEntryMSBEvent &e) {
-    (void)e;
-}
-
-void InfoVisitor::operator()(const DataEntryLSBEvent &e) {
-    (void)e;
-}
-
-void InfoVisitor::operator()(const PitchBendEvent &e) {
-    (void)e;
-}
-
-void InfoVisitor::operator()(const NoteOffEvent &e) {
-    (void)e;
-}
-
-void InfoVisitor::operator()(const NoteOnEvent &e) {
-    (void)e;
-}
-
-void InfoVisitor::operator()(const NullEvent &e) {
-    (void)e;
-}
-
-void InfoVisitor::operator()(const TrackNameEvent &e) {
-    LOGI("Track Name: %s", e.name.c_str());
-}
 
 
 

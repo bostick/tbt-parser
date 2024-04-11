@@ -29,7 +29,6 @@
 #include <cstdlib>
 #include <cstring> // for strcmp
 #include <cinttypes>
-#include <cmath> // for floor, fmod
 
 
 int main(int argc, const char *argv[]) {
@@ -72,20 +71,7 @@ int main(int argc, const char *argv[]) {
         return ret;
     }
 
-    LOGI("Track Count: %d", m.header.trackCount);
-
     midiFileInfo(m);
-
-    auto times = midiFileTimes(m);
-
-    double lastNoteOnSec = times.lastNoteOnMicros / 1e6;
-    double lastNoteOffSec = times.lastNoteOffMicros / 1e6;
-    double lastEndOfTrackSec = times.lastEndOfTrackMicros / 1e6;
-
-    LOGI("times (second):");
-    LOGI("    lastNoteOn: %.0f:%05.2f", floor(lastNoteOnSec / 60.0), fmod(lastNoteOnSec, 60.0));
-    LOGI("   lastNoteOff: %.0f:%05.2f", floor(lastNoteOffSec / 60.0), fmod(lastNoteOffSec, 60.0));
-    LOGI("lastEndOfTrack: %.0f:%05.2f", floor(lastEndOfTrackSec / 60.0), fmod(lastEndOfTrackSec, 60.0));
 
     LOGI("finished!");
 
