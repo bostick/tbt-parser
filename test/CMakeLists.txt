@@ -26,6 +26,8 @@ find_package(GTest REQUIRED)
 
 set(CPP_TEST_SOURCES
 	TestMidi.cpp
+    TestTbt.cpp
+    TestUtil.cpp
 )
 
 add_executable(tbt-test-exe
@@ -42,6 +44,7 @@ target_include_directories(tbt-test-exe
 	PRIVATE
 		${GTEST_INCLUDE_DIRS}
 		../include/
+		../lib/
 		${COMMON_DIR}/include
 )
 
