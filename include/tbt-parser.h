@@ -657,7 +657,7 @@ using midi_track_event = std::variant<NullEvent, TimeSignatureEvent, TempoChange
 
 struct midi_file {
     midi_header header;
-    std::vector<std::vector<midi_track_event>> tracks;
+    std::vector<std::vector<midi_track_event> > tracks;
 };
 
 

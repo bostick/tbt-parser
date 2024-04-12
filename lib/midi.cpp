@@ -57,8 +57,6 @@ const std::array<uint8_t, 6> STRING_MIDI_NOTE_LE6A = {
 const uint8_t MUTED = 0x11; // 17
 const uint8_t STOPPED = 0x12; // 18
 
-const double MICROS_PER_MINUTE = 60 * 1e6;
-
 
 //
 // resolve all of the Automatically Assign -1 values to actual channels
@@ -1230,7 +1228,9 @@ convertToMidi(
         return TconvertToMidi<0x65, tbt_file65, 6>(t65, out);
     }
     default:
+
         ASSERT(false);
+        
         return ERR;
     }
 }
@@ -1304,7 +1304,7 @@ exportMidiBytes(
 
         std::vector<uint8_t> tmp;
 
-        EventVisitor eventVisitor{tmp};
+        EventVisitor eventVisitor{ tmp };
 
         for (const auto &event : track) {
             std::visit(eventVisitor, event);
@@ -1379,7 +1379,7 @@ void EventVisitor::operator()(const TempoChangeEvent &e) {
         0x03 // microsPerBeatBytes size VLQ
     });
 
-    tmp.insert(tmp.end(), microsPerBeatBytes.cbegin() + 1, microsPerBeatBytes.cend());
+    tmp.insert(tmp.end(), microsPerBeatBytes.cbegin() + 1, microsPerBeatBytes.cend()); // only last 3 bytes of microsPerBeatBytes
 }
 
 void EventVisitor::operator()(const EndOfTrackEvent &e) {
@@ -1573,8 +1573,6 @@ parseMidiFile(
         return ret;
     }
 
-    CHECK_NOT(buf.size() == 0, "empty file");
-
     auto buf_it = buf.cbegin();
 
     auto buf_end = buf.cend();
@@ -1598,10 +1596,7 @@ parseChunk(
 
     CHECK(it + 4 <= end, "out of data");
 
-    out.type[0] = *it++;
-    out.type[1] = *it++;
-    out.type[2] = *it++;
-    out.type[3] = *it++;
+    out.type = { *it++, *it++, *it++, *it++ };
 
     CHECK(it + 4 <= end, "out of data");
 
@@ -1622,11 +1617,9 @@ parseHeader(
     const std::vector<uint8_t>::const_iterator end,
     midi_file &out) {
 
-    Status ret;
-
     chunk c;
 
-    ret = parseChunk(it, end, c);
+    Status ret = parseChunk(it, end, c);
 
     if (ret != OK) {
         return ret;
@@ -1665,11 +1658,9 @@ parseTrackEvent(
     uint8_t &running,
     midi_track_event &out) {
 
-    Status ret;
-
     uint32_t deltaTime;
 
-    ret = parseVLQ(it, end, deltaTime);
+    Status ret = parseVLQ(it, end, deltaTime);
 
     if (ret != OK) {
         return ret;
@@ -2006,11 +1997,9 @@ parseTrack(
 
     uint8_t running = 0xff;
 
-    Status ret;
-
     chunk c;
 
-    ret = parseChunk(it, end, c);
+    Status ret = parseChunk(it, end, c);
 
     if (ret != OK) {
         return ret;
@@ -2022,11 +2011,13 @@ parseTrack(
 
     auto it2 = c.data.cbegin();
 
+    auto end2 = c.data.cend();
+
     while (true) {
 
         midi_track_event e;
 
-        ret = parseTrackEvent(it2, c.data.cend(), running, e);
+        ret = parseTrackEvent(it2, end2, running, e);
 
         if (ret != OK) {
             return ret;
@@ -2038,8 +2029,8 @@ parseTrack(
 
         if (std::holds_alternative<EndOfTrackEvent>(e)) {
 
-            if (it2 != c.data.cend()) {
-                LOGW("bytes after EndOfTrack: %zu", (c.data.cend() - it2));
+            if (it2 != end2) {
+                LOGW("bytes after EndOfTrack: %zu", (end2 - it2));
             }
 
             break;
@@ -2058,9 +2049,11 @@ parseMidiBytes(
     const std::vector<uint8_t>::const_iterator end,
     midi_file &out) {
 
-    Status ret;
+    auto len = end - it;
 
-    ret = parseHeader(it, end, out);
+    CHECK(len != 0, "empty file");
+
+    Status ret = parseHeader(it, end, out);
 
     if (ret != OK) {
         return ret;

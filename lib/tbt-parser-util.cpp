@@ -453,28 +453,14 @@ std::string fromPascal1String(const char *data) {
 
     uint8_t len = static_cast<uint8_t>(data[0]);
 
-    std::vector<char> cstrData;
-    cstrData.reserve(len + 1);
-    
-    cstrData.insert(cstrData.end(), data + 1, data + 1 + len);
-
-    cstrData[len] = '\0';
-
-    return { cstrData.data() };
+    return { data + 1, data + 1 + len };
 }
 
 std::string fromPascal2String(const char *data) {
 
     uint16_t len = parseLE2(static_cast<uint8_t>(data[0]), static_cast<uint8_t>(data[1]));
 
-    std::vector<char> cstrData;
-    cstrData.reserve(len + 1);
-
-    cstrData.insert(cstrData.end(), data + 2, data + 2 + len);
-
-    cstrData[len] = '\0';
-
-    return { cstrData.data() };
+    return { data + 2, data + 2 + len };
 }
 
 
