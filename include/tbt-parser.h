@@ -664,9 +664,14 @@ struct NoteOnEvent {
     uint8_t velocity;
 };
 
+struct TrackNameEvent {
+    uint32_t deltaTime;
+    std::string name;
+};
+
 using midi_track_event = std::variant<NullEvent, TimeSignatureEvent, TempoChangeEvent, EndOfTrackEvent, ProgramChangeEvent, PanEvent,
     ReverbEvent, ChorusEvent, ModulationEvent, RPNParameterMSBEvent, RPNParameterLSBEvent, DataEntryMSBEvent, DataEntryLSBEvent,
-    PitchBendEvent, NoteOffEvent, NoteOnEvent>;
+    PitchBendEvent, NoteOffEvent, NoteOnEvent, TrackNameEvent>;
 
 struct midi_file {
     midi_header header;

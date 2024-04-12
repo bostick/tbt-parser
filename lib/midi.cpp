@@ -404,6 +404,11 @@ TconvertToMidi(
 
         tmp.clear();
 
+        tmp.push_back(TrackNameEvent{
+            0, // delta time
+            "tbt-parser MIDI - Track 0"
+        });
+
         tmp.push_back(TimeSignatureEvent{
             0, // delta time
             4, // numerator
@@ -671,6 +676,11 @@ TconvertToMidi(
 
         tmp.clear();
 
+        tmp.push_back(TrackNameEvent{
+            0, // delta time
+            std::string("tbt-parser MIDI - Track ") + std::to_string(track + 1)
+        });
+        
         tmp.push_back(ProgramChangeEvent{
             0, // delta time
             channel,
@@ -1502,6 +1512,8 @@ struct EventVisitor {
     void operator()(const NoteOnEvent &e);
 
     void operator()(const NullEvent &e);
+
+    void operator()(const TrackNameEvent &e);
 };
 
 
@@ -1786,6 +1798,24 @@ void EventVisitor::operator()(const NoteOnEvent &e) {
 
 void EventVisitor::operator()(const NullEvent &e) {
     (void)e;
+}
+
+void EventVisitor::operator()(const TrackNameEvent &e) {
+
+    auto vlq = toVLQ(e.deltaTime);
+
+    tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
+
+    tmp.insert(tmp.end(), {
+        0xff, // meta event
+        0x03, // Sequence/Track Name
+    });
+
+    vlq = toVLQ(static_cast<uint32_t>(e.name.size()));
+
+    tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // len
+
+    tmp.insert(tmp.end(), e.name.data(), e.name.data() + e.name.size());
 }
 
 
@@ -2174,8 +2204,23 @@ parseTrackEvent(
             }
             case 0x00: // Sequence Number
             case 0x01: // Text
-            case 0x02: // Copyright
-            case 0x03: // Sequence/Track Name
+            case 0x02: { // Copyright
+                
+                it += len;
+
+                out = NullEvent{deltaTime};
+
+                return OK;
+            }
+            case 0x03: { // Sequence/Track Name
+                
+                std::string str(it, it + len);
+                it += len;
+
+                out = TrackNameEvent{deltaTime, str};
+
+                return OK;
+            }
             case 0x04: // Instrument Name
             case 0x05: // Lyric
             case 0x06: // Marker
@@ -2403,6 +2448,10 @@ midiFileTimes(const midi_file &m) {
 
                 runningTick += e2->deltaTime;
 
+            } else if (auto e2 = std::get_if<TrackNameEvent>(&e)) {
+                
+                runningTick += e2->deltaTime;
+
             } else {
 
                 ASSERT(false);
@@ -2507,6 +2556,10 @@ midiFileTimes(const midi_file &m) {
                 if (runningTick > lastNoteOnTick) {
                     lastNoteOnTick = runningTick;
                 }
+
+            } else if (auto e2 = std::get_if<TrackNameEvent>(&e)) {
+                
+                runningTick += e2->deltaTime;
 
             } else {
 
@@ -2613,6 +2666,8 @@ struct InfoVisitor {
     void operator()(const NoteOnEvent &e);
 
     void operator()(const NullEvent &e);
+
+    void operator()(const TrackNameEvent &e);
 };
 
 void
@@ -2691,6 +2746,10 @@ void InfoVisitor::operator()(const NoteOnEvent &e) {
 
 void InfoVisitor::operator()(const NullEvent &e) {
     (void)e;
+}
+
+void InfoVisitor::operator()(const TrackNameEvent &e) {
+    LOGI("Track Name: %s", e.name.c_str());
 }
 
 
