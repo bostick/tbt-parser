@@ -106,7 +106,7 @@ int main(int argc, const char *argv[]) {
 
     auto versionString = tbtFileVersionString(t);
 
-    LOGI("tbt file version: %s (0x%02x)", fromPascal1String(versionString.data()).c_str(), versionNumber);
+    LOGI("tbt file version: %s (0x%02x)", versionString.c_str(), versionNumber);
 
     std::visit(InfoVisitor{}, t);
 
