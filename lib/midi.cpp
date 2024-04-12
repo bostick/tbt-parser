@@ -1638,20 +1638,20 @@ parseHeader(
 
     auto end2 = c.data.cend();
 
-    CHECK(it + 2 <= end, "out of data");
+    CHECK(it2 + 2 <= end2, "out of data");
 
-    out.header.format = parseBE2(*it++, *it++);
+    out.header.format = parseBE2(*it2++, *it2++);
 
-    CHECK(it + 2 <= end, "out of data");
+    CHECK(it2 + 2 <= end2, "out of data");
 
-    out.header.trackCount = parseBE2(*it++, *it++);
+    out.header.trackCount = parseBE2(*it2++, *it2++);
 
-    CHECK(it + 2 <= end, "out of data");
+    CHECK(it2 + 2 <= end2, "out of data");
 
-    out.header.division = parseBE2(*it++, *it++);
+    out.header.division = parseBE2(*it2++, *it2++);
 
     if (it2 != end2) {
-        LOGW("bytes after header: %zu", (c.data.cend() - it2));
+        LOGW("bytes after header: %zu", (end2 - it2));
     }
 
     return OK;
@@ -1928,7 +1928,7 @@ parseTrackEvent(
 
                 CHECK(len == 3, "len != 3");
 
-                auto microsPerBeat = static_cast<uint32_t>((*it++ << 0) | (*it++ << 8) | (*it++ << 16));
+                auto microsPerBeat = parseBE4(0, *it++, *it++, *it++);
 
                 out = TempoChangeEvent{deltaTime, microsPerBeat};
 
