@@ -653,11 +653,11 @@ struct TbtInfoVisitor {
 
         LOGI("tbt file version: %s (0x%02x)", versionString.c_str(), versionNumber);
 
-        LOGI("title: %s", fromPascal1String(t.metadata.title.data()).c_str());
+        LOGI("title: %s", trim(fromPascal1String(t.metadata.title.data())).c_str());
 
-        LOGI("artist: %s", fromPascal1String(t.metadata.artist.data()).c_str());
+        LOGI("artist: %s", trim(fromPascal1String(t.metadata.artist.data())).c_str());
 
-        // LOGI("%s", fromPascal1String(t.metadata.comment.data()).c_str());
+        // LOGI("%s", trim(fromPascal1String(t.metadata.comment.data())).c_str());
     }
 
     void operator()(const tbt_file68 &t) {
@@ -668,11 +668,11 @@ struct TbtInfoVisitor {
 
         LOGI("tbt file version: %s (0x%02x)", versionString.c_str(), versionNumber);
 
-        LOGI("title: %s", fromPascal1String(t.metadata.title.data()).c_str());
+        LOGI("title: %s", trim(fromPascal1String(t.metadata.title.data())).c_str());
 
-        LOGI("artist: %s", fromPascal1String(t.metadata.artist.data()).c_str());
+        LOGI("artist: %s", trim(fromPascal1String(t.metadata.artist.data())).c_str());
 
-        // LOGI("%s", fromPascal1String(t.metadata.comment.data()).c_str());
+        // LOGI("%s", trim(fromPascal1String(t.metadata.comment.data())).c_str());
     }
 
     void operator()(const tbt_file6a &t) {
@@ -683,11 +683,11 @@ struct TbtInfoVisitor {
 
         LOGI("tbt file version: %s (0x%02x)", versionString.c_str(), versionNumber);
 
-        LOGI("title: %s", fromPascal1String(t.metadata.title.data()).c_str());
+        LOGI("title: %s", trim(fromPascal1String(t.metadata.title.data())).c_str());
 
-        LOGI("artist: %s", fromPascal1String(t.metadata.artist.data()).c_str());
+        LOGI("artist: %s", trim(fromPascal1String(t.metadata.artist.data())).c_str());
 
-        // LOGI("%s", fromPascal1String(t.metadata.comment.data()).c_str());
+        // LOGI("%s", trim(fromPascal1String(t.metadata.comment.data())).c_str());
     }
 
     void operator()(const tbt_file6b &t) {
@@ -698,11 +698,11 @@ struct TbtInfoVisitor {
 
         LOGI("tbt file version: %s (0x%02x)", versionString.c_str(), versionNumber);
 
-        LOGI("title: %s", fromPascal1String(t.metadata.title.data()).c_str());
+        LOGI("title: %s", trim(fromPascal1String(t.metadata.title.data())).c_str());
 
-        LOGI("artist: %s", fromPascal1String(t.metadata.artist.data()).c_str());
+        LOGI("artist: %s", trim(fromPascal1String(t.metadata.artist.data())).c_str());
 
-        // LOGI("%s", fromPascal1String(t.metadata.comment.data()).c_str());
+        // LOGI("%s", trim(fromPascal1String(t.metadata.comment.data())).c_str());
     }
 
     void operator()(const tbt_file6e &t) {
@@ -713,15 +713,15 @@ struct TbtInfoVisitor {
 
         LOGI("tbt file version: %s (0x%02x)", versionString.c_str(), versionNumber);
 
-        LOGI("title: %s", fromPascal2String(t.metadata.title.data()).c_str());
+        LOGI("title: %s", trim(fromPascal2String(t.metadata.title.data())).c_str());
 
-        LOGI("artist: %s", fromPascal2String(t.metadata.artist.data()).c_str());
+        LOGI("artist: %s", trim(fromPascal2String(t.metadata.artist.data())).c_str());
 
-        LOGI("album: %s", fromPascal2String(t.metadata.album.data()).c_str());
+        LOGI("album: %s", trim(fromPascal2String(t.metadata.album.data())).c_str());
 
-        LOGI("transcribed by: %s", fromPascal2String(t.metadata.transcribedBy.data()).c_str());
+        LOGI("transcribed by: %s", trim(fromPascal2String(t.metadata.transcribedBy.data())).c_str());
 
-        // LOGI("%s", fromPascal2String(t.metadata.comment.data()).c_str());
+        // LOGI("%s", trim(fromPascal2String(t.metadata.comment.data())).c_str());
     }
 
     void operator()(const tbt_file6f &t) {
@@ -732,15 +732,15 @@ struct TbtInfoVisitor {
 
         LOGI("tbt file version: %s (0x%02x)", versionString.c_str(), versionNumber);
 
-        LOGI("title: %s", fromPascal2String(t.metadata.title.data()).c_str());
+        LOGI("title: %s", trim(fromPascal2String(t.metadata.title.data())).c_str());
 
-        LOGI("artist: %s", fromPascal2String(t.metadata.artist.data()).c_str());
+        LOGI("artist: %s", trim(fromPascal2String(t.metadata.artist.data())).c_str());
 
-        LOGI("album: %s", fromPascal2String(t.metadata.album.data()).c_str());
+        LOGI("album: %s", trim(fromPascal2String(t.metadata.album.data())).c_str());
 
-        LOGI("transcribed by: %s", fromPascal2String(t.metadata.transcribedBy.data()).c_str());
+        LOGI("transcribed by: %s", trim(fromPascal2String(t.metadata.transcribedBy.data())).c_str());
 
-        // LOGI("%s", fromPascal2String(t.metadata.comment.data()).c_str());
+        // LOGI("%s", trim(fromPascal2String(t.metadata.comment.data())).c_str());
     }
 
     void operator()(const tbt_file70 &t) {
@@ -751,15 +751,15 @@ struct TbtInfoVisitor {
 
         LOGI("tbt file version: %s (0x%02x)", versionString.c_str(), versionNumber);
 
-        LOGI("title: %s", fromPascal2String(t.metadata.title.data()).c_str());
+        LOGI("title: %s", trim(fromPascal2String(t.metadata.title.data())).c_str());
 
-        LOGI("artist: %s", fromPascal2String(t.metadata.artist.data()).c_str());
+        LOGI("artist: %s", trim(fromPascal2String(t.metadata.artist.data())).c_str());
 
-        LOGI("album: %s", fromPascal2String(t.metadata.album.data()).c_str());
+        LOGI("album: %s", trim(fromPascal2String(t.metadata.album.data())).c_str());
 
-        LOGI("transcribed by: %s", fromPascal2String(t.metadata.transcribedBy.data()).c_str());
+        LOGI("transcribed by: %s", trim(fromPascal2String(t.metadata.transcribedBy.data())).c_str());
 
-        // LOGI("%s", fromPascal2String(t.metadata.comment.data()).c_str());
+        // LOGI("%s", trim(fromPascal2String(t.metadata.comment.data())).c_str());
     }
 
     void operator()(const tbt_file71 &t) {
@@ -770,15 +770,15 @@ struct TbtInfoVisitor {
 
         LOGI("tbt file version: %s (0x%02x)", versionString.c_str(), versionNumber);
 
-        LOGI("title: %s", fromPascal2String(t.metadata.title.data()).c_str());
+        LOGI("title: %s", trim(fromPascal2String(t.metadata.title.data())).c_str());
 
-        LOGI("artist: %s", fromPascal2String(t.metadata.artist.data()).c_str());
+        LOGI("artist: %s", trim(fromPascal2String(t.metadata.artist.data())).c_str());
 
-        LOGI("album: %s", fromPascal2String(t.metadata.album.data()).c_str());
+        LOGI("album: %s", trim(fromPascal2String(t.metadata.album.data())).c_str());
 
-        LOGI("transcribed by: %s", fromPascal2String(t.metadata.transcribedBy.data()).c_str());
+        LOGI("transcribed by: %s", trim(fromPascal2String(t.metadata.transcribedBy.data())).c_str());
 
-        // LOGI("%s", fromPascal2String(t.metadata.comment.data()).c_str());
+        // LOGI("%s", trim(fromPascal2String(t.metadata.comment.data())).c_str());
     }
 };
 

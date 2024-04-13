@@ -83,6 +83,8 @@ std::string fromPascal1String(const char *data);
 
 std::string fromPascal2String(const char *data);
 
+std::string trim(const std::string str);
+
 
 
 

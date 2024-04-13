@@ -490,6 +490,17 @@ std::string fromPascal2String(const char *data) {
 }
 
 
+std::string trim(const std::string str) {
+
+    std::string tmp(str);
+    
+    tmp.erase(0, tmp.find_first_not_of(" "));
+    
+    tmp.erase(tmp.find_last_not_of(" ") + 1);
+
+    return tmp;
+}
+
 
 
 
