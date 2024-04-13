@@ -570,11 +570,11 @@ struct midi_header {
 
 
 struct NullEvent {
-    uint32_t deltaTime;
+    int32_t deltaTime;
 };
 
 struct TimeSignatureEvent {
-    uint32_t deltaTime;
+    int32_t deltaTime;
     uint8_t numerator;
     uint8_t denominator; // (as 2^d)
     uint8_t ticksPerMetronomeClick;
@@ -582,90 +582,90 @@ struct TimeSignatureEvent {
 };
 
 struct TempoChangeEvent {
-    uint32_t deltaTime;
+    int32_t deltaTime;
     uint32_t microsPerBeat;
 };
 
 struct EndOfTrackEvent {
-    uint32_t deltaTime;
+    int32_t deltaTime;
 };
 
 struct ProgramChangeEvent {
-    uint32_t deltaTime;
+    int32_t deltaTime;
     uint8_t channel;
     uint8_t midiProgram;
 };
 
 struct PanEvent {
-    uint32_t deltaTime;
+    int32_t deltaTime;
     uint8_t channel;
     uint8_t pan;
 };
 
 struct ReverbEvent {
-    uint32_t deltaTime;
+    int32_t deltaTime;
     uint8_t channel;
     uint8_t reverb;
 };
 
 struct ChorusEvent {
-    uint32_t deltaTime;
+    int32_t deltaTime;
     uint8_t channel;
     uint8_t chorus;
 };
 
 struct ModulationEvent {
-    uint32_t deltaTime;
+    int32_t deltaTime;
     uint8_t channel;
     uint8_t modulation;
 };
 
 struct RPNParameterMSBEvent {
-    uint32_t deltaTime;
+    int32_t deltaTime;
     uint8_t channel;
     uint8_t rpnParameterMSB;
 };
 
 struct RPNParameterLSBEvent {
-    uint32_t deltaTime;
+    int32_t deltaTime;
     uint8_t channel;
     uint8_t rpnParameterLSB;
 };
 
 struct DataEntryMSBEvent {
-    uint32_t deltaTime;
+    int32_t deltaTime;
     uint8_t channel;
     uint8_t dataEntryMSB;
 };
 
 struct DataEntryLSBEvent {
-    uint32_t deltaTime;
+    int32_t deltaTime;
     uint8_t channel;
     uint8_t dataEntryLSB;
 };
 
 struct PitchBendEvent {
-    uint32_t deltaTime;
+    int32_t deltaTime;
     uint8_t channel;
     int16_t pitchBend;
 };
 
 struct NoteOffEvent {
-    uint32_t deltaTime;
+    int32_t deltaTime;
     uint8_t channel;
     uint8_t midiNote;
     uint8_t velocity;
 };
 
 struct NoteOnEvent {
-    uint32_t deltaTime;
+    int32_t deltaTime;
     uint8_t channel;
     uint8_t midiNote;
     uint8_t velocity;
 };
 
 struct TrackNameEvent {
-    uint32_t deltaTime;
+    int32_t deltaTime;
     std::string name;
 };
 

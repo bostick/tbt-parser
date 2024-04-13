@@ -443,7 +443,7 @@ TconvertToMidi(
                 // auto microsPerBeat = static_cast<uint32_t>(round(MICROS_PER_MINUTE / static_cast<double>(tempoBPM)));
                 auto microsPerBeat = static_cast<uint32_t>(floor(MICROS_PER_MINUTE / static_cast<double>(tempoBPM)));
 
-                uint32_t diff = tick - lastEventTick;
+                auto diff = static_cast<int32_t>(tick - lastEventTick);
 
                 tmp.push_back(TempoChangeEvent{
                     diff, // delta time
@@ -901,7 +901,7 @@ TconvertToMidi(
                             midiNote = stringNote + STRING_MIDI_NOTE_LE6A[string];
                         }
 
-                        auto diff = tick - lastEventTick;
+                        auto diff = static_cast<int32_t>(tick - lastEventTick);
 
                         tmp.push_back(NoteOffEvent{
                             diff, // delta time
@@ -938,7 +938,7 @@ TconvertToMidi(
                                 dontLetRing = ((newInstrument & 0b10000000) == 0b10000000);
                                 midiProgram = (newInstrument & 0b01111111);
 
-                                auto diff = tick - lastEventTick;
+                                auto diff = static_cast<int32_t>(tick - lastEventTick);
 
                                 tmp.push_back(ProgramChangeEvent{
                                     diff, // delta time
@@ -973,7 +973,7 @@ TconvertToMidi(
                                 
                                 auto newPan = change.value;
 
-                                auto diff = tick - lastEventTick;
+                                auto diff = static_cast<int32_t>(tick - lastEventTick);
 
                                 tmp.push_back(PanEvent{
                                     diff, // delta time
@@ -989,7 +989,7 @@ TconvertToMidi(
                                 
                                 auto newChorus = change.value;
 
-                                auto diff = tick - lastEventTick;
+                                auto diff = static_cast<int32_t>(tick - lastEventTick);
 
                                 tmp.push_back(ChorusEvent{
                                     diff, // delta time
@@ -1005,7 +1005,7 @@ TconvertToMidi(
                                 
                                 auto newReverb = change.value;
 
-                                auto diff = tick - lastEventTick;
+                                auto diff = static_cast<int32_t>(tick - lastEventTick);
 
                                 tmp.push_back(ReverbEvent{
                                     diff, // delta time
@@ -1021,7 +1021,7 @@ TconvertToMidi(
                                 
                                 auto newModulation = change.value;
 
-                                auto diff = tick - lastEventTick;
+                                auto diff = static_cast<int32_t>(tick - lastEventTick);
 
                                 tmp.push_back(ModulationEvent{
                                     diff, // delta time
@@ -1043,7 +1043,7 @@ TconvertToMidi(
                                 //
                                 newPitchBend = static_cast<int16_t>(round(((static_cast<double>(newPitchBend) + 2400.0) * 16383.0) / (2.0 * 2400.0)));
 
-                                auto diff = tick - lastEventTick;
+                                auto diff = static_cast<int32_t>(tick - lastEventTick);
 
                                 tmp.push_back(PitchBendEvent{
                                     diff, // delta time
@@ -1083,7 +1083,7 @@ TconvertToMidi(
                             dontLetRing = ((newInstrument & 0b10000000) == 0b10000000);
                             midiProgram = (newInstrument & 0b01111111);
 
-                            auto diff = tick - lastEventTick;
+                            auto diff = static_cast<int32_t>(tick - lastEventTick);
 
                             tmp.push_back(ProgramChangeEvent{
                                 diff, // delta time
@@ -1119,7 +1119,7 @@ TconvertToMidi(
 
                             auto newChorus = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
-                            auto diff = tick - lastEventTick;
+                            auto diff = static_cast<int32_t>(tick - lastEventTick);
 
                             tmp.push_back(ChorusEvent{
                                 diff, // delta time
@@ -1135,7 +1135,7 @@ TconvertToMidi(
 
                             auto newPan = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
-                            auto diff = tick - lastEventTick;
+                            auto diff = static_cast<int32_t>(tick - lastEventTick);
 
                             tmp.push_back(PanEvent{
                                 diff, // delta time
@@ -1151,7 +1151,7 @@ TconvertToMidi(
 
                             auto newReverb = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
-                            auto diff = tick - lastEventTick;
+                            auto diff = static_cast<int32_t>(tick - lastEventTick);
 
                             tmp.push_back(ReverbEvent{
                                 diff, // delta time
@@ -1208,7 +1208,7 @@ TconvertToMidi(
                             midiNote = stringNote + STRING_MIDI_NOTE_LE6A[string];
                         }
 
-                        auto diff = tick - lastEventTick;
+                        auto diff = static_cast<int32_t>(tick - lastEventTick);
 
                         tmp.push_back(NoteOnEvent{
                             diff, // delta time
@@ -1338,7 +1338,7 @@ TconvertToMidi(
                     midiNote = stringNote + STRING_MIDI_NOTE_LE6A[string];
                 }
 
-                auto diff = tick - lastEventTick;
+                auto diff = static_cast<int32_t>(tick - lastEventTick);
 
                 tmp.push_back(NoteOffEvent{
                     diff, // delta time
@@ -1565,7 +1565,7 @@ exportMidiFile(
     
 void EventVisitor::operator()(const TimeSignatureEvent &e) {
 
-    auto vlq = toVLQ(e.deltaTime);
+    auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
 
     tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
 
@@ -1582,7 +1582,7 @@ void EventVisitor::operator()(const TimeSignatureEvent &e) {
 
 void EventVisitor::operator()(const TempoChangeEvent &e) {
 
-    auto vlq = toVLQ(e.deltaTime);
+    auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
     auto microsPerBeatBytes = toDigitsBE(e.microsPerBeat);
 
     tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
@@ -1601,7 +1601,7 @@ void EventVisitor::operator()(const TempoChangeEvent &e) {
 
 void EventVisitor::operator()(const EndOfTrackEvent &e) {
 
-    auto vlq = toVLQ(e.deltaTime);
+    auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
 
     tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
 
@@ -1614,7 +1614,7 @@ void EventVisitor::operator()(const EndOfTrackEvent &e) {
 
 void EventVisitor::operator()(const ProgramChangeEvent &e) {
 
-    auto vlq = toVLQ(e.deltaTime);
+    auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
 
     tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
 
@@ -1626,7 +1626,7 @@ void EventVisitor::operator()(const ProgramChangeEvent &e) {
 
 void EventVisitor::operator()(const PanEvent &e) {
 
-    auto vlq = toVLQ(e.deltaTime);
+    auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
 
     tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
 
@@ -1639,7 +1639,7 @@ void EventVisitor::operator()(const PanEvent &e) {
 
 void EventVisitor::operator()(const ReverbEvent &e) {
 
-    auto vlq = toVLQ(e.deltaTime);
+    auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
 
     tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
 
@@ -1652,7 +1652,7 @@ void EventVisitor::operator()(const ReverbEvent &e) {
 
 void EventVisitor::operator()(const ChorusEvent &e) {
 
-    auto vlq = toVLQ(e.deltaTime);
+    auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
 
     tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
 
@@ -1665,7 +1665,7 @@ void EventVisitor::operator()(const ChorusEvent &e) {
 
 void EventVisitor::operator()(const ModulationEvent &e) {
 
-    auto vlq = toVLQ(e.deltaTime);
+    auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
 
     tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
 
@@ -1678,7 +1678,7 @@ void EventVisitor::operator()(const ModulationEvent &e) {
 
 void EventVisitor::operator()(const RPNParameterMSBEvent &e) {
 
-    auto vlq = toVLQ(e.deltaTime);
+    auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
 
     tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
 
@@ -1691,7 +1691,7 @@ void EventVisitor::operator()(const RPNParameterMSBEvent &e) {
 
 void EventVisitor::operator()(const RPNParameterLSBEvent &e) {
 
-    auto vlq = toVLQ(e.deltaTime);
+    auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
 
     tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
 
@@ -1704,7 +1704,7 @@ void EventVisitor::operator()(const RPNParameterLSBEvent &e) {
 
 void EventVisitor::operator()(const DataEntryMSBEvent &e) {
 
-    auto vlq = toVLQ(e.deltaTime);
+    auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
 
     tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
 
@@ -1717,7 +1717,7 @@ void EventVisitor::operator()(const DataEntryMSBEvent &e) {
 
 void EventVisitor::operator()(const DataEntryLSBEvent &e) {
 
-    auto vlq = toVLQ(e.deltaTime);
+    auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
 
     tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
 
@@ -1730,7 +1730,7 @@ void EventVisitor::operator()(const DataEntryLSBEvent &e) {
 
 void EventVisitor::operator()(const PitchBendEvent &e) {
 
-    auto vlq = toVLQ(e.deltaTime);
+    auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
 
     uint8_t pitchBendLSB = (e.pitchBend & 0b01111111);
     uint8_t pitchBendMSB = ((e.pitchBend >> 7) & 0b01111111);
@@ -1746,7 +1746,7 @@ void EventVisitor::operator()(const PitchBendEvent &e) {
 
 void EventVisitor::operator()(const NoteOffEvent &e) {
 
-    auto vlq = toVLQ(e.deltaTime);
+    auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
 
     tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
 
@@ -1759,7 +1759,7 @@ void EventVisitor::operator()(const NoteOffEvent &e) {
 
 void EventVisitor::operator()(const NoteOnEvent &e) {
 
-    auto vlq = toVLQ(e.deltaTime);
+    auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
 
     tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
 
@@ -1776,7 +1776,7 @@ void EventVisitor::operator()(const NullEvent &e) {
 
 void EventVisitor::operator()(const TrackNameEvent &e) {
 
-    auto vlq = toVLQ(e.deltaTime);
+    auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
 
     tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
 
@@ -1893,13 +1893,15 @@ parseTrackEvent(
     uint8_t &running,
     midi_track_event &out) {
 
-    uint32_t deltaTime;
+    uint32_t UdeltaTime;
 
-    Status ret = parseVLQ(it, end, deltaTime);
+    Status ret = parseVLQ(it, end, UdeltaTime);
 
     if (ret != OK) {
         return ret;
     }
+
+    auto deltaTime = static_cast<int32_t>(UdeltaTime);
 
     CHECK(it + 1 <= end, "out of data");
 
