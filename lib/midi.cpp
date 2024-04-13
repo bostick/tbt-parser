@@ -1455,39 +1455,234 @@ struct EventVisitor {
     
     std::vector<uint8_t> &tmp;
     
-    void operator()(const TimeSignatureEvent &e);
+    void operator()(const TimeSignatureEvent &e) {
 
-    void operator()(const TempoChangeEvent &e);
+        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
 
-    void operator()(const EndOfTrackEvent &e);
+        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
 
-    void operator()(const ProgramChangeEvent &e);
+        tmp.insert(tmp.end(), {
+            0xff, // meta event
+            0x58, // time signature
+            0x04, 
+            e.numerator,
+            e.denominator,
+            e.ticksPerMetronomeClick,
+            e.notated32notesInMIDIQuarterNotes
+        });
+    }
 
-    void operator()(const PanEvent &e);
+    void operator()(const TempoChangeEvent &e) {
 
-    void operator()(const ReverbEvent &e);
+        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
+        auto microsPerBeatBytes = toDigitsBE(e.microsPerBeat);
 
-    void operator()(const ChorusEvent &e);
+        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
 
-    void operator()(const ModulationEvent &e);
+        tmp.insert(tmp.end(), {
+            0xff, // meta event
+            0x51, // tempo change
+            //
+            // FluidSynth hard-codes length of 3, so just do the same
+            //
+            0x03 // microsPerBeatBytes size VLQ
+        });
 
-    void operator()(const RPNParameterMSBEvent &e);
+        tmp.insert(tmp.end(), microsPerBeatBytes.cbegin() + 1, microsPerBeatBytes.cend()); // only last 3 bytes of microsPerBeatBytes
+    }
 
-    void operator()(const RPNParameterLSBEvent &e);
+    void operator()(const EndOfTrackEvent &e) {
 
-    void operator()(const DataEntryMSBEvent &e);
+        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
 
-    void operator()(const DataEntryLSBEvent &e);
+        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
 
-    void operator()(const PitchBendEvent &e);
+        tmp.insert(tmp.end(), {
+            0xff, // meta event
+            0x2f, // end of track
+            0x00
+        });
+    }
 
-    void operator()(const NoteOffEvent &e);
+    void operator()(const ProgramChangeEvent &e) {
 
-    void operator()(const NoteOnEvent &e);
+        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
 
-    void operator()(const NullEvent &e);
+        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
 
-    void operator()(const TrackNameEvent &e);
+        tmp.insert(tmp.end(), {
+            static_cast<uint8_t>(0xc0 | e.channel), // program change
+            e.midiProgram,
+        });
+    }
+
+    void operator()(const PanEvent &e) {
+
+        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
+
+        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
+
+        tmp.insert(tmp.end(), {
+            static_cast<uint8_t>(0xb0 | e.channel), // control event
+            0x0a, // pan
+            e.pan,
+        });
+    }
+
+    void operator()(const ReverbEvent &e) {
+
+        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
+
+        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
+
+        tmp.insert(tmp.end(), {
+            static_cast<uint8_t>(0xb0 | e.channel), // control event
+            0x5b, // reverb
+            e.reverb,
+        });
+    }
+
+    void operator()(const ChorusEvent &e) {
+
+        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
+
+        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
+
+        tmp.insert(tmp.end(), {
+            static_cast<uint8_t>(0xb0 | e.channel), // control event
+            0x5d, // chorus
+            e.chorus,
+        });
+    }
+
+    void operator()(const ModulationEvent &e) {
+
+        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
+
+        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
+
+        tmp.insert(tmp.end(), {
+            static_cast<uint8_t>(0xb0 | e.channel), // control event
+            0x01, // modulation
+            e.modulation,
+        });
+    }
+
+    void operator()(const RPNParameterMSBEvent &e) {
+
+        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
+
+        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
+
+        tmp.insert(tmp.end(), {
+            static_cast<uint8_t>(0xb0 | e.channel), // control event
+            0x65, // RPN Parameter MSB
+            e.rpnParameterMSB
+        });
+    }
+
+    void operator()(const RPNParameterLSBEvent &e) {
+
+        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
+
+        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
+
+        tmp.insert(tmp.end(), {
+            static_cast<uint8_t>(0xb0 | e.channel), // control event
+            0x64, // RPN Parameter LSB
+            e.rpnParameterLSB
+        });
+    }
+
+    void operator()(const DataEntryMSBEvent &e) {
+
+        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
+
+        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
+
+        tmp.insert(tmp.end(), {
+            static_cast<uint8_t>(0xb0 | e.channel), // control event
+            0x06, // Data Entry MSB
+            e.dataEntryMSB
+        });
+    }
+
+    void operator()(const DataEntryLSBEvent &e) {
+
+        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
+
+        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
+
+        tmp.insert(tmp.end(), {
+            static_cast<uint8_t>(0xb0 | e.channel), // control event
+            0x26, // Data Entry LSB
+            e.dataEntryLSB
+        });
+    }
+
+    void operator()(const PitchBendEvent &e) {
+
+        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
+
+        uint8_t pitchBendLSB = (e.pitchBend & 0b01111111);
+        uint8_t pitchBendMSB = ((e.pitchBend >> 7) & 0b01111111);
+
+        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
+
+        tmp.insert(tmp.end(), {
+            static_cast<uint8_t>(0xe0 | e.channel), // pitch bend
+            pitchBendLSB,
+            pitchBendMSB
+        });
+    }
+
+    void operator()(const NoteOffEvent &e) {
+
+        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
+
+        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
+
+        tmp.insert(tmp.end(), {
+            static_cast<uint8_t>(0x80 | e.channel), // note off
+            e.midiNote,
+            e.velocity
+        });
+    }
+
+    void operator()(const NoteOnEvent &e) {
+
+        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
+
+        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
+
+        tmp.insert(tmp.end(), {
+            static_cast<uint8_t>(0x90 | e.channel), // note on
+            e.midiNote,
+            e.velocity
+        });
+    }
+
+    void operator()(const NullEvent &e) {
+        (void)e;
+    }
+
+    void operator()(const TrackNameEvent &e) {
+
+        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
+
+        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
+
+        tmp.insert(tmp.end(), {
+            0xff, // meta event
+            0x03, // Sequence/Track Name
+        });
+
+        vlq = toVLQ(static_cast<uint32_t>(e.name.size()));
+
+        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // len
+
+        tmp.insert(tmp.end(), e.name.data(), e.name.data() + e.name.size());
+    }
 };
 
 
@@ -1560,236 +1755,6 @@ exportMidiFile(
     }
 
     return OK;
-}
-
-    
-void EventVisitor::operator()(const TimeSignatureEvent &e) {
-
-    auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-
-    tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
-
-    tmp.insert(tmp.end(), {
-        0xff, // meta event
-        0x58, // time signature
-        0x04, 
-        e.numerator,
-        e.denominator,
-        e.ticksPerMetronomeClick,
-        e.notated32notesInMIDIQuarterNotes
-    });
-}
-
-void EventVisitor::operator()(const TempoChangeEvent &e) {
-
-    auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-    auto microsPerBeatBytes = toDigitsBE(e.microsPerBeat);
-
-    tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
-
-    tmp.insert(tmp.end(), {
-        0xff, // meta event
-        0x51, // tempo change
-        //
-        // FluidSynth hard-codes length of 3, so just do the same
-        //
-        0x03 // microsPerBeatBytes size VLQ
-    });
-
-    tmp.insert(tmp.end(), microsPerBeatBytes.cbegin() + 1, microsPerBeatBytes.cend()); // only last 3 bytes of microsPerBeatBytes
-}
-
-void EventVisitor::operator()(const EndOfTrackEvent &e) {
-
-    auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-
-    tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
-
-    tmp.insert(tmp.end(), {
-        0xff, // meta event
-        0x2f, // end of track
-        0x00
-    });
-}
-
-void EventVisitor::operator()(const ProgramChangeEvent &e) {
-
-    auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-
-    tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
-
-    tmp.insert(tmp.end(), {
-        static_cast<uint8_t>(0xc0 | e.channel), // program change
-        e.midiProgram,
-    });
-}
-
-void EventVisitor::operator()(const PanEvent &e) {
-
-    auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-
-    tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
-
-    tmp.insert(tmp.end(), {
-        static_cast<uint8_t>(0xb0 | e.channel), // control event
-        0x0a, // pan
-        e.pan,
-    });
-}
-
-void EventVisitor::operator()(const ReverbEvent &e) {
-
-    auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-
-    tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
-
-    tmp.insert(tmp.end(), {
-        static_cast<uint8_t>(0xb0 | e.channel), // control event
-        0x5b, // reverb
-        e.reverb,
-    });
-}
-
-void EventVisitor::operator()(const ChorusEvent &e) {
-
-    auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-
-    tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
-
-    tmp.insert(tmp.end(), {
-        static_cast<uint8_t>(0xb0 | e.channel), // control event
-        0x5d, // chorus
-        e.chorus,
-    });
-}
-
-void EventVisitor::operator()(const ModulationEvent &e) {
-
-    auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-
-    tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
-
-    tmp.insert(tmp.end(), {
-        static_cast<uint8_t>(0xb0 | e.channel), // control event
-        0x01, // modulation
-        e.modulation,
-    });
-}
-
-void EventVisitor::operator()(const RPNParameterMSBEvent &e) {
-
-    auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-
-    tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
-
-    tmp.insert(tmp.end(), {
-        static_cast<uint8_t>(0xb0 | e.channel), // control event
-        0x65, // RPN Parameter MSB
-        e.rpnParameterMSB
-    });
-}
-
-void EventVisitor::operator()(const RPNParameterLSBEvent &e) {
-
-    auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-
-    tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
-
-    tmp.insert(tmp.end(), {
-        static_cast<uint8_t>(0xb0 | e.channel), // control event
-        0x64, // RPN Parameter LSB
-        e.rpnParameterLSB
-    });
-}
-
-void EventVisitor::operator()(const DataEntryMSBEvent &e) {
-
-    auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-
-    tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
-
-    tmp.insert(tmp.end(), {
-        static_cast<uint8_t>(0xb0 | e.channel), // control event
-        0x06, // Data Entry MSB
-        e.dataEntryMSB
-    });
-}
-
-void EventVisitor::operator()(const DataEntryLSBEvent &e) {
-
-    auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-
-    tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
-
-    tmp.insert(tmp.end(), {
-        static_cast<uint8_t>(0xb0 | e.channel), // control event
-        0x26, // Data Entry LSB
-        e.dataEntryLSB
-    });
-}
-
-void EventVisitor::operator()(const PitchBendEvent &e) {
-
-    auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-
-    uint8_t pitchBendLSB = (e.pitchBend & 0b01111111);
-    uint8_t pitchBendMSB = ((e.pitchBend >> 7) & 0b01111111);
-
-    tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
-
-    tmp.insert(tmp.end(), {
-        static_cast<uint8_t>(0xe0 | e.channel), // pitch bend
-        pitchBendLSB,
-        pitchBendMSB
-    });
-}
-
-void EventVisitor::operator()(const NoteOffEvent &e) {
-
-    auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-
-    tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
-
-    tmp.insert(tmp.end(), {
-        static_cast<uint8_t>(0x80 | e.channel), // note off
-        e.midiNote,
-        e.velocity
-    });
-}
-
-void EventVisitor::operator()(const NoteOnEvent &e) {
-
-    auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-
-    tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
-
-    tmp.insert(tmp.end(), {
-        static_cast<uint8_t>(0x90 | e.channel), // note on
-        e.midiNote,
-        e.velocity
-    });
-}
-
-void EventVisitor::operator()(const NullEvent &e) {
-    (void)e;
-}
-
-void EventVisitor::operator()(const TrackNameEvent &e) {
-
-    auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-
-    tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
-
-    tmp.insert(tmp.end(), {
-        0xff, // meta event
-        0x03, // Sequence/Track Name
-    });
-
-    vlq = toVLQ(static_cast<uint32_t>(e.name.size()));
-
-    tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // len
-
-    tmp.insert(tmp.end(), e.name.data(), e.name.data() + e.name.size());
 }
 
 
