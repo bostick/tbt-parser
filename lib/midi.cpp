@@ -2519,25 +2519,31 @@ midiFileTimes(const midi_file &m) {
     // insert actual ticks for these events
     //
 
-    auto it = tempoMap.lower_bound(lastNoteOnTick);
-    if (it != tempoMap.end()) {
-        tempoMap[lastNoteOnTick] = it->second;
-    } else {
-        tempoMap[lastNoteOnTick] = lastMicrosPerTick;
+    if (lastNoteOnTick != -1) {
+        auto it = tempoMap.lower_bound(lastNoteOnTick);
+        if (it != tempoMap.end()) {
+            tempoMap[lastNoteOnTick] = it->second;
+        } else {
+            tempoMap[lastNoteOnTick] = lastMicrosPerTick;
+        }
     }
 
-    it = tempoMap.lower_bound(lastNoteOffTick);
-    if (it != tempoMap.end()) {
-        tempoMap[lastNoteOffTick] = it->second;
-    } else {
-        tempoMap[lastNoteOffTick] = lastMicrosPerTick;
+    if (lastNoteOffTick != -1) {
+        auto it = tempoMap.lower_bound(lastNoteOffTick);
+        if (it != tempoMap.end()) {
+            tempoMap[lastNoteOffTick] = it->second;
+        } else {
+            tempoMap[lastNoteOffTick] = lastMicrosPerTick;
+        }
     }
 
-    it = tempoMap.lower_bound(lastEndOfTrackTick);
-    if (it != tempoMap.end()) {
-        tempoMap[lastEndOfTrackTick] = it->second;
-    } else {
-        tempoMap[lastEndOfTrackTick] = lastMicrosPerTick;
+    if (lastEndOfTrackTick != -1) {
+        auto it = tempoMap.lower_bound(lastEndOfTrackTick);
+        if (it != tempoMap.end()) {
+            tempoMap[lastEndOfTrackTick] = it->second;
+        } else {
+            tempoMap[lastEndOfTrackTick] = lastMicrosPerTick;
+        }
     }
 
     //
@@ -2545,9 +2551,9 @@ midiFileTimes(const midi_file &m) {
     //
 
     double runningMicros = 0.0;
-    double lastNoteOnMicros = 0.0;
-    double lastNoteOffMicros = 0.0;
-    double lastEndOfTrackMicros = 0.0;
+    double lastNoteOnMicros = -1.0;
+    double lastNoteOffMicros = -1.0;
+    double lastEndOfTrackMicros = -1.0;
 
     int32_t lastTick = 0;
     lastMicrosPerTick = 0.0;
@@ -2652,6 +2658,7 @@ struct EventInfoVisitor {
 void
 midiFileInfo(const midi_file &m) {
 
+    LOGI("tracks:");
     LOGI("Track Count: %d", m.header.trackCount);
 
     EventInfoVisitor eventInfoVisitor{};
@@ -2665,14 +2672,25 @@ midiFileInfo(const midi_file &m) {
 
     auto times = midiFileTimes(m);
 
-    double lastNoteOnSec = times.lastNoteOnMicros / 1e6;
-    double lastNoteOffSec = times.lastNoteOffMicros / 1e6;
-    double lastEndOfTrackSec = times.lastEndOfTrackMicros / 1e6;
-
-    LOGI("times (second):");
-    LOGI("    lastNoteOn: %.0f:%05.2f", floor(lastNoteOnSec / 60.0), fmod(lastNoteOnSec, 60.0));
-    LOGI("   lastNoteOff: %.0f:%05.2f", floor(lastNoteOffSec / 60.0), fmod(lastNoteOffSec, 60.0));
-    LOGI("lastEndOfTrack: %.0f:%05.2f", floor(lastEndOfTrackSec / 60.0), fmod(lastEndOfTrackSec, 60.0));
+    LOGI("times:");
+    if (times.lastNoteOnMicros != -1) {
+        double lastNoteOnSec = times.lastNoteOnMicros / 1e6;
+        LOGI("    lastNoteOn: %.0f:%05.2f", floor(lastNoteOnSec / 60.0), fmod(lastNoteOnSec, 60.0));
+    } else {
+        LOGI("    lastNoteOn: (none)");
+    }
+    if (times.lastNoteOffMicros != -1) {
+        double lastNoteOffSec = times.lastNoteOffMicros / 1e6;
+        LOGI("   lastNoteOff: %.0f:%05.2f", floor(lastNoteOffSec / 60.0), fmod(lastNoteOffSec, 60.0));
+    } else {
+        LOGI("   lastNoteOff: (none)");
+    }
+    if (times.lastEndOfTrackMicros != -1) {
+        double lastEndOfTrackSec = times.lastEndOfTrackMicros / 1e6;
+        LOGI("lastEndOfTrack: %.0f:%05.2f", floor(lastEndOfTrackSec / 60.0), fmod(lastEndOfTrackSec, 60.0));
+    } else {
+        LOGI("lastEndOfTrack: (none)");
+    }
 }
 
 
