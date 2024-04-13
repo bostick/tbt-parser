@@ -33,7 +33,7 @@
 
 int main(int argc, const char *argv[]) {
 
-    LOGI("midi info v1.0.1");
+    LOGI("midi info v1.1.0");
     LOGI("Copyright (C) 2024 by Brenton Bostick");
 
     if (argc == 1) {
