@@ -1,4 +1,4 @@
-// Copyright (C) 2023 by Brenton Bostick
+// Copyright (C) 2024 by Brenton Bostick
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 // associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -31,7 +31,7 @@
 int main(int argc, const char *argv[]) {
 
     LOGI("tbt converter v1.0.1");
-    LOGI("Copyright (C) 2023 by Brenton Bostick");
+    LOGI("Copyright (C) 2024 by Brenton Bostick");
 
     if (argc == 1) {
         LOGI("usage: tbt-converter --input-file XXX [--output-file YYY]");
