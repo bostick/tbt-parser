@@ -587,6 +587,14 @@ TconvertToMidi(
 
         uint8_t channel = channelMap[track];
         uint8_t volume = t.metadata.tracks[track].volume;
+
+        uint8_t midiBank;
+        if constexpr (0x6e <= VERSION) {
+            midiBank = t.metadata.tracks[track].midiBank;
+        } else {
+            midiBank = 0;
+        }
+
         bool dontLetRing = ((t.metadata.tracks[track].cleanGuitar & 0b10000000) == 0b10000000);
         uint8_t midiProgram = (t.metadata.tracks[track].cleanGuitar & 0b01111111);
 
@@ -654,7 +662,22 @@ TconvertToMidi(
             0, // delta time
             std::string("tbt-parser MIDI - Track ") + std::to_string(track + 1)
         });
-        
+
+        if (midiBank != 0) {
+
+            //
+            // Bank Select MSB and Bank Select LSB are special and do not really mean MSB/LSB
+            // TabIt only sends MSB
+            //
+            uint8_t midiBankMSB = midiBank;
+
+            tmp.push_back(BankSelectMSBEvent{
+                0, // delta time
+                channel,
+                midiBankMSB,
+            });
+        }
+
         tmp.push_back(ProgramChangeEvent{
             0, // delta time
             channel,
@@ -935,10 +958,29 @@ TconvertToMidi(
 
                                 auto newInstrument = change.value;
 
-                                dontLetRing = ((newInstrument & 0b10000000) == 0b10000000);
-                                midiProgram = (newInstrument & 0b01111111);
+                                bool midiBankFlag;
+
+                                midiBankFlag = ((newInstrument & 0b1000000000000000) == 0b1000000000000000);
+                                midiBank     = ((newInstrument & 0b0111111100000000) >> 8);
+                                dontLetRing  = ((newInstrument & 0b0000000010000000) == 0b0000000010000000);
+                                midiProgram  =  (newInstrument & 0b0000000001111111);
 
                                 auto diff = static_cast<int32_t>(tick - lastEventTick);
+                                
+                                if (midiBankFlag) {
+
+                                    //
+                                    // Bank Select MSB and Bank Select LSB are special and do not really mean MSB/LSB
+                                    // TabIt only sends MSB
+                                    //
+                                    uint8_t midiBankMSB = midiBank;
+                                    
+                                    tmp.push_back(BankSelectMSBEvent{
+                                        diff, // delta time
+                                        channel,
+                                        midiBankMSB
+                                    });
+                                }
 
                                 tmp.push_back(ProgramChangeEvent{
                                     diff, // delta time
@@ -1683,6 +1725,32 @@ struct EventVisitor {
 
         tmp.insert(tmp.end(), e.name.data(), e.name.data() + e.name.size());
     }
+
+    void operator()(const BankSelectMSBEvent &e) {
+
+        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
+
+        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
+
+        tmp.insert(tmp.end(), {
+            static_cast<uint8_t>(0xb0 | e.channel), // control event
+            0x00, // Bank Select MSB
+            e.bankSelectMSB
+        });
+    }
+
+    void operator()(const BankSelectLSBEvent &e) {
+
+        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
+
+        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
+
+        tmp.insert(tmp.end(), {
+            static_cast<uint8_t>(0xb0 | e.channel), // control event
+            0x20, /// Bank Select LSB
+            e.bankSelectLSB
+        });
+    }
 };
 
 
@@ -1996,6 +2064,9 @@ parseTrackEvent(
         b = *it++;
 
         switch (controller) {
+        case 0x00:
+            out = BankSelectMSBEvent{deltaTime, channel, b};
+            return OK;
         case 0x01:
             out = ModulationEvent{deltaTime, channel, b};
             return OK;
@@ -2004,6 +2075,9 @@ parseTrackEvent(
             return OK;
         case 0x0a:
             out = PanEvent{deltaTime, channel, b};
+            return OK;
+        case 0x20:
+            out = BankSelectLSBEvent{deltaTime, channel, b};
             return OK;
         case 0x26:
             out = DataEntryLSBEvent{deltaTime, channel, b};
@@ -2393,6 +2467,14 @@ midiFileTimes(const midi_file &m) {
                 
                 runningTick += e2->deltaTime;
 
+            } else if (auto e2 = std::get_if<BankSelectMSBEvent>(&e)) {
+                
+                runningTick += e2->deltaTime;
+
+            } else if (auto e2 = std::get_if<BankSelectLSBEvent>(&e)) {
+                
+                runningTick += e2->deltaTime;
+
             } else {
 
                 ASSERT(false);
@@ -2502,6 +2584,14 @@ midiFileTimes(const midi_file &m) {
                 }
 
             } else if (auto e2 = std::get_if<TrackNameEvent>(&e)) {
+                
+                runningTick += e2->deltaTime;
+
+            } else if (auto e2 = std::get_if<BankSelectMSBEvent>(&e)) {
+                
+                runningTick += e2->deltaTime;
+
+            } else if (auto e2 = std::get_if<BankSelectLSBEvent>(&e)) {
                 
                 runningTick += e2->deltaTime;
 
@@ -2653,6 +2743,13 @@ struct EventInfoVisitor {
         LOGI("Track Name: %s", e.name.c_str());
     }
 
+    void operator()(const BankSelectMSBEvent &e) {
+        (void)e;
+    }
+
+    void operator()(const BankSelectLSBEvent &e) {
+        (void)e;
+    }
 };
 
 void

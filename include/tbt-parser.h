@@ -669,9 +669,21 @@ struct TrackNameEvent {
     std::string name;
 };
 
+struct BankSelectMSBEvent {
+    int32_t deltaTime;
+    uint8_t channel;
+    uint8_t bankSelectMSB;
+};
+
+struct BankSelectLSBEvent {
+    int32_t deltaTime;
+    uint8_t channel;
+    uint8_t bankSelectLSB;
+};
+
 using midi_track_event = std::variant<NullEvent, TimeSignatureEvent, TempoChangeEvent, EndOfTrackEvent, ProgramChangeEvent, PanEvent,
     ReverbEvent, ChorusEvent, ModulationEvent, RPNParameterMSBEvent, RPNParameterLSBEvent, DataEntryMSBEvent, DataEntryLSBEvent,
-    PitchBendEvent, NoteOffEvent, NoteOnEvent, TrackNameEvent>;
+    PitchBendEvent, NoteOffEvent, NoteOnEvent, TrackNameEvent, BankSelectMSBEvent, BankSelectLSBEvent>;
 
 struct midi_file {
     midi_header header;
