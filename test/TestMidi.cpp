@@ -55,6 +55,9 @@ TEST_F(MidiTest, Twinkle) {
     EXPECT_EQ(times1.lastNoteOnMicros, 23000000.0);
     EXPECT_EQ(times1.lastNoteOffMicros, 24000000.0);
     EXPECT_EQ(times1.lastEndOfTrackMicros, 24000000.0);
+    EXPECT_EQ(times1.lastNoteOnTick, 8832);
+    EXPECT_EQ(times1.lastNoteOffTick, 9216);
+    EXPECT_EQ(times1.lastEndOfTrackTick, 9216);
 
 
     tbt_file t;
@@ -72,6 +75,9 @@ TEST_F(MidiTest, Twinkle) {
     EXPECT_EQ(times2.lastNoteOnMicros, times1.lastNoteOnMicros);
     EXPECT_EQ(times2.lastNoteOffMicros, times1.lastNoteOffMicros);
     EXPECT_EQ(times2.lastEndOfTrackMicros, times1.lastEndOfTrackMicros);
+    EXPECT_EQ(times2.lastNoteOnTick, times1.lastNoteOnTick);
+    EXPECT_EQ(times2.lastNoteOffTick, times1.lastNoteOffTick);
+    EXPECT_EQ(times2.lastEndOfTrackTick, times1.lastEndOfTrackTick);
 }
 
 
@@ -87,6 +93,9 @@ TEST_F(MidiTest, Back) {
     EXPECT_EQ(times1.lastNoteOnMicros, 181305359.0);
     EXPECT_EQ(times1.lastNoteOffMicros, 380242859.0);
     EXPECT_EQ(times1.lastEndOfTrackMicros, 380242859.0);
+    EXPECT_EQ(times1.lastNoteOnTick, 90144);
+    EXPECT_EQ(times1.lastNoteOffTick, 192000);
+    EXPECT_EQ(times1.lastEndOfTrackTick, 192000);
 
 
     tbt_file t;
@@ -104,6 +113,9 @@ TEST_F(MidiTest, Back) {
     EXPECT_EQ(times2.lastNoteOnMicros, times1.lastNoteOnMicros);
     EXPECT_EQ(times2.lastNoteOffMicros, times1.lastNoteOffMicros);
     EXPECT_EQ(times2.lastEndOfTrackMicros, times1.lastEndOfTrackMicros);
+    EXPECT_EQ(times2.lastNoteOnTick, times1.lastNoteOnTick);
+    EXPECT_EQ(times2.lastNoteOffTick, times1.lastNoteOffTick);
+    EXPECT_EQ(times2.lastEndOfTrackTick, times1.lastEndOfTrackTick);
 }
 
 
@@ -119,6 +131,9 @@ TEST_F(MidiTest, ClosingTime) {
     EXPECT_EQ(times1.lastNoteOnMicros, 326352889.5);
     EXPECT_EQ(times1.lastNoteOffMicros, 552926988.0);
     EXPECT_EQ(times1.lastEndOfTrackMicros, 552926988.0);
+    EXPECT_EQ(times1.lastNoteOnTick, 189024);
+    EXPECT_EQ(times1.lastNoteOffTick, 320256);
+    EXPECT_EQ(times1.lastEndOfTrackTick, 320256);
 
 
     tbt_file t;
@@ -136,6 +151,85 @@ TEST_F(MidiTest, ClosingTime) {
     EXPECT_EQ(times2.lastNoteOnMicros, times1.lastNoteOnMicros);
     EXPECT_EQ(times2.lastNoteOffMicros, times1.lastNoteOffMicros);
     EXPECT_EQ(times2.lastEndOfTrackMicros, times1.lastEndOfTrackMicros);
+    EXPECT_EQ(times2.lastNoteOnTick, times1.lastNoteOnTick);
+    EXPECT_EQ(times2.lastNoteOffTick, times1.lastNoteOffTick);
+    EXPECT_EQ(times2.lastEndOfTrackTick, times1.lastEndOfTrackTick);
+}
+
+
+TEST_F(MidiTest, JusticeNoTempoChanges) {
+
+    midi_file m1;
+
+    Status ret = parseMidiFile("/Users/brenton/development/github/tbt-examples/exported-from-tabit/justice-no-tempo-changes.mid", m1);
+    ASSERT_EQ(ret, OK);
+
+    midi_file_times times1 = midiFileTimes(m1);
+
+    EXPECT_EQ(times1.lastNoteOnMicros, 947009236.0);
+    EXPECT_EQ(times1.lastNoteOffMicros, 948864904.0);
+    EXPECT_EQ(times1.lastEndOfTrackMicros, 948864904.0);
+    EXPECT_EQ(times1.lastNoteOnTick, 293952);
+    EXPECT_EQ(times1.lastNoteOffTick, 294528);
+    EXPECT_EQ(times1.lastEndOfTrackTick, 294528);
+
+
+    tbt_file t;
+
+    ret = parseTbtFile("/Users/brenton/development/github/tbt-examples/justice-no-tempo-changes.tbt", t);
+    ASSERT_EQ(ret, OK);
+
+    midi_file m2;
+
+    ret = convertToMidi(t, m2);
+    ASSERT_EQ(ret, OK);
+
+    midi_file_times times2 = midiFileTimes(m2);
+
+    EXPECT_EQ(times2.lastNoteOnMicros, times1.lastNoteOnMicros);
+    EXPECT_EQ(times2.lastNoteOffMicros, times1.lastNoteOffMicros);
+    EXPECT_EQ(times2.lastEndOfTrackMicros, times1.lastEndOfTrackMicros);
+    EXPECT_EQ(times2.lastNoteOnTick, times1.lastNoteOnTick);
+    EXPECT_EQ(times2.lastNoteOffTick, times1.lastNoteOffTick);
+    EXPECT_EQ(times2.lastEndOfTrackTick, times1.lastEndOfTrackTick);
+}
+
+
+TEST_F(MidiTest, Justice) {
+
+    midi_file m1;
+
+    Status ret = parseMidiFile("/Users/brenton/development/github/tbt-examples/exported-from-tabit/justice.mid", m1);
+    ASSERT_EQ(ret, OK);
+
+    midi_file_times times1 = midiFileTimes(m1);
+
+    EXPECT_EQ(times1.lastNoteOnMicros, 587300235.0);
+    EXPECT_EQ(times1.lastNoteOffMicros, 588359058.0);
+    EXPECT_EQ(times1.lastEndOfTrackMicros, 588359058.0);
+    EXPECT_EQ(times1.lastNoteOnTick, 293952);
+    EXPECT_EQ(times1.lastNoteOffTick, 294528);
+    EXPECT_EQ(times1.lastEndOfTrackTick, 294528);
+
+
+    tbt_file t;
+
+    ret = parseTbtFile("/Users/brenton/development/github/tbt-examples/justice.tbt", t);
+    ASSERT_EQ(ret, OK);
+
+    midi_file m2;
+
+    ret = convertToMidi(t, m2);
+    ASSERT_EQ(ret, OK);
+
+    midi_file_times times2 = midiFileTimes(m2);
+
+    EXPECT_EQ(times2.lastNoteOnMicros, times1.lastNoteOnMicros);
+    EXPECT_EQ(times2.lastNoteOffMicros, times1.lastNoteOffMicros);
+    EXPECT_EQ(times2.lastEndOfTrackMicros, times1.lastEndOfTrackMicros);
+    EXPECT_EQ(times2.lastNoteOnTick, times1.lastNoteOnTick);
+    EXPECT_EQ(times2.lastNoteOffTick, times1.lastNoteOffTick);
+    EXPECT_EQ(times2.lastEndOfTrackTick, times1.lastEndOfTrackTick);
 }
 
 
