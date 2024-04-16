@@ -45,7 +45,7 @@
 #define TAG "tbt-file"
 
 
-template <uint8_t VERSION, typename tbt_file_t>
+template <uint8_t VERSION, bool HASALTERNATETIMEREGIONS, typename tbt_file_t>
 Status
 TparseTbtBytes(
     std::vector<uint8_t>::const_iterator &it,
@@ -328,7 +328,7 @@ TparseTbtBytes(
 
             auto bodyToParse_end = bodyToParse.cend();
 
-            ret = parseBody<VERSION, tbt_file_t>(bodyToParse_it, bodyToParse_end, out);
+            ret = parseBody<VERSION, HASALTERNATETIMEREGIONS, tbt_file_t>(bodyToParse_it, bodyToParse_end, out);
 
             if (ret != OK) {
                 return ret;
@@ -340,7 +340,7 @@ TparseTbtBytes(
 
             CHECK(it <= end, "unhandled");
 
-            Status ret = parseBody<VERSION, tbt_file_t>(it, end, out);
+            Status ret = parseBody<VERSION, false, tbt_file_t>(it, end, out);
 
             if (ret != OK) {
                 return ret;
@@ -393,13 +393,22 @@ parseTbtBytes(
 
     auto versionNumber = *versionNumber_it;
 
+    auto featureBitfield_it = it + 11;
+
+    auto featureBitfield = *featureBitfield_it;
+
     Status ret;
 
     switch (versionNumber) {
     case 0x72: {
 
         tbt_file71 t;
-        ret = TparseTbtBytes<0x72, tbt_file71>(it, end, t);
+        
+        if ((featureBitfield & HASALTERNATETIMEREGIONS_MASK) == HASALTERNATETIMEREGIONS_MASK) {
+            ret = TparseTbtBytes<0x72, true, tbt_file71>(it, end, t);
+        } else {
+            ret = TparseTbtBytes<0x72, false, tbt_file71>(it, end, t);
+        }
 
         if (ret != OK) {
             return ret;
@@ -412,7 +421,12 @@ parseTbtBytes(
     case 0x71: {
 
         tbt_file71 t;
-        ret = TparseTbtBytes<0x71, tbt_file71>(it, end, t);
+
+        if ((featureBitfield & HASALTERNATETIMEREGIONS_MASK) == HASALTERNATETIMEREGIONS_MASK) {
+            ret = TparseTbtBytes<0x71, true, tbt_file71>(it, end, t);
+        } else {
+            ret = TparseTbtBytes<0x71, false, tbt_file71>(it, end, t);
+        }
 
         if (ret != OK) {
             return ret;
@@ -425,7 +439,12 @@ parseTbtBytes(
     case 0x70: {
 
         tbt_file70 t;
-        ret = TparseTbtBytes<0x70, tbt_file70>(it, end, t);
+        
+        if ((featureBitfield & HASALTERNATETIMEREGIONS_MASK) == HASALTERNATETIMEREGIONS_MASK) {
+            ret = TparseTbtBytes<0x70, true, tbt_file70>(it, end, t);
+        } else {
+            ret = TparseTbtBytes<0x70, false, tbt_file70>(it, end, t);
+        }
 
         if (ret != OK) {
             return ret;
@@ -438,7 +457,7 @@ parseTbtBytes(
     case 0x6f: {
 
         tbt_file6f t;
-        ret = TparseTbtBytes<0x6f, tbt_file6f>(it, end, t);
+        ret = TparseTbtBytes<0x6f, false, tbt_file6f>(it, end, t);
 
         if (ret != OK) {
             return ret;
@@ -451,7 +470,7 @@ parseTbtBytes(
     case 0x6e: {
 
         tbt_file6e t;
-        ret = TparseTbtBytes<0x6e, tbt_file6e>(it, end, t);
+        ret = TparseTbtBytes<0x6e, false, tbt_file6e>(it, end, t);
 
         if (ret != OK) {
             return ret;
@@ -464,7 +483,7 @@ parseTbtBytes(
     case 0x6b: {
 
         tbt_file6b t;
-        ret = TparseTbtBytes<0x6b, tbt_file6b>(it, end, t);
+        ret = TparseTbtBytes<0x6b, false, tbt_file6b>(it, end, t);
 
         if (ret != OK) {
             return ret;
@@ -477,7 +496,7 @@ parseTbtBytes(
     case 0x6a: {
 
         tbt_file6a t;
-        ret = TparseTbtBytes<0x6a, tbt_file6a>(it, end, t);
+        ret = TparseTbtBytes<0x6a, false, tbt_file6a>(it, end, t);
 
         if (ret != OK) {
             return ret;
@@ -490,7 +509,7 @@ parseTbtBytes(
     case 0x69: {
 
         tbt_file68 t;
-        ret = TparseTbtBytes<0x69, tbt_file68>(it, end, t);
+        ret = TparseTbtBytes<0x69, false, tbt_file68>(it, end, t);
 
         if (ret != OK) {
             return ret;
@@ -503,7 +522,7 @@ parseTbtBytes(
     case 0x68: {
 
         tbt_file68 t;
-        ret = TparseTbtBytes<0x68, tbt_file68>(it, end, t);
+        ret = TparseTbtBytes<0x68, false, tbt_file68>(it, end, t);
 
         if (ret != OK) {
             return ret;
@@ -516,7 +535,7 @@ parseTbtBytes(
     case 0x67: {
 
         tbt_file65 t;
-        ret = TparseTbtBytes<0x67, tbt_file65>(it, end, t);
+        ret = TparseTbtBytes<0x67, false, tbt_file65>(it, end, t);
 
         if (ret != OK) {
             return ret;
@@ -529,7 +548,7 @@ parseTbtBytes(
     case 0x66: {
 
         tbt_file65 t;
-        ret = TparseTbtBytes<0x66, tbt_file65>(it, end, t);
+        ret = TparseTbtBytes<0x66, false, tbt_file65>(it, end, t);
 
         if (ret != OK) {
             return ret;
@@ -542,7 +561,7 @@ parseTbtBytes(
     case 0x65: {
 
         tbt_file65 t;
-        ret = TparseTbtBytes<0x65, tbt_file65>(it, end, t);
+        ret = TparseTbtBytes<0x65, false, tbt_file65>(it, end, t);
 
         if (ret != OK) {
             return ret;

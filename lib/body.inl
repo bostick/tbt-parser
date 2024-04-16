@@ -25,7 +25,7 @@
 //
 
 
-template <uint8_t VERSION, typename tbt_file_t>
+template <uint8_t VERSION, bool HASALTERNATETIMEREGIONS, typename tbt_file_t>
 Status
 parseBody(
     std::vector<uint8_t>::const_iterator &it,
@@ -65,17 +65,12 @@ parseBody(
     // parse alternate time regions
     //
 
-    if constexpr (0x70 <= VERSION) {
+    if constexpr (HASALTERNATETIMEREGIONS) {
 
-        bool hasAlternateTimeRegions = ((out.header.featureBitfield & HASALTERNATETIMEREGIONS_MASK) == HASALTERNATETIMEREGIONS_MASK);
+        ret = parseAlternateTimeRegionsMapList<VERSION, tbt_file_t>(it, end, out);
 
-        if (hasAlternateTimeRegions) {
-
-            ret = parseAlternateTimeRegionsMapList<VERSION, tbt_file_t>(it, end, out);
-
-            if (ret != OK) {
-                return ret;
-            }
+        if (ret != OK) {
+            return ret;
         }
     }
 
