@@ -441,14 +441,17 @@ computeRepeats(
         space++;
     }
 
-    //
-    // and make sure to handle close repeat at very end of song
-    //
-    if (savedClose) {
+    if constexpr (0x70 <= VERSION) {
 
-        repeatCloseMap[barsSpaceCount - 1] = std::make_pair(lastOpenSpace, std::vector<int>(t.header.trackCount + 1, savedRepeats)); // track count, + 1 for tempo track
+        //
+        // and make sure to handle close repeat at very end of song
+        //
+        if (savedClose) {
 
-        savedClose = false;
+            repeatCloseMap[barsSpaceCount - 1] = std::make_pair(lastOpenSpace, std::vector<int>(t.header.trackCount + 1, savedRepeats)); // track count, + 1 for tempo track
+
+            savedClose = false;
+        }
     }
 }
 
