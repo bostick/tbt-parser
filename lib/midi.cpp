@@ -317,6 +317,142 @@ computeTempoMap(
 }
 
 
+template <uint8_t VERSION, typename tbt_file_t>
+void
+computeRepeats(
+    const tbt_file_t &t,
+    uint32_t barsSpaceCount,
+    std::set<uint32_t> &openSpaceSet,
+    std::map<uint32_t, std::pair<uint32_t, std::vector<int> > > &repeatCloseMap) {
+
+    //
+    // Setup repeats
+    //
+    
+    uint32_t lastOpenSpace = 0;
+
+    bool currentlyOpen = false;
+    bool savedClose = false;
+    uint8_t savedRepeats = 0;
+
+    //
+    // space is the visible space on screen for each track
+    // integer
+    // does not take alternate time regions into account
+    // not monotonic
+    // may skip around because of repeats
+    //
+    for (uint32_t space = 0; space < barsSpaceCount;) {
+
+        //
+        // Setup repeats:
+        // setup repeatCloseMap and openSpaceSet
+        //
+        if constexpr (0x70 <= VERSION) {
+            
+            const auto &barsMapIt = t.body.barsMap.find(space);
+            if (barsMapIt != t.body.barsMap.end()) {
+
+                const auto &bar = barsMapIt->second;
+
+                if (savedClose) {
+
+                    repeatCloseMap[space - 1] = std::make_pair(lastOpenSpace, std::vector<int>(t.header.trackCount + 1, savedRepeats)); // track count, + 1 for tempo track
+
+                    savedClose = false;
+                }
+
+                if ((bar[0] & CLOSEREPEAT_MASK_GE70) == CLOSEREPEAT_MASK_GE70) {
+
+                    //
+                    // save for next bar line
+                    //
+
+                    savedClose = true;
+                    savedRepeats = bar[1];
+
+                    currentlyOpen = false;
+                }
+
+                if ((bar[0] & OPENREPEAT_MASK_GE70) == OPENREPEAT_MASK_GE70) {
+
+                    if (currentlyOpen) {
+                        LOGW("repeat open at space %d is ignored", lastOpenSpace);
+                    } else {
+                        currentlyOpen = true;
+                    }
+                    
+                    lastOpenSpace = space;
+                    openSpaceSet.insert(lastOpenSpace);
+                }
+            }
+
+        } else {
+            
+            const auto &barsMapIt = t.body.barsMap.find(space);
+            if (barsMapIt != t.body.barsMap.end()) {
+
+                const auto &bar = barsMapIt->second;
+
+                auto change = static_cast<tbt_bar_line>(bar[0] & 0b00001111);
+
+                switch (change) {
+                case CLOSE: {
+                    
+                    auto value = (bar[0] & 0b11110000) >> 4;
+
+                    repeatCloseMap[space] = std::make_pair(lastOpenSpace, std::vector<int>(t.header.trackCount + 1, value)); // track count, + 1 for tempo track
+
+                    lastOpenSpace = space + 1;
+                    openSpaceSet.insert(lastOpenSpace);
+
+                    currentlyOpen = false;
+
+                    break;
+                }
+                case OPEN: {
+
+                    if (currentlyOpen) {
+                        LOGW("repeat open at space %d is ignored", lastOpenSpace);
+                    } else {
+                        currentlyOpen = true;
+                    }
+
+                    lastOpenSpace = space;
+                    openSpaceSet.insert(lastOpenSpace);
+
+                    break;
+                }
+                case SINGLE:
+                case DOUBLE:
+                    //
+                    // nothing to do
+                    //
+                    break;
+                default:
+
+                    ASSERT(false);
+                    
+                    break;
+                }
+            }
+        }
+
+        space++;
+    }
+
+    //
+    // and make sure to handle close repeat at very end of song
+    //
+    if (savedClose) {
+
+        repeatCloseMap[barsSpaceCount - 1] = std::make_pair(lastOpenSpace, std::vector<int>(t.header.trackCount + 1, savedRepeats)); // track count, + 1 for tempo track
+
+        savedClose = false;
+    }
+}
+
+
 template <uint8_t VERSION, typename tbt_file_t, size_t STRINGS_PER_TRACK>
 Status
 TconvertToMidi(
@@ -348,12 +484,18 @@ TconvertToMidi(
 
     computeChannelMap<VERSION>(t, channelMap);
 
+    //
+    // compute repeats
+    //
     std::set<uint32_t> openSpaceSet;
 
     //
     // actual space of close -> ( actual space of open, [ number of repeats for each track, including tempo track ] )
     //
     std::map<uint32_t, std::pair<uint32_t, std::vector<int> > > repeatCloseMap;
+
+    computeRepeats<VERSION, tbt_file_t>(t, barsSpaceCount, openSpaceSet, repeatCloseMap);
+
 
     out.header = midi_header{
         1, // format
@@ -368,133 +510,6 @@ TconvertToMidi(
     // Track 0
     //
     {
-        //
-        // Setup repeats
-        //
-        
-        uint32_t lastOpenSpace = 0;
-
-        bool currentlyOpen = false;
-        bool savedClose = false;
-        uint8_t savedRepeats = 0;
-
-        //
-        // space is the visible space on screen for each track
-        // integer
-        // does not take alternate time regions into account
-        // not monotonic
-        // may skip around because of repeats
-        //
-        for (uint32_t space = 0; space < barsSpaceCount;) {
-
-            //
-            // Setup repeats:
-            // setup repeatCloseMap and openSpaceSet
-            //
-            if constexpr (0x70 <= VERSION) {
-                
-                const auto &barsMapIt = t.body.barsMap.find(space);
-                if (barsMapIt != t.body.barsMap.end()) {
-
-                    const auto &bar = barsMapIt->second;
-
-                    if (savedClose) {
-
-                        repeatCloseMap[space - 1] = std::make_pair(lastOpenSpace, std::vector<int>(t.header.trackCount + 1, savedRepeats)); // track count, + 1 for tempo track
-
-                        savedClose = false;
-                    }
-
-                    if ((bar[0] & CLOSEREPEAT_MASK_GE70) == CLOSEREPEAT_MASK_GE70) {
-
-                        //
-                        // save for next bar line
-                        //
-
-                        savedClose = true;
-                        savedRepeats = bar[1];
-
-                        currentlyOpen = false;
-                    }
-
-                    if ((bar[0] & OPENREPEAT_MASK_GE70) == OPENREPEAT_MASK_GE70) {
-
-                        if (currentlyOpen) {
-                            LOGW("repeat open at space %d is ignored", lastOpenSpace);
-                        } else {
-                            currentlyOpen = true;
-                        }
-                        
-                        lastOpenSpace = space;
-                        openSpaceSet.insert(lastOpenSpace);
-                    }
-                }
-
-            } else {
-                
-                const auto &barsMapIt = t.body.barsMap.find(space);
-                if (barsMapIt != t.body.barsMap.end()) {
-
-                    const auto &bar = barsMapIt->second;
-
-                    auto change = static_cast<tbt_bar_line>(bar[0] & 0b00001111);
-
-                    switch (change) {
-                    case CLOSE: {
-                        
-                        auto value = (bar[0] & 0b11110000) >> 4;
-
-                        repeatCloseMap[space] = std::make_pair(lastOpenSpace, std::vector<int>(t.header.trackCount + 1, value)); // track count, + 1 for tempo track
-
-                        lastOpenSpace = space + 1;
-                        openSpaceSet.insert(lastOpenSpace);
-
-                        currentlyOpen = false;
-
-                        break;
-                    }
-                    case OPEN: {
-
-                        if (currentlyOpen) {
-                            LOGW("repeat open at space %d is ignored", lastOpenSpace);
-                        } else {
-                            currentlyOpen = true;
-                        }
-
-                        lastOpenSpace = space;
-                        openSpaceSet.insert(lastOpenSpace);
-
-                        break;
-                    }
-                    case SINGLE:
-                    case DOUBLE:
-                        //
-                        // nothing to do
-                        //
-                        break;
-                    default:
-
-                        ASSERT(false);
-                        
-                        break;
-                    }
-                }
-            }
-
-            space++;
-        }
-
-        //
-        // and make sure to handle close repeat at very end of song
-        //
-        if (savedClose) {
-
-            repeatCloseMap[barsSpaceCount - 1] = std::make_pair(lastOpenSpace, std::vector<int>(t.header.trackCount + 1, savedRepeats)); // track count, + 1 for tempo track
-
-            savedClose = false;
-        }
-
-
         //
         // Emit events for tempo track
         //
