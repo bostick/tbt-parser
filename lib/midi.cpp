@@ -567,36 +567,6 @@ TconvertToMidi(
         
         for (uint32_t space = 0; space < barsSpaceCount;) {
             
-            const auto &tempoMapIt = tempoMap.find(space);
-            if (tempoMapIt != tempoMap.end()) {
-
-                uint16_t tempoBPM = tempoMapIt->second;
-
-                //
-                // TabIt uses floor(), but using round() is more accurate
-                //
-                // auto microsPerBeat = static_cast<uint32_t>(round(MICROS_PER_MINUTE / static_cast<double>(tempoBPM)));
-                auto microsPerBeat = static_cast<uint32_t>(floor(MICROS_PER_MINUTE / static_cast<double>(tempoBPM)));
-
-                auto diff = static_cast<int32_t>(tick - lastEventTick);
-
-                tmp.push_back(TempoChangeEvent{
-                    diff, // delta time
-                    microsPerBeat
-                });
-
-                lastEventTick = tick;
-            }
-            
-            //     every bar: lyric for current bars ?
-            //     every space: lyric for current tempo
-            //     tmp;
-
-            // tmp.insert(tmp.end(), { 0x00, 0xFF, 0x05, 0x11 }); // lyric
-            // tmp.insert(tmp.end(), { 0x73, 0x70, 0x61, 0x63, 0x65, 0x20, 0x30, 0x20, 0x74, 0x65, 0x6d, 0x70, 0x6f, 0x20, 0x31, 0x32, 0x30, });
-        
-            tick += TICKS_PER_SPACE;
-
             const auto &repeatCloseMapIt = repeatCloseMap.find(space);
             if (repeatCloseMapIt != repeatCloseMap.end()) {
 
@@ -628,6 +598,36 @@ TconvertToMidi(
                     continue;
                 }
             }
+
+            const auto &tempoMapIt = tempoMap.find(space);
+            if (tempoMapIt != tempoMap.end()) {
+
+                uint16_t tempoBPM = tempoMapIt->second;
+
+                //
+                // TabIt uses floor(), but using round() is more accurate
+                //
+                // auto microsPerBeat = static_cast<uint32_t>(round(MICROS_PER_MINUTE / static_cast<double>(tempoBPM)));
+                auto microsPerBeat = static_cast<uint32_t>(floor(MICROS_PER_MINUTE / static_cast<double>(tempoBPM)));
+
+                auto diff = static_cast<int32_t>(tick - lastEventTick);
+
+                tmp.push_back(TempoChangeEvent{
+                    diff, // delta time
+                    microsPerBeat
+                });
+
+                lastEventTick = tick;
+            }
+            
+            //     every bar: lyric for current bars ?
+            //     every space: lyric for current tempo
+            //     tmp;
+
+            // tmp.insert(tmp.end(), { 0x00, 0xFF, 0x05, 0x11 }); // lyric
+            // tmp.insert(tmp.end(), { 0x73, 0x70, 0x61, 0x63, 0x65, 0x20, 0x30, 0x20, 0x74, 0x65, 0x6d, 0x70, 0x6f, 0x20, 0x31, 0x32, 0x30, });
+        
+            tick += TICKS_PER_SPACE;
 
             space++;
         }
@@ -828,6 +828,44 @@ TconvertToMidi(
         //
         for (uint32_t space = 0; space < trackSpaceCount;) {
             
+            {
+                const auto &repeatCloseMapIt = repeatCloseMap.find(actualSpace);
+                if (repeatCloseMapIt != repeatCloseMap.end()) {
+
+                    //
+                    // there is a repeat close at this space
+                    //
+
+                    // p = ( actual space of open, [ number of repeats for each track, including tempo track ] )
+                    auto &p = repeatCloseMapIt->second;
+
+                    auto &repeats = p.second;
+
+                    //
+                    // how many repeats are left?
+                    //
+
+                    if (repeats[track + 1] > 0) {
+
+                        const auto &open = p.first;
+
+                        //
+                        // jump to the repeat open
+                        //
+
+                        space = spaceMap[open];
+
+                        actualSpace_d = static_cast<double>(open);
+
+                        actualSpace = static_cast<uint32_t>(round(actualSpace_d));
+
+                        repeats[track + 1]--;
+
+                        continue;
+                    }
+                }
+            }
+
             {
                 //
                 // if there is an open repeat at this actual space, then store the track space for later
@@ -1361,42 +1399,6 @@ TconvertToMidi(
                 tick_d = round((tick_d + (denominator * TICKS_PER_SPACE_D / numerator)) * ROUNDING_FACTOR) / ROUNDING_FACTOR;
 
                 tick = static_cast<uint32_t>(round(tick_d));
-
-                const auto &repeatCloseMapIt = repeatCloseMap.find(actualSpace);
-                if (repeatCloseMapIt != repeatCloseMap.end()) {
-
-                    //
-                    // there is a repeat close at this space
-                    //
-
-                    // p = ( actual space of open, [ number of repeats for each track, including tempo track ] )
-                    auto &p = repeatCloseMapIt->second;
-
-                    auto &repeats = p.second;
-
-                    //
-                    // how many repeats are left?
-                    //
-
-                    if (repeats[track + 1] > 0) {
-
-                        const auto &open = p.first;
-
-                        //
-                        // jump to the repeat open
-                        //
-
-                        space = spaceMap[open];
-
-                        actualSpace_d = static_cast<double>(open);
-
-                        actualSpace = static_cast<uint32_t>(round(actualSpace_d));
-
-                        repeats[track + 1]--;
-
-                        continue;
-                    }
-                }
 
                 actualSpace_d = round((actualSpace_d + denominator / numerator) * ROUNDING_FACTOR) / ROUNDING_FACTOR;
 
