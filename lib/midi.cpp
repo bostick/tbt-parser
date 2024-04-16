@@ -357,9 +357,18 @@ computeRepeats(
 
                 if (savedClose) {
 
-                    repeatCloseMap[space - 1] = std::make_pair(lastOpenSpace, std::vector<int>(t.header.trackCount + 1, savedRepeats)); // track count, + 1 for tempo track
+                    if (openSpaceSet.find(lastOpenSpace) == openSpaceSet.end()) {
+                        
+                        LOGW("there was no repeat open at %d", lastOpenSpace);
+                        
+                        openSpaceSet.insert(lastOpenSpace);
+                    }
+
+                    repeatCloseMap[space] = std::make_pair(lastOpenSpace, std::vector<int>(t.header.trackCount + 1, savedRepeats)); // track count, + 1 for tempo track
 
                     savedClose = false;
+
+                    lastOpenSpace = space;
                 }
 
                 if ((bar[0] & CLOSEREPEAT_MASK_GE70) == CLOSEREPEAT_MASK_GE70) {
@@ -401,7 +410,14 @@ computeRepeats(
                     
                     auto value = (bar[0] & 0b11110000) >> 4;
 
-                    repeatCloseMap[space] = std::make_pair(lastOpenSpace, std::vector<int>(t.header.trackCount + 1, value)); // track count, + 1 for tempo track
+                    if (openSpaceSet.find(lastOpenSpace) == openSpaceSet.end()) {
+
+                        LOGW("there was no repeat open at %d", lastOpenSpace);
+
+                        openSpaceSet.insert(lastOpenSpace);
+                    }
+
+                    repeatCloseMap[space + 1] = std::make_pair(lastOpenSpace, std::vector<int>(t.header.trackCount + 1, value)); // track count, + 1 for tempo track
 
                     lastOpenSpace = space + 1;
                     openSpaceSet.insert(lastOpenSpace);
@@ -449,7 +465,14 @@ computeRepeats(
         //
         if (savedClose) {
 
-            repeatCloseMap[barsSpaceCount - 1] = std::make_pair(lastOpenSpace, std::vector<int>(t.header.trackCount + 1, savedRepeats)); // track count, + 1 for tempo track
+            if (openSpaceSet.find(lastOpenSpace) == openSpaceSet.end()) {
+
+                LOGW("there was no repeat open at %d", lastOpenSpace);
+
+                openSpaceSet.insert(lastOpenSpace);
+            }
+
+            repeatCloseMap[barsSpaceCount] = std::make_pair(lastOpenSpace, std::vector<int>(t.header.trackCount + 1, savedRepeats)); // track count, + 1 for tempo track
 
             savedClose = false;
         }
