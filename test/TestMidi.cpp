@@ -233,6 +233,86 @@ TEST_F(MidiTest, Justice) {
 }
 
 
+TEST_F(MidiTest, TheArcane) {
+
+    midi_file m1;
+
+    Status ret = parseMidiFile("/Users/brenton/development/github/tbt-examples/exported-from-tabit/The Arcane.mid", m1);
+    ASSERT_EQ(ret, OK);
+
+    midi_file_times times1 = midiFileTimes(m1);
+
+    EXPECT_EQ(times1.lastNoteOnMicros, 131400000.0);
+    EXPECT_EQ(times1.lastNoteOffMicros, 134400000.0);
+    EXPECT_EQ(times1.lastEndOfTrackMicros, 134400000.0);
+    EXPECT_EQ(times1.lastNoteOnTick, 84096);
+    EXPECT_EQ(times1.lastNoteOffTick, 86016);
+    EXPECT_EQ(times1.lastEndOfTrackTick, 86016);
+
+
+    tbt_file t;
+
+    ret = parseTbtFile("/Users/brenton/development/github/tbt-examples/The Arcane.tbt", t);
+    ASSERT_EQ(ret, OK);
+
+    midi_file m2;
+
+    ret = convertToMidi(t, m2);
+    ASSERT_EQ(ret, OK);
+
+    midi_file_times times2 = midiFileTimes(m2);
+
+    EXPECT_EQ(times2.lastNoteOnMicros, times1.lastNoteOnMicros);
+    EXPECT_EQ(times2.lastNoteOffMicros, times1.lastNoteOffMicros);
+    EXPECT_EQ(times2.lastEndOfTrackMicros, times1.lastEndOfTrackMicros);
+    EXPECT_EQ(times2.lastNoteOnTick, times1.lastNoteOnTick);
+    EXPECT_EQ(times2.lastNoteOffTick, times1.lastNoteOffTick);
+    EXPECT_EQ(times2.lastEndOfTrackTick, times1.lastEndOfTrackTick);
+}
+
+
+TEST_F(MidiTest, ClassicalMadness) {
+
+    midi_file m1;
+
+    Status ret = parseMidiFile("/Users/brenton/development/github/tbt-examples/exported-from-tabit/Classical Madness!.mid", m1);
+    ASSERT_EQ(ret, OK);
+
+    midi_file_times times1 = midiFileTimes(m1);
+
+    EXPECT_EQ(times1.lastNoteOnMicros, 64500000.0);
+    EXPECT_EQ(times1.lastNoteOffMicros, 66000000.0);
+    EXPECT_EQ(times1.lastEndOfTrackMicros, 268000000.0);
+    EXPECT_EQ(times1.lastNoteOnTick, 49536);
+    EXPECT_EQ(times1.lastNoteOffTick, 50688);
+    EXPECT_EQ(times1.lastEndOfTrackTick, 205824);
+
+
+    tbt_file t;
+
+    ret = parseTbtFile("/Users/brenton/development/github/tbt-examples/Classical Madness!.tbt", t);
+    ASSERT_EQ(ret, OK);
+
+    midi_file m2;
+
+    ret = convertToMidi(t, m2);
+    ASSERT_EQ(ret, OK);
+
+    midi_file_times times2 = midiFileTimes(m2);
+
+    EXPECT_EQ(times2.lastNoteOnMicros, times1.lastNoteOnMicros);
+    EXPECT_EQ(times2.lastNoteOffMicros, times1.lastNoteOffMicros);
+    EXPECT_EQ(times2.lastEndOfTrackMicros, times1.lastEndOfTrackMicros);
+    EXPECT_EQ(times2.lastNoteOnTick, times1.lastNoteOnTick);
+    EXPECT_EQ(times2.lastNoteOffTick, times1.lastNoteOffTick);
+    EXPECT_EQ(times2.lastEndOfTrackTick, times1.lastEndOfTrackTick);
+}
+
+
+
+
+
+
 
 
 

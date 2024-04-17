@@ -16,13 +16,45 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#pragma once
-
 #include "tbt-parser.h"
 
 #include "tbt-parser/rational.h"
 
-const rational TICKS_PER_BEAT = 0xc0; // 192
-const rational TICKS_PER_SPACE = (TICKS_PER_BEAT / 4); // 48
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
 
-const rational MICROS_PER_MINUTE = 60 * 1000000;
+class RationalTest : public ::testing::Test {
+protected:
+
+    static void SetUpTestSuite() {
+
+    }
+
+    static void TearDownTestSuite() {
+
+        
+    }
+
+    void SetUp() override {
+
+    }
+
+    void TearDown() override {
+
+    }
+};
+
+
+TEST_F(RationalTest, basic) {
+
+   auto tick = rational{189024, 1};
+
+   auto lastMicrosPerTick = rational{110497, 64};
+
+   auto inc = tick * lastMicrosPerTick;
+
+   EXPECT_EQ(inc.numerator(), 652705779);
+   EXPECT_EQ(inc.denominator(), 2);
+}
+
+

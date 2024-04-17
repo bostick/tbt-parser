@@ -18,6 +18,7 @@
 
 #include "tbt-parser/midi.h"
 
+#include "tbt-parser/rational.h"
 #include "tbt-parser/tbt-parser-util.h"
 
 #include "common/assert.h"
@@ -57,12 +58,6 @@ const std::array<uint8_t, 6> STRING_MIDI_NOTE_LE6A = {
 
 const uint8_t MUTED = 0x11; // 17
 const uint8_t STOPPED = 0x12; // 18
-
-
-//
-// 5 digits is sufficient
-//
-const double ROUNDING_FACTOR = 100000.0;
 
 
 //
@@ -144,8 +139,8 @@ computeChannelMap(
 void
 insertTempoMap_atActualSpace72(
     const std::vector<tbt_track_effect_change> &changes,
-    uint32_t actualSpace,
-    std::map<uint32_t, uint16_t> &tempoMap) {
+    rational actualSpace,
+    std::map<rational, uint16_t> &tempoMap) {
 
     for (const auto &change : changes) {
 
@@ -158,7 +153,7 @@ insertTempoMap_atActualSpace72(
         const auto &tempoMapIt = tempoMap.find(actualSpace);
         if (tempoMapIt != tempoMap.end()) {
             if (tempoMapIt->second != newTempo) {
-                LOGW("actualSpace %d has conflicting tempo changes: %d, %d", actualSpace, tempoMapIt->second, newTempo);
+                LOGW("actualSpace %f has conflicting tempo changes: %d, %d", actualSpace.to_double(), tempoMapIt->second, newTempo);
             }
         }
 
@@ -171,8 +166,8 @@ template <size_t STRINGS_PER_TRACK>
 void
 insertTempoMap_atActualSpace(
     const std::array<uint8_t, STRINGS_PER_TRACK + STRINGS_PER_TRACK + 4> &vsqs,
-    uint32_t actualSpace,
-    std::map<uint32_t, uint16_t> &tempoMap) {
+    rational actualSpace,
+    std::map<rational, uint16_t> &tempoMap) {
 
     auto trackEffect = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 0];
 
@@ -184,7 +179,7 @@ insertTempoMap_atActualSpace(
             const auto &tempoMapIt = tempoMap.find(actualSpace);
             if (tempoMapIt != tempoMap.end()) {
                 if (tempoMapIt->second != newTempo) {
-                    LOGW("actualSpace %d has conflicting tempo changes: %d, %d", actualSpace, tempoMapIt->second, newTempo);
+                    LOGW("actualSpace %f has conflicting tempo changes: %d, %d", actualSpace.to_double(), tempoMapIt->second, newTempo);
                 }
             }
 
@@ -199,7 +194,7 @@ insertTempoMap_atActualSpace(
             const auto &tempoMapIt = tempoMap.find(actualSpace);
             if (tempoMapIt != tempoMap.end()) {
                 if (tempoMapIt->second != newTempo) {
-                    LOGW("actualSpace %d has conflicting tempo changes: %d, %d", actualSpace, tempoMapIt->second, newTempo);
+                    LOGW("actualSpace %f has conflicting tempo changes: %d, %d", actualSpace.to_double(), tempoMapIt->second, newTempo);
                 }
             }
 
@@ -217,7 +212,7 @@ template <uint8_t VERSION, bool HASALTERNATETIMEREGIONS, typename tbt_file_t, si
 void
 computeTempoMap(
     const tbt_file_t &t,
-    std::map<uint32_t, uint16_t> &tempoMap) {
+    std::map<rational, uint16_t> &tempoMap) {
 
     for (uint8_t track = 0; track < t.header.trackCount; track++) {
 
@@ -237,13 +232,12 @@ computeTempoMap(
         // not monotonic
         // may skip around because of repeats
         //
-        // actualSpace_d takes alternate time regions into account
-        // double
+        // actualSpace takes alternate time regions into account
+        // rational
         // not monotonic
         // may skip around because of repeats
         //
-        double actualSpace_d = 0.0;
-        uint32_t actualSpace = 0;
+        rational actualSpace = 0;
 
         for (uint32_t space = 0; space < trackSpaceCount;) {
 
@@ -279,12 +273,12 @@ computeTempoMap(
                 //
                 // The denominator of the Alternate Time Region for this space. For example, for triplets, this is 2.
                 //
-                double denominator = 1.0;
+                rational denominator = 1;
 
                 //
                 // The numerator of the Alternate Time Region for this space. For example, for triplets, this is 3.
                 //
-                double numerator = 1.0;
+                rational numerator = 1;
 
                 if constexpr (HASALTERNATETIMEREGIONS) {
 
@@ -295,15 +289,13 @@ computeTempoMap(
 
                         const auto &alternateTimeRegion = alternateTimeRegionsIt->second;
 
-                        denominator = static_cast<double>(alternateTimeRegion[0]);
+                        denominator = alternateTimeRegion[0];
 
-                        numerator = static_cast<double>(alternateTimeRegion[1]);
+                        numerator = alternateTimeRegion[1];
                     }
                 }
 
-                actualSpace_d = round((actualSpace_d + denominator / numerator) * ROUNDING_FACTOR) / ROUNDING_FACTOR;
-
-                actualSpace = static_cast<uint32_t>(round(actualSpace_d));
+                actualSpace += (denominator / numerator);
 
                 space++;
             }
@@ -317,14 +309,14 @@ void
 computeRepeats(
     const tbt_file_t &t,
     uint32_t barsSpaceCount,
-    std::set<uint32_t> &openSpaceSet,
-    std::map<uint32_t, std::pair<uint32_t, std::vector<int> > > &repeatCloseMap) {
+    std::set<rational> &openSpaceSet,
+    std::map<rational, std::pair<rational, std::vector<int> > > &repeatCloseMap) {
 
     //
     // Setup repeats
     //
     
-    uint32_t lastOpenSpace = 0;
+    rational lastOpenSpace = 0;
 
     bool currentlyOpen = false;
     bool savedClose = false;
@@ -354,7 +346,7 @@ computeRepeats(
 
                     if (openSpaceSet.find(lastOpenSpace) == openSpaceSet.end()) {
                         
-                        LOGW("there was no repeat open at %d", lastOpenSpace);
+                        LOGW("there was no repeat open at %f", lastOpenSpace.to_double());
                         
                         openSpaceSet.insert(lastOpenSpace);
                     }
@@ -381,7 +373,7 @@ computeRepeats(
                 if ((bar[0] & OPENREPEAT_MASK_GE70) == OPENREPEAT_MASK_GE70) {
 
                     if (currentlyOpen) {
-                        LOGW("repeat open at space %d is ignored", lastOpenSpace);
+                        LOGW("repeat open at space %f is ignored", lastOpenSpace.to_double());
                     } else {
                         currentlyOpen = true;
                     }
@@ -407,7 +399,7 @@ computeRepeats(
 
                     if (openSpaceSet.find(lastOpenSpace) == openSpaceSet.end()) {
 
-                        LOGW("there was no repeat open at %d", lastOpenSpace);
+                        LOGW("there was no repeat open at %f", lastOpenSpace.to_double());
 
                         openSpaceSet.insert(lastOpenSpace);
                     }
@@ -424,7 +416,7 @@ computeRepeats(
                 case OPEN: {
 
                     if (currentlyOpen) {
-                        LOGW("repeat open at space %d is ignored", lastOpenSpace);
+                        LOGW("repeat open at space %f is ignored", lastOpenSpace.to_double());
                     } else {
                         currentlyOpen = true;
                     }
@@ -462,7 +454,7 @@ computeRepeats(
 
             if (openSpaceSet.find(lastOpenSpace) == openSpaceSet.end()) {
 
-                LOGW("there was no repeat open at %d", lastOpenSpace);
+                LOGW("there was no repeat open at %f", lastOpenSpace.to_double());
 
                 openSpaceSet.insert(lastOpenSpace);
             }
@@ -495,7 +487,7 @@ TconvertToMidi(
     //
     // actualSpace -> tempoBPM
     //
-    std::map<uint32_t, uint16_t> tempoMap;
+    std::map<rational, uint16_t> tempoMap;
 
     computeTempoMap<VERSION, HASALTERNATETIMEREGIONS, tbt_file_t, STRINGS_PER_TRACK>(t, tempoMap);
 
@@ -509,12 +501,12 @@ TconvertToMidi(
     //
     // compute repeats
     //
-    std::set<uint32_t> openSpaceSet;
+    std::set<rational> openSpaceSet;
 
     //
     // actual space of close -> ( actual space of open, [ number of repeats for each track, including tempo track ] )
     //
-    std::map<uint32_t, std::pair<uint32_t, std::vector<int> > > repeatCloseMap;
+    std::map<rational, std::pair<rational, std::vector<int> > > repeatCloseMap;
 
     computeRepeats<VERSION, tbt_file_t>(t, barsSpaceCount, openSpaceSet, repeatCloseMap);
 
@@ -522,7 +514,7 @@ TconvertToMidi(
     out.header = midi_header{
         1, // format
         static_cast<uint16_t>(t.header.trackCount + 1), // track count, + 1 for tempo track
-        TICKS_PER_BEAT // division
+        TICKS_PER_BEAT.to_uint16() // division
     };
 
 
@@ -542,9 +534,9 @@ TconvertToMidi(
         // tick is MIDI ticks
         // monotonic
         //
-        uint32_t tick = 0;
+        rational tick = 0;
         
-        uint32_t lastEventTick = 0;
+        rational lastEventTick = 0;
         
         tmp.clear();
 
@@ -575,17 +567,17 @@ TconvertToMidi(
             //
             // TabIt uses floor(), but using round() is more accurate
             //
-            // auto microsPerBeat = static_cast<uint32_t>(round(MICROS_PER_MINUTE / static_cast<double>(tempoBPM)));
-            auto microsPerBeat = static_cast<uint32_t>(floor(MICROS_PER_MINUTE / static_cast<double>(tempoBPM)));
+            // auto microsPerBeat = (MICROS_PER_MINUTE / tempoBPM).round();
+            auto microsPerBeat = (MICROS_PER_MINUTE / tempoBPM).floor();
 
-            auto diff = static_cast<int32_t>(tick - lastEventTick);
+            auto diff = (tick - lastEventTick).round();
             
             tmp.push_back(TempoChangeEvent{
-                diff, // delta time
-                microsPerBeat
+                diff.to_int32(), // delta time
+                microsPerBeat.to_uint32()
             });
 
-            lastEventTick = tick;
+            lastEventTick += diff;
         }
         
         for (uint32_t space = 0; space < barsSpaceCount;) {
@@ -618,7 +610,7 @@ TconvertToMidi(
                     // jump to the repeat open
                     //
 
-                    space = open;
+                    space = open.to_uint32();
 
                     repeats[0]--;
 
@@ -638,17 +630,17 @@ TconvertToMidi(
                 //
                 // TabIt uses floor(), but using round() is more accurate
                 //
-                // auto microsPerBeat = static_cast<uint32_t>(round(MICROS_PER_MINUTE / static_cast<double>(tempoBPM)));
-                auto microsPerBeat = static_cast<uint32_t>(floor(MICROS_PER_MINUTE / static_cast<double>(tempoBPM)));
+                // auto microsPerBeat = (MICROS_PER_MINUTE / tempoBPM).round();
+                auto microsPerBeat = (MICROS_PER_MINUTE / tempoBPM).floor();
 
-                auto diff = static_cast<int32_t>(tick - lastEventTick);
+                auto diff = (tick - lastEventTick).round();
 
                 tmp.push_back(TempoChangeEvent{
-                    diff, // delta time
-                    microsPerBeat
+                    diff.to_int32(), // delta time
+                    microsPerBeat.to_uint32()
                 });
 
-                lastEventTick = tick;
+                lastEventTick += diff;
             }
             
             //     every bar: lyric for current bars ?
@@ -664,15 +656,15 @@ TconvertToMidi(
 
         } // for space
         
-        auto diff = static_cast<int32_t>(tick - lastEventTick);
+        auto diff = (tick - lastEventTick).round();
 
         tmp.push_back(EndOfTrackEvent{
-            diff // delta time
+            diff.to_int32() // delta time
         });
 
         out.tracks.push_back(tmp);
 
-        tickCount = tick;
+        tickCount = tick.to_uint32();
 
     } // Track 0
 
@@ -736,22 +728,18 @@ TconvertToMidi(
         pitchBend = static_cast<int16_t>(round(((static_cast<double>(pitchBend) + 2400.0) * 16383.0) / (2.0 * 2400.0)));
 
         //
-        // tick_d and tick are the MIDI ticks
+        // tick is MIDI ticks
         // monotonic
-        // tick_d is double because of alternate time regions
-        // tick is integer rounded version of tick_d
         //
-        double tick_d = 0.0;
-        uint32_t tick = 0;
+        rational tick = 0;
         
         //
-        // actualSpace_d is the actual space for each track
+        // actualSpace is the actual space for each track
         // taking alternate time regions into account
         //
-        double actualSpace_d = 0.0;
-        uint32_t actualSpace = 0;
+        rational actualSpace = 0;
 
-        uint32_t lastEventTick = 0;
+        rational lastEventTick = 0;
 
         std::array<uint8_t, STRINGS_PER_TRACK> currentlyPlayingStrings{};
 
@@ -854,7 +842,7 @@ TconvertToMidi(
         //
         // actualSpace -> track space
         //
-        std::map<uint32_t, uint32_t> spaceMap;
+        std::map<rational, uint32_t> spaceMap;
 
         //
         // space is the visible space on screen for each track
@@ -896,9 +884,7 @@ TconvertToMidi(
 
                         space = spaceMap[open];
 
-                        actualSpace_d = static_cast<double>(open);
-
-                        actualSpace = static_cast<uint32_t>(round(actualSpace_d));
+                        actualSpace = open;
 
                         repeats[track + 1]--;
 
@@ -1063,16 +1049,16 @@ TconvertToMidi(
                             midiNote = stringNote + STRING_MIDI_NOTE_LE6A[string];
                         }
 
-                        auto diff = static_cast<int32_t>(tick - lastEventTick);
+                        auto diff = (tick - lastEventTick).round();
 
                         tmp.push_back(NoteOffEvent{
-                            diff, // delta time
+                            diff.to_int32(), // delta time
                             channel,
                             midiNote,
                             0
                         });
 
-                        lastEventTick = tick;
+                        lastEventTick += diff;
                     }
                 }
             }
@@ -1104,7 +1090,7 @@ TconvertToMidi(
                                 dontLetRing  = ((newInstrument & 0b0000000010000000) == 0b0000000010000000);
                                 midiProgram  =  (newInstrument & 0b0000000001111111);
 
-                                auto diff = static_cast<int32_t>(tick - lastEventTick);
+                                auto diff = (tick - lastEventTick).round();
                                 
                                 if (midiBankFlag) {
 
@@ -1115,19 +1101,19 @@ TconvertToMidi(
                                     uint8_t midiBankMSB = midiBank;
                                     
                                     tmp.push_back(BankSelectMSBEvent{
-                                        diff, // delta time
+                                        diff.to_int32(), // delta time
                                         channel,
                                         midiBankMSB
                                     });
                                 }
 
                                 tmp.push_back(ProgramChangeEvent{
-                                    diff, // delta time
+                                    diff.to_int32(), // delta time
                                     channel,
                                     midiProgram
                                 });
 
-                                lastEventTick = tick;
+                                lastEventTick += diff;
 
                                 break;
                             }
@@ -1154,15 +1140,15 @@ TconvertToMidi(
                                 
                                 auto newPan = change.value;
 
-                                auto diff = static_cast<int32_t>(tick - lastEventTick);
+                                auto diff = (tick - lastEventTick).round();
 
                                 tmp.push_back(PanEvent{
-                                    diff, // delta time
+                                    diff.to_int32(), // delta time
                                     channel,
                                     static_cast<uint8_t>(newPan)
                                 });
 
-                                lastEventTick = tick;
+                                lastEventTick += diff;
 
                                 break;
                             }
@@ -1170,15 +1156,15 @@ TconvertToMidi(
                                 
                                 auto newChorus = change.value;
 
-                                auto diff = static_cast<int32_t>(tick - lastEventTick);
+                                auto diff = (tick - lastEventTick).round();
 
                                 tmp.push_back(ChorusEvent{
-                                    diff, // delta time
+                                    diff.to_int32(), // delta time
                                     channel,
                                     static_cast<uint8_t>(newChorus)
                                 });
 
-                                lastEventTick = tick;
+                                lastEventTick += diff;
 
                                 break;
                             }
@@ -1186,15 +1172,15 @@ TconvertToMidi(
                                 
                                 auto newReverb = change.value;
 
-                                auto diff = static_cast<int32_t>(tick - lastEventTick);
+                                auto diff = (tick - lastEventTick).round();
 
                                 tmp.push_back(ReverbEvent{
-                                    diff, // delta time
+                                    diff.to_int32(), // delta time
                                     channel,
                                     static_cast<uint8_t>(newReverb)
                                 });
 
-                                lastEventTick = tick;
+                                lastEventTick += diff;
 
                                 break;
                             }
@@ -1202,15 +1188,15 @@ TconvertToMidi(
                                 
                                 auto newModulation = change.value;
 
-                                auto diff = static_cast<int32_t>(tick - lastEventTick);
+                                auto diff = (tick - lastEventTick).round();
 
                                 tmp.push_back(ModulationEvent{
-                                    diff, // delta time
+                                    diff.to_int32(), // delta time
                                     channel,
                                     static_cast<uint8_t>(newModulation)
                                 });
 
-                                lastEventTick = tick;
+                                lastEventTick += diff;
 
                                 break;
                             }
@@ -1224,15 +1210,15 @@ TconvertToMidi(
                                 //
                                 newPitchBend = static_cast<int16_t>(round(((static_cast<double>(newPitchBend) + 2400.0) * 16383.0) / (2.0 * 2400.0)));
 
-                                auto diff = static_cast<int32_t>(tick - lastEventTick);
+                                auto diff = (tick - lastEventTick).round();
 
                                 tmp.push_back(PitchBendEvent{
-                                    diff, // delta time
+                                    diff.to_int32(), // delta time
                                     channel,
                                     newPitchBend
                                 });
 
-                                lastEventTick = tick;
+                                lastEventTick += diff;
 
                                 break;
                             }
@@ -1264,15 +1250,15 @@ TconvertToMidi(
                             dontLetRing = ((newInstrument & 0b10000000) == 0b10000000);
                             midiProgram = (newInstrument & 0b01111111);
 
-                            auto diff = static_cast<int32_t>(tick - lastEventTick);
+                            auto diff = (tick - lastEventTick).round();
 
                             tmp.push_back(ProgramChangeEvent{
-                                diff, // delta time
+                                diff.to_int32(), // delta time
                                 channel,
                                 midiProgram
                             });
 
-                            lastEventTick = tick;
+                            lastEventTick += diff;
 
                             break;
                         }
@@ -1300,15 +1286,15 @@ TconvertToMidi(
 
                             auto newChorus = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
-                            auto diff = static_cast<int32_t>(tick - lastEventTick);
+                            auto diff = (tick - lastEventTick).round();
 
                             tmp.push_back(ChorusEvent{
-                                diff, // delta time
+                                diff.to_int32(), // delta time
                                 channel,
                                 newChorus
                             });
 
-                            lastEventTick = tick;
+                            lastEventTick += diff;
 
                             break;
                         }
@@ -1316,15 +1302,15 @@ TconvertToMidi(
 
                             auto newPan = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
-                            auto diff = static_cast<int32_t>(tick - lastEventTick);
+                            auto diff = (tick - lastEventTick).round();
 
                             tmp.push_back(PanEvent{
-                                diff, // delta time
+                                diff.to_int32(), // delta time
                                 channel,
                                 newPan
                             });
 
-                            lastEventTick = tick;
+                            lastEventTick += diff;
 
                             break;
                         }
@@ -1332,15 +1318,15 @@ TconvertToMidi(
 
                             auto newReverb = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
-                            auto diff = static_cast<int32_t>(tick - lastEventTick);
+                            auto diff = (tick - lastEventTick).round();
 
                             tmp.push_back(ReverbEvent{
-                                diff, // delta time
+                                diff.to_int32(), // delta time
                                 channel,
                                 newReverb
                             });
 
-                            lastEventTick = tick;
+                            lastEventTick += diff;
 
                             break;
                         }
@@ -1389,16 +1375,16 @@ TconvertToMidi(
                             midiNote = stringNote + STRING_MIDI_NOTE_LE6A[string];
                         }
 
-                        auto diff = static_cast<int32_t>(tick - lastEventTick);
+                        auto diff = (tick - lastEventTick).round();
 
                         tmp.push_back(NoteOnEvent{
-                            diff, // delta time
+                            diff.to_int32(), // delta time
                             channel,
                             midiNote,
                             volume // velocity
                         });
 
-                        lastEventTick = tick;
+                        lastEventTick += diff;
                     }
                 }
             }
@@ -1410,12 +1396,12 @@ TconvertToMidi(
                 //
                 // The denominator of the Alternate Time Region for this space. For example, for triplets, this is 2.
                 //
-                double denominator = 1.0;
+                rational denominator = 1;
 
                 //
                 // The numerator of the Alternate Time Region for this space. For example, for triplets, this is 3.
                 //
-                double numerator = 1.0;
+                rational numerator = 1;
 
                 if constexpr (HASALTERNATETIMEREGIONS) {
 
@@ -1426,19 +1412,15 @@ TconvertToMidi(
 
                         const auto &alternateTimeRegion = alternateTimeRegionsIt->second;
 
-                        denominator = static_cast<double>(alternateTimeRegion[0]);
+                        denominator = static_cast<rational>(alternateTimeRegion[0]);
 
-                        numerator = static_cast<double>(alternateTimeRegion[1]);
+                        numerator = static_cast<rational>(alternateTimeRegion[1]);
                     }
                 }
 
-                tick_d = round((tick_d + (denominator * TICKS_PER_SPACE_D / numerator)) * ROUNDING_FACTOR) / ROUNDING_FACTOR;
-
-                tick = static_cast<uint32_t>(round(tick_d));
-
-                actualSpace_d = round((actualSpace_d + denominator / numerator) * ROUNDING_FACTOR) / ROUNDING_FACTOR;
-
-                actualSpace = static_cast<uint32_t>(round(actualSpace_d));
+                tick += (denominator * TICKS_PER_SPACE / numerator);
+                
+                actualSpace += (denominator / numerator);
 
                 space++;
             }
@@ -1479,23 +1461,23 @@ TconvertToMidi(
                     midiNote = stringNote + STRING_MIDI_NOTE_LE6A[string];
                 }
 
-                auto diff = static_cast<int32_t>(tick - lastEventTick);
+                auto diff = (tick - lastEventTick).round();
 
                 tmp.push_back(NoteOffEvent{
-                    diff, // delta time
+                    diff.to_int32(), // delta time
                     channel,
                     midiNote,
                     0
                 });
 
-                lastEventTick = tick;
+                lastEventTick += diff;
             }
         }
 
-        auto diff = static_cast<int32_t>(tick - lastEventTick);
+        auto diff = (tick - lastEventTick).round();
         
         tmp.push_back(EndOfTrackEvent{
-            diff // delta time
+            diff.to_int32() // delta time
         });
 
         out.tracks.push_back(tmp);
@@ -2483,11 +2465,11 @@ parseMidiBytes(
 
 struct EventFileTimesTempoMapVisitor {
     
-    std::map<int32_t, double> &tempoMap;
+    std::map<rational, rational> &tempoMap;
 
-    int32_t runningTick;
+    rational runningTick;
 
-    EventFileTimesTempoMapVisitor(std::map<int32_t, double> &tempoMapIn) :
+    EventFileTimesTempoMapVisitor(std::map<rational, rational> &tempoMapIn) :
         tempoMap(tempoMapIn),
         runningTick(0)
         {}
@@ -2500,7 +2482,7 @@ struct EventFileTimesTempoMapVisitor {
 
         runningTick += e.deltaTime;
 
-        auto microsPerTick = static_cast<double>(e.microsPerBeat) / TICKS_PER_BEAT_D;
+        auto microsPerTick = rational(e.microsPerBeat) / TICKS_PER_BEAT;
 
         const auto &tempoMapIt = tempoMap.find(runningTick);
         if (tempoMapIt != tempoMap.end()) {
@@ -2511,11 +2493,11 @@ struct EventFileTimesTempoMapVisitor {
                 // convert MicrosPerTick -> BeatsPerMinute
                 //
 
-                uint16_t aBPM = static_cast<uint16_t>(round(MICROS_PER_MINUTE / (tempoMapIt->second * TICKS_PER_BEAT_D)));
+                auto aBPM = (MICROS_PER_MINUTE / (tempoMapIt->second * TICKS_PER_BEAT));
 
-                uint16_t bBPM = static_cast<uint16_t>(round(MICROS_PER_MINUTE / (microsPerTick * TICKS_PER_BEAT_D)));
+                auto bBPM = (MICROS_PER_MINUTE / (microsPerTick * TICKS_PER_BEAT));
 
-                LOGW("tick %d has conflicting tempo changes: %d, %d", runningTick, aBPM, bBPM);
+                LOGW("tick %f has conflicting tempo changes: %d, %d", runningTick.to_double(), aBPM.to_uint16(), bBPM.to_uint16());
             }
         }
 
@@ -2594,16 +2576,16 @@ struct EventFileTimesTempoMapVisitor {
 
 struct EventFileTimesLastTicksVisitor {
     
-    int32_t runningTick;
+    rational runningTick;
 
     //
     // important to start < 0, because 0 is a valid tick
     //
-    int32_t lastNoteOnTick = -1;
-    int32_t lastNoteOffTick = -1;
-    int32_t lastEndOfTrackTick = -1;
-    int32_t lastTempoChangeTick = -1;
-    double lastMicrosPerTick = 0.0;
+    rational lastNoteOnTick = -1;
+    rational lastNoteOffTick = -1;
+    rational lastEndOfTrackTick = -1;
+    rational lastTempoChangeTick = -1;
+    rational lastMicrosPerTick = 0;
 
     void operator()(const TimeSignatureEvent &e) {
         runningTick += e.deltaTime;
@@ -2615,7 +2597,7 @@ struct EventFileTimesLastTicksVisitor {
 
         if (runningTick > lastTempoChangeTick) {
             lastTempoChangeTick = runningTick;
-            lastMicrosPerTick = static_cast<double>(e.microsPerBeat) / TICKS_PER_BEAT_D;
+            lastMicrosPerTick = rational(e.microsPerBeat) / TICKS_PER_BEAT;
         }
     }
 
@@ -2714,7 +2696,7 @@ midiFileTimes(const midi_file &m) {
     //
     // tick -> microsPerTick
     //
-    std::map<int32_t, double> tempoMap;
+    std::map<rational, rational> tempoMap;
 
     EventFileTimesTempoMapVisitor eventFileTimesTempoMapVisitor{ tempoMap };
 
@@ -2775,19 +2757,19 @@ midiFileTimes(const midi_file &m) {
     // compute actual times for events
     //
 
-    double runningMicros = 0.0;
-    double lastNoteOnMicros = -1.0;
-    double lastNoteOffMicros = -1.0;
-    double lastEndOfTrackMicros = -1.0;
+    rational runningMicros = 0;
+    rational lastNoteOnMicros = -1;
+    rational lastNoteOffMicros = -1;
+    rational lastEndOfTrackMicros = -1;
 
-    int32_t lastTick = 0;
-    double lastMicrosPerTick = 0.0;
+    rational lastTick = 0;
+    rational lastMicrosPerTick = 0;
     for (const auto &x : tempoMap) {
 
         auto tick = x.first;
         auto microsPerTick = x.second;
 
-        runningMicros += (tick - lastTick) * lastMicrosPerTick;
+        runningMicros += ((tick - lastTick) * lastMicrosPerTick);
 
         if (tick == v.lastNoteOnTick) {
             lastNoteOnMicros = runningMicros;
@@ -2804,8 +2786,8 @@ midiFileTimes(const midi_file &m) {
     }
 
     midi_file_times times = {
-        lastNoteOnMicros, lastNoteOffMicros, lastEndOfTrackMicros,
-        v.lastNoteOnTick, v.lastNoteOffTick, v.lastEndOfTrackTick
+        lastNoteOnMicros.to_double(), lastNoteOffMicros.to_double(), lastEndOfTrackMicros.to_double(),
+        v.lastNoteOnTick.to_int32(), v.lastNoteOffTick.to_int32(), v.lastEndOfTrackTick.to_int32()
     };
 
     return times;

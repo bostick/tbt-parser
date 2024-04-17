@@ -29,6 +29,7 @@ set(CPP_LIB_SOURCES
     file.cpp
 
     midi.cpp
+    rational.cpp
     tbt.cpp
     tbt-parser-util.cpp
 )

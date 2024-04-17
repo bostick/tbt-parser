@@ -18,11 +18,60 @@
 
 #pragma once
 
-#include "tbt-parser.h"
+#include <cstdint>
 
-#include "tbt-parser/rational.h"
 
-const rational TICKS_PER_BEAT = 0xc0; // 192
-const rational TICKS_PER_SPACE = (TICKS_PER_BEAT / 4); // 48
+int64_t gcd(int64_t p, int64_t q);
 
-const rational MICROS_PER_MINUTE = 60 * 1000000;
+
+class rational {
+private:
+
+	int64_t n;
+	int64_t d;
+
+	void simplify();
+
+public:
+	
+	rational();
+	rational(int a);
+	rational(uint32_t a);
+	rational(int64_t a);
+
+	rational(const rational &a);
+	rational(int64_t nIn, int64_t dIn);
+
+	rational& operator=(const rational &a);
+	rational& operator=(const rational &&a);
+
+	int64_t numerator() const;
+	int64_t denominator() const;
+
+	rational operator/(const rational x) const;
+	rational operator-(const rational x) const;
+	rational operator*(const rational x) const;
+	rational operator+(const rational x) const;
+
+	bool operator==(const rational x) const;
+	bool operator>(const rational x) const;
+	bool operator<(const rational x) const;
+
+	bool is_nonnegative() const;
+	bool is_positive() const;
+	
+	rational& operator+=(const rational x);
+
+	rational& operator-=(const rational x);
+	
+	rational& operator++();
+	rational& operator--();
+
+	double to_double() const;
+	uint16_t to_uint16() const;
+	uint32_t to_uint32() const;
+	int32_t to_int32() const;
+
+	rational floor() const;
+	rational round() const;
+};
