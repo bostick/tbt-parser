@@ -68,7 +68,7 @@ parseTrackEffectChangesMapList(
 
             space += s;
 
-            std::vector<tbt_track_effect_change> &changes = trackEffectChangesMap[space];
+            auto &changes = trackEffectChangesMap[space];
 
             tbt_track_effect_change change{ static_cast<tbt_track_effect>(e), v };
 

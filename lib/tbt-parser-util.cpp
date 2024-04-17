@@ -309,14 +309,12 @@ zlib_inflate(
         
         ASSERT(it <= end);
         
-        if (it + CHUNK <= end) {
+        if (it == end) {
+            break;
+        } else if (it + CHUNK <= end) {
             strm.avail_in = CHUNK;
         } else {
             strm.avail_in = static_cast<uInt>(end - it);
-        }
-
-        if (strm.avail_in == 0) {
-            break;
         }
         
         strm.next_in = const_cast<uint8_t *>(&*it);

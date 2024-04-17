@@ -313,7 +313,7 @@ computeTempoMap(
                 space++;
             }
         }
-    }
+    } // for track
 }
 
 
@@ -439,7 +439,8 @@ computeRepeats(
         }
 
         space++;
-    }
+
+    } // for space
 
     if constexpr (0x70 <= VERSION) {
 
@@ -566,7 +567,11 @@ TconvertToMidi(
         }
         
         for (uint32_t space = 0; space < barsSpaceCount;) {
-            
+
+            //
+            // handle any repeat closes first
+            //
+
             const auto &repeatCloseMapIt = repeatCloseMap.find(space);
             if (repeatCloseMapIt != repeatCloseMap.end()) {
 
@@ -598,6 +603,10 @@ TconvertToMidi(
                     continue;
                 }
             }
+            
+            //
+            // Emit tempo changes
+            //
 
             const auto &tempoMapIt = tempoMap.find(space);
             if (tempoMapIt != tempoMap.end()) {
@@ -630,14 +639,16 @@ TconvertToMidi(
             tick += TICKS_PER_SPACE;
 
             space++;
-        }
+
+        } // for space
         
         tmp.push_back(EndOfTrackEvent{
             0 // delta time
         });
 
         out.tracks.push_back(tmp);
-    }
+
+    } // Track 0
 
     //
     // the actual tracks
@@ -736,7 +747,7 @@ TconvertToMidi(
             tmp.push_back(BankSelectMSBEvent{
                 0, // delta time
                 channel,
-                midiBankMSB,
+                midiBankMSB
             });
         }
 
@@ -827,8 +838,12 @@ TconvertToMidi(
         // may skip around because of repeats
         //
         for (uint32_t space = 0; space < trackSpaceCount;) {
-            
+
             {
+                //
+                // handle any repeat closes first
+                //
+                
                 const auto &repeatCloseMapIt = repeatCloseMap.find(actualSpace);
                 if (repeatCloseMapIt != repeatCloseMap.end()) {
 
@@ -1458,8 +1473,9 @@ TconvertToMidi(
         });
 
         out.tracks.push_back(tmp);
-    }
 
+    } // for track
+    
     return OK;
 }
 
@@ -1614,7 +1630,7 @@ struct EventVisitor {
 
         tmp.insert(tmp.end(), {
             static_cast<uint8_t>(0xc0 | e.channel), // program change
-            e.midiProgram,
+            e.midiProgram
         });
     }
 
@@ -1627,7 +1643,7 @@ struct EventVisitor {
         tmp.insert(tmp.end(), {
             static_cast<uint8_t>(0xb0 | e.channel), // control event
             0x0a, // pan
-            e.pan,
+            e.pan
         });
     }
 
@@ -1640,7 +1656,7 @@ struct EventVisitor {
         tmp.insert(tmp.end(), {
             static_cast<uint8_t>(0xb0 | e.channel), // control event
             0x5b, // reverb
-            e.reverb,
+            e.reverb
         });
     }
 
@@ -1653,7 +1669,7 @@ struct EventVisitor {
         tmp.insert(tmp.end(), {
             static_cast<uint8_t>(0xb0 | e.channel), // control event
             0x5d, // chorus
-            e.chorus,
+            e.chorus
         });
     }
 
@@ -1666,7 +1682,7 @@ struct EventVisitor {
         tmp.insert(tmp.end(), {
             static_cast<uint8_t>(0xb0 | e.channel), // control event
             0x01, // modulation
-            e.modulation,
+            e.modulation
         });
     }
 
@@ -2845,9 +2861,9 @@ midiFileInfo(const midi_file &m) {
 
     EventInfoVisitor eventInfoVisitor{};
 
-    for (auto &track : m.tracks) {
+    for (const auto &track : m.tracks) {
 
-        for (auto &e : track) {
+        for (const auto &e : track) {
             std::visit(eventInfoVisitor, e);
         }
     }
