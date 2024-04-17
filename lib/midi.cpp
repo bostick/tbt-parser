@@ -2385,8 +2385,18 @@ struct EventFileTimesTempoMapVisitor {
 
         const auto &tempoMapIt = tempoMap.find(runningTick);
         if (tempoMapIt != tempoMap.end()) {
+
             if (tempoMapIt->second != microsPerTick) {
-                LOGW("tick %d has conflicting tempo changes: %f, %f", runningTick, tempoMapIt->second, microsPerTick);
+
+                //
+                // convert MicrosPerTick -> BeatsPerMinute
+                //
+
+                uint16_t aBPM = static_cast<uint16_t>(round(MICROS_PER_MINUTE / (tempoMapIt->second * TICKS_PER_BEAT_D)));
+
+                uint16_t bBPM = static_cast<uint16_t>(round(MICROS_PER_MINUTE / (microsPerTick * TICKS_PER_BEAT_D)));
+
+                LOGW("tick %d has conflicting tempo changes: %d, %d", runningTick, aBPM, bBPM);
             }
         }
 
