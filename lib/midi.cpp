@@ -581,8 +581,10 @@ TconvertToMidi(
             // auto microsPerBeat = static_cast<uint32_t>(round(MICROS_PER_MINUTE / static_cast<double>(tempoBPM)));
             auto microsPerBeat = static_cast<uint32_t>(floor(MICROS_PER_MINUTE / static_cast<double>(tempoBPM)));
 
+            auto diff = static_cast<int32_t>(tick - lastEventTick);
+            
             tmp.push_back(TempoChangeEvent{
-                0, // delta time
+                diff, // delta time
                 microsPerBeat
             });
 
@@ -665,8 +667,10 @@ TconvertToMidi(
 
         } // for space
         
+        auto diff = static_cast<int32_t>(tick - lastEventTick);
+
         tmp.push_back(EndOfTrackEvent{
-            0 // delta time
+            diff // delta time
         });
 
         out.tracks.push_back(tmp);
@@ -1491,8 +1495,10 @@ TconvertToMidi(
             }
         }
 
+        auto diff = static_cast<int32_t>(tick - lastEventTick);
+        
         tmp.push_back(EndOfTrackEvent{
-            0, // delta time
+            diff // delta time
         });
 
         out.tracks.push_back(tmp);
