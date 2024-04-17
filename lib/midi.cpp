@@ -310,12 +310,17 @@ computeRepeats(
     const tbt_file_t &t,
     uint32_t barsSpaceCount,
     std::set<rational> &openSpaceSet,
-    std::map<rational, std::pair<rational, std::vector<int> > > &repeatCloseMap) {
+    std::vector<std::map<rational, std::pair<rational, int> > > &repeatCloseMaps) {
 
     //
     // Setup repeats
     //
-    
+
+    for (uint8_t track = 0; track < t.header.trackCount + 1; track++) { // track count, + 1 for tempo track
+
+        repeatCloseMaps.push_back( {} );
+    }
+
     rational lastOpenSpace = 0;
 
     bool currentlyOpen = false;
@@ -351,7 +356,9 @@ computeRepeats(
                         openSpaceSet.insert(lastOpenSpace);
                     }
 
-                    repeatCloseMap[space] = std::make_pair(lastOpenSpace, std::vector<int>(t.header.trackCount + 1, savedRepeats)); // track count, + 1 for tempo track
+                    for (uint8_t track = 0; track < t.header.trackCount + 1; track++) { // track count, + 1 for tempo track
+                        repeatCloseMaps[track][space] = std::make_pair(lastOpenSpace, savedRepeats);
+                    }
 
                     savedClose = false;
 
@@ -404,7 +411,9 @@ computeRepeats(
                         openSpaceSet.insert(lastOpenSpace);
                     }
 
-                    repeatCloseMap[space + 1] = std::make_pair(lastOpenSpace, std::vector<int>(t.header.trackCount + 1, value)); // track count, + 1 for tempo track
+                    for (uint8_t track = 0; track < t.header.trackCount + 1; track++) { // track count, + 1 for tempo track
+                        repeatCloseMaps[track][space + 1] = std::make_pair(lastOpenSpace, value);
+                    }
 
                     lastOpenSpace = space + 1;
                     openSpaceSet.insert(lastOpenSpace);
@@ -459,7 +468,9 @@ computeRepeats(
                 openSpaceSet.insert(lastOpenSpace);
             }
 
-            repeatCloseMap[barsSpaceCount] = std::make_pair(lastOpenSpace, std::vector<int>(t.header.trackCount + 1, savedRepeats)); // track count, + 1 for tempo track
+            for (uint8_t track = 0; track < t.header.trackCount + 1; track++) { // track count, + 1 for tempo track
+                repeatCloseMaps[track][barsSpaceCount] = std::make_pair(lastOpenSpace, savedRepeats);
+            }
 
             savedClose = false;
         }
@@ -504,11 +515,12 @@ TconvertToMidi(
     std::set<rational> openSpaceSet;
 
     //
-    // actual space of close -> ( actual space of open, [ number of repeats for each track, including tempo track ] )
+    // for each track, including tempo track:
+    //   actual space of close -> ( actual space of open, number of repeats )
     //
-    std::map<rational, std::pair<rational, std::vector<int> > > repeatCloseMap;
+    std::vector<std::map<rational, std::pair<rational, int> > > repeatCloseMaps;
 
-    computeRepeats<VERSION, tbt_file_t>(t, barsSpaceCount, openSpaceSet, repeatCloseMap);
+    computeRepeats<VERSION, tbt_file_t>(t, barsSpaceCount, openSpaceSet, repeatCloseMaps);
 
 
     out.header = midi_header{
@@ -579,7 +591,9 @@ TconvertToMidi(
 
             lastEventTick += diff;
         }
-        
+
+        auto &repeatCloseMap = repeatCloseMaps[0];
+
         for (uint32_t space = 0; space < barsSpaceCount;) {
 
             //
@@ -593,7 +607,7 @@ TconvertToMidi(
                 // there is a repeat close at this space
                 //
 
-                // p = ( actual space of open, [ number of repeats for each track ] )
+                // p = ( actual space of open, number of repeats )
                 auto &p = repeatCloseMapIt->second;
 
                 auto &repeats = p.second;
@@ -602,7 +616,7 @@ TconvertToMidi(
                 // how many repeats are left?
                 //
 
-                if (repeats[0] > 0) {
+                if (repeats > 0) {
 
                     const auto &open = p.first;
 
@@ -612,7 +626,7 @@ TconvertToMidi(
 
                     space = open.to_uint32();
 
-                    repeats[0]--;
+                    repeats--;
 
                     continue;
                 }
@@ -655,7 +669,13 @@ TconvertToMidi(
             space++;
 
         } // for space
-        
+
+        for (const auto &repeatCloseMapIt : repeatCloseMap) {
+            const auto &p = repeatCloseMapIt.second;
+            const auto &repeats = p.second;
+            ASSERT(repeats == 0);
+        }
+
         auto diff = (tick - lastEventTick).round();
 
         tmp.push_back(EndOfTrackEvent{
@@ -844,6 +864,8 @@ TconvertToMidi(
         //
         std::map<rational, uint32_t> spaceMap;
 
+        auto &repeatCloseMap = repeatCloseMaps[track + 1];
+
         //
         // space is the visible space on screen for each track
         // integer
@@ -865,7 +887,7 @@ TconvertToMidi(
                     // there is a repeat close at this space
                     //
 
-                    // p = ( actual space of open, [ number of repeats for each track, including tempo track ] )
+                    // p = ( actual space of open, number of repeats for each track )
                     auto &p = repeatCloseMapIt->second;
 
                     auto &repeats = p.second;
@@ -874,7 +896,7 @@ TconvertToMidi(
                     // how many repeats are left?
                     //
 
-                    if (repeats[track + 1] > 0) {
+                    if (repeats > 0) {
 
                         const auto &open = p.first;
 
@@ -886,7 +908,7 @@ TconvertToMidi(
 
                         actualSpace = open;
 
-                        repeats[track + 1]--;
+                        repeats--;
 
                         continue;
                     }
@@ -1429,7 +1451,12 @@ TconvertToMidi(
 
         ASSERT(tick == tickCount);
         ASSERT(actualSpace == barsSpaceCount);
-        
+        for (const auto &repeatCloseMapIt : repeatCloseMap) {
+            const auto &p = repeatCloseMapIt.second;
+            const auto &repeats = p.second;
+            ASSERT(repeats == 0);
+        }
+
         //
         // Emit any final note offs
         //
