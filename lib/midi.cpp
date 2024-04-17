@@ -528,6 +528,8 @@ TconvertToMidi(
 
     std::vector<midi_track_event> tmp;
 
+    uint32_t tickCount;
+
     //
     // Track 0
     //
@@ -669,6 +671,8 @@ TconvertToMidi(
         });
 
         out.tracks.push_back(tmp);
+
+        tickCount = tick;
 
     } // Track 0
 
@@ -1441,6 +1445,9 @@ TconvertToMidi(
 
         } // for space
 
+        ASSERT(tick == tickCount);
+        ASSERT(actualSpace == barsSpaceCount);
+        
         //
         // Emit any final note offs
         //
