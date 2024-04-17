@@ -594,7 +594,7 @@ TconvertToMidi(
 
         auto &repeatCloseMap = repeatCloseMaps[0];
 
-        for (uint32_t space = 0; space < barsSpaceCount;) {
+        for (uint32_t space = 0; space < barsSpaceCount + 1;) { // space count, + 1 for handling repeats at end
 
             //
             // handle any repeat closes first
@@ -669,6 +669,12 @@ TconvertToMidi(
             space++;
 
         } // for space
+
+        //
+        // now backup 1 space
+        //
+
+        tick -= TICKS_PER_SPACE;
 
         for (const auto &repeatCloseMapIt : repeatCloseMap) {
             const auto &p = repeatCloseMapIt.second;
@@ -873,7 +879,7 @@ TconvertToMidi(
         // not monotonic
         // may skip around because of repeats
         //
-        for (uint32_t space = 0; space < trackSpaceCount;) {
+        for (uint32_t space = 0; space < trackSpaceCount + 1;) { // space count, + 1 for handling repeats at end
 
             {
                 //
@@ -1448,6 +1454,13 @@ TconvertToMidi(
             }
 
         } // for space
+
+        //
+        // now backup 1 space
+        //
+
+        tick -= TICKS_PER_SPACE;
+        --actualSpace;
 
         ASSERT(tick == tickCount);
         ASSERT(actualSpace == barsSpaceCount);
