@@ -2367,6 +2367,214 @@ parseMidiBytes(
 }
 
 
+struct EventFileTimesTempoMapVisitor {
+    
+    std::map<int32_t, double> &tempoMap;
+
+    int32_t runningTick;
+
+    void operator()(const TimeSignatureEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const TempoChangeEvent &e) {
+
+        runningTick += e.deltaTime;
+
+        auto microsPerTick = static_cast<double>(e.microsPerBeat) / TICKS_PER_BEAT_D;
+
+        const auto &tempoMapIt = tempoMap.find(runningTick);
+        if (tempoMapIt != tempoMap.end()) {
+            if (tempoMapIt->second != microsPerTick) {
+                LOGW("tick %d has conflicting tempo changes: %f, %f", runningTick, tempoMapIt->second, microsPerTick);
+            }
+        }
+
+        tempoMap[runningTick] = microsPerTick;
+    }
+
+    void operator()(const EndOfTrackEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const ProgramChangeEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const PanEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const ReverbEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const ChorusEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const ModulationEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const RPNParameterMSBEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const RPNParameterLSBEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const DataEntryMSBEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const DataEntryLSBEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const PitchBendEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const NoteOffEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const NoteOnEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const NullEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const TrackNameEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const BankSelectMSBEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const BankSelectLSBEvent &e) {
+        runningTick += e.deltaTime;
+    }
+};
+
+
+struct EventFileTimesLastTicksVisitor {
+    
+    int32_t runningTick;
+
+    //
+    // important to start < 0, because 0 is a valid tick
+    //
+    int32_t lastNoteOnTick = -1;
+    int32_t lastNoteOffTick = -1;
+    int32_t lastEndOfTrackTick = -1;
+    int32_t lastTempoChangeTick = -1;
+    double lastMicrosPerTick = 0.0;
+
+    void operator()(const TimeSignatureEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const TempoChangeEvent &e) {
+        
+        runningTick += e.deltaTime;
+
+        if (runningTick > lastTempoChangeTick) {
+            lastTempoChangeTick = runningTick;
+            lastMicrosPerTick = static_cast<double>(e.microsPerBeat) / TICKS_PER_BEAT_D;
+        }
+    }
+
+    void operator()(const EndOfTrackEvent &e) {
+       
+        runningTick += e.deltaTime;
+
+        if (runningTick > lastEndOfTrackTick) {
+            lastEndOfTrackTick = runningTick;
+        }
+    }
+
+    void operator()(const ProgramChangeEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const PanEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const ReverbEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const ChorusEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const ModulationEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const RPNParameterMSBEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const RPNParameterLSBEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const DataEntryMSBEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const DataEntryLSBEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const PitchBendEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const NoteOffEvent &e) {
+        
+        runningTick += e.deltaTime;
+
+        if (runningTick > lastNoteOffTick) {
+            lastNoteOffTick = runningTick;
+        }
+    }
+
+    void operator()(const NoteOnEvent &e) {
+        
+        runningTick += e.deltaTime;
+
+        if (runningTick > lastNoteOnTick) {
+            lastNoteOnTick = runningTick;
+        }
+    }
+
+    void operator()(const NullEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const TrackNameEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const BankSelectMSBEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const BankSelectLSBEvent &e) {
+        runningTick += e.deltaTime;
+    }
+};
+
+
 midi_file_times
 midiFileTimes(const midi_file &m) {
 
