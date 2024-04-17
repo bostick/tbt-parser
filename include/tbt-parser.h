@@ -721,6 +721,10 @@ struct midi_file_times {
     double lastNoteOnMicros;
     double lastNoteOffMicros;
     double lastEndOfTrackMicros;
+
+    int32_t lastNoteOnTick;
+    int32_t lastNoteOffTick;
+    int32_t lastEndOfTrackTick;
 };
 
 midi_file_times midiFileTimes(const midi_file &m);

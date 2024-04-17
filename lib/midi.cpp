@@ -2885,7 +2885,10 @@ midiFileTimes(const midi_file &m) {
         lastMicrosPerTick = microsPerTick;
     }
 
-    midi_file_times times = { lastNoteOnMicros, lastNoteOffMicros, lastEndOfTrackMicros };
+    midi_file_times times = {
+        lastNoteOnMicros, lastNoteOffMicros, lastEndOfTrackMicros,
+        v.lastNoteOnTick, v.lastNoteOffTick, v.lastEndOfTrackTick
+    };
 
     return times;
 }
