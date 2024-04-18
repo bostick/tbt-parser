@@ -148,16 +148,21 @@ insertTempoMap_atActualSpace72(
             continue;
         }
 
-        uint16_t newTempo = change.value;
+        auto newTempo = change.value;
 
         const auto &tempoMapIt = tempoMap.find(actualSpace);
         if (tempoMapIt != tempoMap.end()) {
+            
             if (tempoMapIt->second != newTempo) {
                 LOGW("actualSpace %f has conflicting tempo changes: %d, %d", actualSpace.to_double(), tempoMapIt->second, newTempo);
             }
+            
+            tempoMapIt->second = newTempo;
+            
+        } else {
+            
+            tempoMap[actualSpace] = newTempo;
         }
-
-        tempoMap[actualSpace] = newTempo;
     }
 }
 
@@ -174,31 +179,41 @@ insertTempoMap_atActualSpace(
     switch (trackEffect) {
         case 'T': {
 
-            uint16_t newTempo = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
+            auto newTempo = static_cast<uint16_t>(vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3]);
 
             const auto &tempoMapIt = tempoMap.find(actualSpace);
             if (tempoMapIt != tempoMap.end()) {
+                
                 if (tempoMapIt->second != newTempo) {
                     LOGW("actualSpace %f has conflicting tempo changes: %d, %d", actualSpace.to_double(), tempoMapIt->second, newTempo);
                 }
+                
+                tempoMapIt->second = newTempo;
+                
+            } else {
+                
+                tempoMap[actualSpace] = newTempo;
             }
-
-            tempoMap[actualSpace] = newTempo;
 
             break;
         }
         case 't': {
 
-            uint16_t newTempo = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3] + 250;
+            auto newTempo = static_cast<uint16_t>(vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3] + 250);
 
             const auto &tempoMapIt = tempoMap.find(actualSpace);
             if (tempoMapIt != tempoMap.end()) {
+                
                 if (tempoMapIt->second != newTempo) {
                     LOGW("actualSpace %f has conflicting tempo changes: %d, %d", actualSpace.to_double(), tempoMapIt->second, newTempo);
                 }
+                
+                tempoMapIt->second = newTempo;
+                
+            } else {
+                
+                tempoMap[actualSpace] = newTempo;
             }
-
-            tempoMap[actualSpace] = newTempo;
 
             break;
         }
@@ -341,11 +356,11 @@ computeRepeats(
         // setup repeatCloseMap and openSpaceSet
         //
         if constexpr (0x70 <= VERSION) {
-            
+
             const auto &barsMapIt = t.body.barsMap.find(space);
             if (barsMapIt != t.body.barsMap.end()) {
 
-                const auto &bar = barsMapIt->second;
+                auto bar = barsMapIt->second;
 
                 if (savedClose) {
 
@@ -380,22 +395,25 @@ computeRepeats(
                 if ((bar[0] & OPENREPEAT_MASK_GE70) == OPENREPEAT_MASK_GE70) {
 
                     if (currentlyOpen) {
+
                         LOGW("repeat open at space %f is ignored", lastOpenSpace.to_double());
+
                     } else {
+
                         currentlyOpen = true;
                     }
-                    
+
                     lastOpenSpace = space;
                     openSpaceSet.insert(lastOpenSpace);
                 }
             }
 
         } else {
-            
+
             const auto &barsMapIt = t.body.barsMap.find(space);
             if (barsMapIt != t.body.barsMap.end()) {
 
-                const auto &bar = barsMapIt->second;
+                auto bar = barsMapIt->second;
 
                 auto change = static_cast<tbt_bar_line>(bar[0] & 0b00001111);
 
@@ -425,8 +443,11 @@ computeRepeats(
                 case OPEN: {
 
                     if (currentlyOpen) {
+
                         LOGW("repeat open at space %f is ignored", lastOpenSpace.to_double());
+
                     } else {
+
                         currentlyOpen = true;
                     }
 
@@ -639,7 +660,7 @@ TconvertToMidi(
             const auto &tempoMapIt = tempoMap.find(space);
             if (tempoMapIt != tempoMap.end()) {
 
-                uint16_t tempoBPM = tempoMapIt->second;
+                auto tempoBPM = tempoMapIt->second;
 
                 //
                 // TabIt uses floor(), but using round() is more accurate
@@ -885,7 +906,7 @@ TconvertToMidi(
                 //
                 // handle any repeat closes first
                 //
-                
+
                 const auto &repeatCloseMapIt = repeatCloseMap.find(actualSpace);
                 if (repeatCloseMapIt != repeatCloseMap.end()) {
 
@@ -2505,6 +2526,9 @@ parseMidiBytes(
 
 struct EventFileTimesTempoMapVisitor {
     
+    //
+    // tick -> microsPerTick
+    //
     std::map<rational, rational> &tempoMap;
 
     rational runningTick;
@@ -2522,26 +2546,28 @@ struct EventFileTimesTempoMapVisitor {
 
         runningTick += e.deltaTime;
 
-        auto microsPerTick = rational(e.microsPerBeat) / TICKS_PER_BEAT;
+        auto newMicrosPerTick = rational(e.microsPerBeat) / TICKS_PER_BEAT;
 
         const auto &tempoMapIt = tempoMap.find(runningTick);
         if (tempoMapIt != tempoMap.end()) {
 
-            if (tempoMapIt->second != microsPerTick) {
+            auto microsPerTick = tempoMapIt->second;
+
+            if (microsPerTick != newMicrosPerTick) {
 
                 //
                 // convert MicrosPerTick -> BeatsPerMinute
                 //
 
-                auto aBPM = (MICROS_PER_MINUTE / (tempoMapIt->second * TICKS_PER_BEAT));
+                auto aBPM = (MICROS_PER_MINUTE / (microsPerTick * TICKS_PER_BEAT));
 
-                auto bBPM = (MICROS_PER_MINUTE / (microsPerTick * TICKS_PER_BEAT));
+                auto bBPM = (MICROS_PER_MINUTE / (newMicrosPerTick * TICKS_PER_BEAT));
 
                 LOGW("tick %f has conflicting tempo changes: %d, %d", runningTick.to_double(), aBPM.to_uint16(), bBPM.to_uint16());
             }
         }
 
-        tempoMap[runningTick] = microsPerTick;
+        tempoMap[runningTick] = newMicrosPerTick;
     }
 
     void operator()(const EndOfTrackEvent &e) {
