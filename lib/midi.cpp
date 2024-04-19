@@ -324,7 +324,7 @@ void
 computeRepeats(
     const tbt_file_t &t,
     uint32_t barsSpaceCount,
-    std::set<rational> &openSpaceSet,
+    std::vector<std::set<rational> > &openSpaceSets,
     std::vector<std::map<rational, std::pair<rational, int> > > &repeatCloseMaps) {
 
     //
@@ -334,6 +334,8 @@ computeRepeats(
     for (uint8_t track = 0; track < t.header.trackCount + 1; track++) { // track count, + 1 for tempo track
 
         repeatCloseMaps.push_back( {} );
+
+        openSpaceSets.push_back( {} );
     }
 
     rational lastOpenSpace = 0;
@@ -364,14 +366,15 @@ computeRepeats(
 
                 if (savedClose) {
 
-                    if (openSpaceSet.find(lastOpenSpace) == openSpaceSet.end()) {
-                        
-                        LOGW("there was no repeat open at %f", lastOpenSpace.to_double());
-                        
-                        openSpaceSet.insert(lastOpenSpace);
-                    }
-
                     for (uint8_t track = 0; track < t.header.trackCount + 1; track++) { // track count, + 1 for tempo track
+
+                        if (openSpaceSets[track].find(lastOpenSpace) == openSpaceSets[track].end()) {
+                        
+                            LOGW("there was no repeat open at %f", lastOpenSpace.to_double());
+                            
+                            openSpaceSets[track].insert(lastOpenSpace);
+                        }
+
                         repeatCloseMaps[track][space] = std::make_pair(lastOpenSpace, savedRepeats);
                     }
 
@@ -404,7 +407,10 @@ computeRepeats(
                     }
 
                     lastOpenSpace = space;
-                    openSpaceSet.insert(lastOpenSpace);
+
+                    for (uint8_t track = 0; track < t.header.trackCount + 1; track++) { // track count, + 1 for tempo track
+                        openSpaceSets[track].insert(lastOpenSpace);
+                    }
                 }
             }
 
@@ -422,19 +428,23 @@ computeRepeats(
                     
                     auto value = (bar[0] & 0b11110000) >> 4;
 
-                    if (openSpaceSet.find(lastOpenSpace) == openSpaceSet.end()) {
-
-                        LOGW("there was no repeat open at %f", lastOpenSpace.to_double());
-
-                        openSpaceSet.insert(lastOpenSpace);
-                    }
-
                     for (uint8_t track = 0; track < t.header.trackCount + 1; track++) { // track count, + 1 for tempo track
+                        
+                        if (openSpaceSets[track].find(lastOpenSpace) == openSpaceSets[track].end()) {
+                        
+                            LOGW("there was no repeat open at %f", lastOpenSpace.to_double());
+                            
+                            openSpaceSets[track].insert(lastOpenSpace);
+                        }
+                        
                         repeatCloseMaps[track][space + 1] = std::make_pair(lastOpenSpace, value);
                     }
 
                     lastOpenSpace = space + 1;
-                    openSpaceSet.insert(lastOpenSpace);
+
+                    for (uint8_t track = 0; track < t.header.trackCount + 1; track++) { // track count, + 1 for tempo track
+                        openSpaceSets[track].insert(lastOpenSpace);
+                    }
 
                     currentlyOpen = false;
 
@@ -452,7 +462,10 @@ computeRepeats(
                     }
 
                     lastOpenSpace = space;
-                    openSpaceSet.insert(lastOpenSpace);
+
+                    for (uint8_t track = 0; track < t.header.trackCount + 1; track++) { // track count, + 1 for tempo track
+                        openSpaceSets[track].insert(lastOpenSpace);
+                    }
 
                     break;
                 }
@@ -482,14 +495,15 @@ computeRepeats(
         //
         if (savedClose) {
 
-            if (openSpaceSet.find(lastOpenSpace) == openSpaceSet.end()) {
-
-                LOGW("there was no repeat open at %f", lastOpenSpace.to_double());
-
-                openSpaceSet.insert(lastOpenSpace);
-            }
-
             for (uint8_t track = 0; track < t.header.trackCount + 1; track++) { // track count, + 1 for tempo track
+
+                if (openSpaceSets[track].find(lastOpenSpace) == openSpaceSets[track].end()) {
+
+                    LOGW("there was no repeat open at %f", lastOpenSpace.to_double());
+
+                    openSpaceSets[track].insert(lastOpenSpace);
+                }
+
                 repeatCloseMaps[track][barsSpaceCount] = std::make_pair(lastOpenSpace, savedRepeats);
             }
 
@@ -531,9 +545,10 @@ TconvertToMidi(
     computeChannelMap<VERSION>(t, channelMap);
 
     //
-    // compute repeats
+    // for each track:
+    //   set of spaces that repeat opens occur
     //
-    std::set<rational> openSpaceSet;
+    std::vector<std::set<rational> > openSpaceSets;
 
     //
     // for each track, including tempo track:
@@ -541,7 +556,7 @@ TconvertToMidi(
     //
     std::vector<std::map<rational, std::pair<rational, int> > > repeatCloseMaps;
 
-    computeRepeats<VERSION, tbt_file_t>(t, barsSpaceCount, openSpaceSet, repeatCloseMaps);
+    computeRepeats<VERSION, tbt_file_t>(t, barsSpaceCount, openSpaceSets, repeatCloseMaps);
 
 
     out.header = midi_header{
@@ -891,6 +906,8 @@ TconvertToMidi(
         //
         std::map<rational, uint32_t> spaceMap;
 
+        auto &openSpaceSet = openSpaceSets[track + 1];
+
         auto &repeatCloseMap = repeatCloseMaps[track + 1];
 
         //
@@ -931,6 +948,8 @@ TconvertToMidi(
                         // jump to the repeat open
                         //
 
+                        ASSERT(spaceMap.contains(open));
+
                         space = spaceMap[open];
 
                         actualSpace = open;
@@ -949,9 +968,14 @@ TconvertToMidi(
 
                 if (openSpaceSet.find(actualSpace) != openSpaceSet.end()) {
 
-                    if (spaceMap.find(actualSpace) == spaceMap.end()) {
-                        spaceMap[actualSpace] = space;
-                    }
+                    ASSERT(!spaceMap.contains(actualSpace));
+
+                    spaceMap[actualSpace] = space;
+
+                    //
+                    // after adding to spaceMap, can be removed from openSpaceSet
+                    //
+                    openSpaceSet.erase(actualSpace);
                 }
             }
 
@@ -1490,6 +1514,7 @@ TconvertToMidi(
             const auto &repeats = p.second;
             ASSERT(repeats == 0);
         }
+        ASSERT(openSpaceSet.empty());
 
         //
         // Emit any final note offs
