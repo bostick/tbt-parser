@@ -309,6 +309,44 @@ TEST_F(MidiTest, ClassicalMadness) {
 }
 
 
+TEST_F(MidiTest, DecomposingTruth) {
+
+    midi_file m1;
+
+    Status ret = parseMidiFile("/Users/brenton/development/github/tbt-examples/exported-from-tabit/[With Intent of Butchery] Decomposing Truth.mid", m1);
+    ASSERT_EQ(ret, OK);
+
+    midi_file_times times1 = midiFileTimes(m1);
+
+    EXPECT_EQ(times1.lastNoteOnMicros, 380420720.41666668653488159);
+    EXPECT_EQ(times1.lastNoteOffMicros, 382042340.41666668653488159);
+    EXPECT_EQ(times1.lastEndOfTrackMicros, 382042340.41666668653488159);
+    EXPECT_EQ(times1.lastNoteOnTick, 172608);
+    EXPECT_EQ(times1.lastNoteOffTick, 173376);
+    EXPECT_EQ(times1.lastEndOfTrackTick, 173376);
+
+
+    tbt_file t;
+
+    ret = parseTbtFile("/Users/brenton/development/github/tbt-examples/[With Intent of Butchery] Decomposing Truth.tbt", t);
+    ASSERT_EQ(ret, OK);
+
+    midi_file m2;
+
+    ret = convertToMidi(t, m2);
+    ASSERT_EQ(ret, OK);
+
+    midi_file_times times2 = midiFileTimes(m2);
+
+    EXPECT_EQ(times2.lastNoteOnMicros, times1.lastNoteOnMicros);
+    EXPECT_EQ(times2.lastNoteOffMicros, times1.lastNoteOffMicros);
+    EXPECT_EQ(times2.lastEndOfTrackMicros, times1.lastEndOfTrackMicros);
+    EXPECT_EQ(times2.lastNoteOnTick, times1.lastNoteOnTick);
+    EXPECT_EQ(times2.lastNoteOffTick, times1.lastNoteOffTick);
+    EXPECT_EQ(times2.lastEndOfTrackTick, times1.lastEndOfTrackTick);
+}
+
+
 
 
 
