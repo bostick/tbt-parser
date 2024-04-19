@@ -32,9 +32,6 @@ parseNotesMapList(
     const std::vector<uint8_t>::const_iterator end,
     tbt_file_t &out) {
 
-    out.body.notesMapList.clear();
-    out.body.notesMapList.reserve(out.header.trackCount);
-
     for (uint8_t track = 0; track < out.header.trackCount; track++) {
 
         uint32_t trackSpaceCount;
@@ -74,15 +71,15 @@ parseNotesMapList(
             }
         }
 
-        std::map<uint32_t, std::array<uint8_t, STRINGS_PER_TRACK + STRINGS_PER_TRACK + 4> > notesMap;
-
-        Status ret = expandDeltaList<STRINGS_PER_TRACK + STRINGS_PER_TRACK + 4>(notesDeltaListAcc, vsqCount, 0, notesMap);
+        Status ret = expandDeltaList<STRINGS_PER_TRACK + STRINGS_PER_TRACK + 4>(
+            notesDeltaListAcc,
+            vsqCount,
+            0,
+            out.body.mapsList[track].notesMap);
 
         if (ret != OK) {
             return ret;
         }
-
-        out.body.notesMapList.push_back(notesMap);
     }
 
     return OK;

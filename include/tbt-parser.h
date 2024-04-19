@@ -472,29 +472,45 @@ struct tbt_track_effect_change {
     uint16_t value;
 };
 
+struct maps71 {
+    std::map<uint32_t, std::array<uint8_t, 20> > notesMap;
+    std::map<uint32_t, std::array<uint8_t, 2> > alternateTimeRegionsMap;
+    std::map<uint32_t, std::vector<tbt_track_effect_change> > trackEffectChangesMap;
+};
+
+struct maps70 {
+    std::map<uint32_t, std::array<uint8_t, 20> > notesMap;
+    std::map<uint32_t, std::array<uint8_t, 2> > alternateTimeRegionsMap;
+};
+
+struct maps6b {
+    std::map<uint32_t, std::array<uint8_t, 20> > notesMap;
+};
+
+struct maps65 {
+    std::map<uint32_t, std::array<uint8_t, 16> > notesMap;
+};
+
 struct tbt_body71 {
     std::map<uint32_t, std::array<uint8_t, 2> > barsMap;
     uint32_t barsSpaceCount;
-    std::vector<std::map<uint32_t, std::array<uint8_t, 20> > > notesMapList;
-    std::vector<std::map<uint32_t, std::array<uint8_t, 2> > > alternateTimeRegionsMapList;
-    std::vector<std::map<uint32_t, std::vector<tbt_track_effect_change> > > trackEffectChangesMapList;
+    std::vector<maps71> mapsList;
 };
 
 struct tbt_body70 {
     std::map<uint32_t, std::array<uint8_t, 2> > barsMap;
     uint32_t barsSpaceCount;
-    std::vector<std::map<uint32_t, std::array<uint8_t, 20> > > notesMapList;
-    std::vector<std::map<uint32_t, std::array<uint8_t, 2> > > alternateTimeRegionsMapList;
+    std::vector<maps70> mapsList;
 };
 
 struct tbt_body6b {
     std::map<uint32_t, std::array<uint8_t, 1> > barsMap;
-    std::vector<std::map<uint32_t, std::array<uint8_t, 20> > > notesMapList;
+    std::vector<maps6b> mapsList;
 };
 
 struct tbt_body65 {
     std::map<uint32_t, std::array<uint8_t, 1> > barsMap;
-    std::vector<std::map<uint32_t, std::array<uint8_t, 16> > > notesMapList;
+    std::vector<maps65> mapsList;
 };
 
 enum tbt_bar_line : uint8_t {

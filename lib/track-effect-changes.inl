@@ -32,9 +32,6 @@ parseTrackEffectChangesMapList(
     const std::vector<uint8_t>::const_iterator end,
     tbt_file_t &out) {
 
-    out.body.trackEffectChangesMapList.clear();
-    out.body.trackEffectChangesMapList.reserve(out.header.trackCount);
-
     for (uint8_t track = 0; track < out.header.trackCount; track++) {
 
         std::vector<uint8_t> arrayList;
@@ -45,8 +42,6 @@ parseTrackEffectChangesMapList(
             return ret;
         }
 
-        std::map<uint32_t, std::vector<tbt_track_effect_change> > trackEffectChangesMap;
-
         std::vector<std::array<uint8_t, 8> > parts;
 
         ret = partitionInto<8>(arrayList, parts);
@@ -56,6 +51,8 @@ parseTrackEffectChangesMapList(
         }
 
         uint32_t space = 0;
+
+        auto &trackEffectChangesMap = out.body.mapsList[track].trackEffectChangesMap;
 
         for (const auto &part : parts) {
 
@@ -74,8 +71,6 @@ parseTrackEffectChangesMapList(
 
             changes.push_back(change);
         }
-
-        out.body.trackEffectChangesMapList.push_back(trackEffectChangesMap);
     }
 
     return OK;

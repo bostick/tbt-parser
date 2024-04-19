@@ -44,6 +44,13 @@ parseBody(
         return ret;
     }
 
+
+    out.body.mapsList.clear();
+    for (uint8_t track = 0; track < out.header.trackCount; track++) {
+        out.body.mapsList.push_back( {} );
+    }
+
+
     //
     // parse notes
     //

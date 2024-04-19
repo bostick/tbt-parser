@@ -240,6 +240,8 @@ computeTempoMap(
             trackSpaceCount = 4000;
         }
 
+        const auto &maps = t.body.mapsList[track];
+
         //
         // space is the visible space on screen for each track
         // integer
@@ -258,10 +260,8 @@ computeTempoMap(
 
             if constexpr (VERSION == 0x72) {
 
-                const auto &trackEffectChangesMap = t.body.trackEffectChangesMapList[track];
-
-                const auto &it = trackEffectChangesMap.find(space);
-                if (it != trackEffectChangesMap.end()) {
+                const auto &it = maps.trackEffectChangesMap.find(space);
+                if (it != maps.trackEffectChangesMap.end()) {
                     
                     const auto &changes = it->second;
 
@@ -270,10 +270,8 @@ computeTempoMap(
 
             } else {
 
-                const auto &notesMap = t.body.notesMapList[track];
-
-                const auto &it = notesMap.find(space);
-                if (it != notesMap.end()) {
+                const auto &it = maps.notesMap.find(space);
+                if (it != maps.notesMap.end()) {
 
                     const auto &vsqs = it->second;
 
@@ -739,24 +737,25 @@ TconvertToMidi(
     //
     for (uint8_t track = 0; track < t.header.trackCount; track++) {
 
-        const auto &notesMap = t.body.notesMapList[track];
-
         uint8_t channel = channelMap[track];
-        uint8_t volume = t.metadata.tracks[track].volume;
+
+        const auto &trackMetadata = t.metadata.tracks[track];
+
+        uint8_t volume = trackMetadata.volume;
 
         uint8_t midiBank;
         if constexpr (0x6e <= VERSION) {
-            midiBank = t.metadata.tracks[track].midiBank;
+            midiBank = trackMetadata.midiBank;
         } else {
             midiBank = 0;
         }
 
-        bool dontLetRing = ((t.metadata.tracks[track].cleanGuitar & 0b10000000) == 0b10000000);
-        uint8_t midiProgram = (t.metadata.tracks[track].cleanGuitar & 0b01111111);
+        bool dontLetRing = ((trackMetadata.cleanGuitar & 0b10000000) == 0b10000000);
+        uint8_t midiProgram = (trackMetadata.cleanGuitar & 0b01111111);
 
         uint8_t pan;
         if constexpr (0x6b <= VERSION) {
-            pan = t.metadata.tracks[track].pan;
+            pan = trackMetadata.pan;
         } else {
             pan = 0x40; // 64
         }
@@ -765,8 +764,8 @@ TconvertToMidi(
         uint8_t chorus;
         if constexpr (0x6e <= VERSION) {
             
-            reverb = t.metadata.tracks[track].reverb;
-            chorus = t.metadata.tracks[track].chorus;
+            reverb = trackMetadata.reverb;
+            chorus = trackMetadata.chorus;
             
         } else {
             
@@ -778,8 +777,8 @@ TconvertToMidi(
         int16_t pitchBend;
         if constexpr (0x71 <= VERSION) {
             
-            modulation = t.metadata.tracks[track].modulation;
-            pitchBend = t.metadata.tracks[track].pitchBend; // -2400 to 2400
+            modulation = trackMetadata.modulation;
+            pitchBend = trackMetadata.pitchBend; // -2400 to 2400
             
         } else {
             
@@ -898,7 +897,7 @@ TconvertToMidi(
 
         uint32_t trackSpaceCount;
         if constexpr (0x70 <= VERSION) {
-            trackSpaceCount = t.metadata.tracks[track].spaceCount;
+            trackSpaceCount = trackMetadata.spaceCount;
         } else if constexpr (VERSION == 0x6f) {
             trackSpaceCount = t.header.spaceCount;
         } else {
@@ -913,6 +912,8 @@ TconvertToMidi(
         auto &openSpaceSet = openSpaceSets[track + 1];
 
         auto &repeatCloseMap = repeatCloseMaps[track + 1];
+
+        const auto &maps = t.body.mapsList[track];
 
         //
         // space is the visible space on screen for each track
@@ -983,17 +984,15 @@ TconvertToMidi(
                 }
             }
 
-            const auto &notesMapIt = notesMap.find(space);
+            const auto &notesMapIt = maps.notesMap.find(space);
 
             //
             // Emit note offs
             //
             {
-                if (notesMapIt != notesMap.end()) {
+                if (notesMapIt != maps.notesMap.end()) {
 
                     const auto &onVsqs = notesMapIt->second;
-
-                    uint8_t stringCount = t.metadata.tracks[track].stringCount;
 
                     std::array<uint8_t, STRINGS_PER_TRACK> offVsqs{};
 
@@ -1008,7 +1007,7 @@ TconvertToMidi(
                         // i.e., simply checking for something in notesMap is not sufficient
                         //
                         bool anyEvents = false;
-                        for (uint8_t string = 0; string < stringCount; string++) {
+                        for (uint8_t string = 0; string < trackMetadata.stringCount; string++) {
 
                             uint8_t event = onVsqs[string];
 
@@ -1022,7 +1021,7 @@ TconvertToMidi(
                             
                             offVsqs = currentlyPlayingStrings;
 
-                            for (uint8_t string = 0; string < stringCount; string++) {
+                            for (uint8_t string = 0; string < trackMetadata.stringCount; string++) {
 
                                 uint8_t on = onVsqs[string];
 
@@ -1046,7 +1045,7 @@ TconvertToMidi(
 
                     } else {
 
-                        for (uint8_t string = 0; string < stringCount; string++) {
+                        for (uint8_t string = 0; string < trackMetadata.stringCount; string++) {
 
                             uint8_t current = currentlyPlayingStrings[string];
 
@@ -1101,7 +1100,7 @@ TconvertToMidi(
                     //
                     // Emit note offs
                     //
-                    for (uint8_t string = 0; string < stringCount; string++) {
+                    for (uint8_t string = 0; string < trackMetadata.stringCount; string++) {
 
                         uint8_t off = offVsqs[string];
 
@@ -1113,10 +1112,10 @@ TconvertToMidi(
 
                         uint8_t stringNote = off - 0x80;
 
-                        stringNote += static_cast<uint8_t>(t.metadata.tracks[track].tuning[string]);
+                        stringNote += static_cast<uint8_t>(trackMetadata.tuning[string]);
 
                         if constexpr (0x6e <= VERSION) {
-                            stringNote += static_cast<uint8_t>(t.metadata.tracks[track].transposeHalfSteps);
+                            stringNote += static_cast<uint8_t>(trackMetadata.transposeHalfSteps);
                         }
                         
                         uint8_t midiNote;
@@ -1146,10 +1145,8 @@ TconvertToMidi(
             {
                 if constexpr (VERSION == 0x72) {
 
-                    const auto &trackEffectChangesMap = t.body.trackEffectChangesMapList[track];
-
-                    const auto &trackEffectChangesIt = trackEffectChangesMap.find(space);
-                    if (trackEffectChangesIt != trackEffectChangesMap.end()) {
+                    const auto &trackEffectChangesIt = maps.trackEffectChangesMap.find(space);
+                    if (trackEffectChangesIt != maps.trackEffectChangesMap.end()) {
 
                         const auto &changes = trackEffectChangesIt->second;
 
@@ -1308,7 +1305,7 @@ TconvertToMidi(
 
                 } else {
 
-                    if (notesMapIt != notesMap.end()) {
+                    if (notesMapIt != maps.notesMap.end()) {
 
                         const auto &vsqs = notesMapIt->second;
 
@@ -1419,13 +1416,11 @@ TconvertToMidi(
             // Emit note ons
             //
             {
-                if (notesMapIt != notesMap.end()) {
+                if (notesMapIt != maps.notesMap.end()) {
 
                     const auto &onVsqs = notesMapIt->second;
-
-                    uint8_t stringCount = t.metadata.tracks[track].stringCount;
                     
-                    for (uint8_t string = 0; string < stringCount; string++) {
+                    for (uint8_t string = 0; string < trackMetadata.stringCount; string++) {
 
                         uint8_t on = onVsqs[string];
 
@@ -1439,10 +1434,10 @@ TconvertToMidi(
 
                         uint8_t stringNote = on - 0x80;
                         
-                        stringNote += static_cast<uint8_t>(t.metadata.tracks[track].tuning[string]);
+                        stringNote += static_cast<uint8_t>(trackMetadata.tuning[string]);
                         
                         if constexpr (0x6e <= VERSION) {
-                            stringNote += static_cast<uint8_t>(t.metadata.tracks[track].transposeHalfSteps);
+                            stringNote += static_cast<uint8_t>(trackMetadata.transposeHalfSteps);
                         }
 
                         uint8_t midiNote;
@@ -1533,7 +1528,7 @@ TconvertToMidi(
         {
             auto offVsqs = currentlyPlayingStrings;
 
-            for (uint8_t string = 0; string < t.metadata.tracks[track].stringCount; string++) {
+            for (uint8_t string = 0; string < trackMetadata.stringCount; string++) {
 
                 uint8_t off = offVsqs[string];
 
@@ -1545,10 +1540,10 @@ TconvertToMidi(
 
                 uint8_t stringNote = off - 0x80;
 
-                stringNote += static_cast<uint8_t>(t.metadata.tracks[track].tuning[string]);
+                stringNote += static_cast<uint8_t>(trackMetadata.tuning[string]);
 
                 if constexpr (0x6e <= VERSION) {
-                    stringNote += static_cast<uint8_t>(t.metadata.tracks[track].transposeHalfSteps);
+                    stringNote += static_cast<uint8_t>(trackMetadata.transposeHalfSteps);
                 }
 
                 uint8_t midiNote;
