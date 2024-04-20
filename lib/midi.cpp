@@ -321,13 +321,19 @@ computeTempoMap(
 }
 
 
+struct repeat_close_struct {
+    rational open;
+    int repeats;
+};
+
+
 template <uint8_t VERSION, typename tbt_file_t>
 void
 computeRepeats(
     const tbt_file_t &t,
     uint32_t barsSpaceCount,
     std::vector<std::set<rational> > &openSpaceSets,
-    std::vector<std::map<rational, std::pair<rational, int> > > &repeatCloseMaps) {
+    std::vector<std::map<rational, repeat_close_struct> > &repeatCloseMaps) {
 
     //
     // Setup repeats
@@ -377,7 +383,7 @@ computeRepeats(
                             openSpaceSets[track].insert(lastOpenSpace);
                         }
 
-                        repeatCloseMaps[track][space] = std::make_pair(lastOpenSpace, savedRepeats);
+                        repeatCloseMaps[track][space] = { lastOpenSpace, savedRepeats };
                     }
 
                     savedClose = false;
@@ -439,7 +445,7 @@ computeRepeats(
                             openSpaceSets[track].insert(lastOpenSpace);
                         }
                         
-                        repeatCloseMaps[track][space + 1] = std::make_pair(lastOpenSpace, value);
+                        repeatCloseMaps[track][space + 1] = { lastOpenSpace, value };
                     }
 
                     lastOpenSpace = space + 1;
@@ -506,7 +512,7 @@ computeRepeats(
                     openSpaceSets[track].insert(lastOpenSpace);
                 }
 
-                repeatCloseMaps[track][barsSpaceCount] = std::make_pair(lastOpenSpace, savedRepeats);
+                repeatCloseMaps[track][barsSpaceCount] = { lastOpenSpace, savedRepeats };
             }
 
             savedClose = false;
@@ -554,9 +560,9 @@ TconvertToMidi(
 
     //
     // for each track, including tempo track:
-    //   actual space of close -> ( actual space of open, number of repeats )
+    //   actual space of close -> repeat_close_struct
     //
-    std::vector<std::map<rational, std::pair<rational, int> > > repeatCloseMaps;
+    std::vector<std::map<rational, repeat_close_struct> > repeatCloseMaps;
 
     computeRepeats<VERSION, tbt_file_t>(t, barsSpaceCount, openSpaceSets, repeatCloseMaps);
 
@@ -653,26 +659,21 @@ TconvertToMidi(
                 // there is a repeat close at this space
                 //
 
-                // p = ( actual space of open, number of repeats )
-                auto &p = repeatCloseMapIt->second;
-
-                auto &repeats = p.second;
+                auto &r = repeatCloseMapIt->second;
 
                 //
                 // how many repeats are left?
                 //
 
-                if (repeats > 0) {
-
-                    const auto &open = p.first;
+                if (r.repeats > 0) {
 
                     //
                     // jump to the repeat open
                     //
 
-                    space = open.to_uint32();
+                    space = r.open.to_uint32();
 
-                    repeats--;
+                    r.repeats--;
 
                     continue;
                 }
@@ -723,9 +724,8 @@ TconvertToMidi(
         tick -= TICKS_PER_SPACE;
 
         for (const auto &repeatCloseMapIt : repeatCloseMap) {
-            const auto &p = repeatCloseMapIt.second;
-            const auto &repeats = p.second;
-            ASSERT(repeats == 0);
+            const auto &r = repeatCloseMapIt.second;
+            ASSERT(r.repeats == 0);
         }
 
         diff = (tick - lastEventTick).round();
@@ -994,30 +994,25 @@ TconvertToMidi(
                     // there is a repeat close at this space
                     //
 
-                    // p = ( actual space of open, number of repeats for each track )
-                    auto &p = repeatCloseMapIt->second;
-
-                    auto &repeats = p.second;
+                    auto &r = repeatCloseMapIt->second;
 
                     //
                     // how many repeats are left?
                     //
 
-                    if (repeats > 0) {
-
-                        const auto &open = p.first;
+                    if (r.repeats > 0) {
 
                         //
                         // jump to the repeat open
                         //
 
-                        ASSERT(spaceMap.contains(open));
+                        ASSERT(spaceMap.contains(r.open));
 
-                        space = spaceMap[open];
+                        space = spaceMap[r.open];
 
-                        actualSpace = open;
+                        actualSpace = r.open;
 
-                        repeats--;
+                        r.repeats--;
 
                         continue;
                     }
@@ -1578,9 +1573,8 @@ TconvertToMidi(
         ASSERT(tick == tickCount);
         ASSERT(actualSpace == barsSpaceCount);
         for (const auto &repeatCloseMapIt : repeatCloseMap) {
-            const auto &p = repeatCloseMapIt.second;
-            const auto &repeats = p.second;
-            ASSERT(repeats == 0);
+            const auto &r = repeatCloseMapIt.second;
+            ASSERT(r.repeats == 0);
         }
         ASSERT(openSpaceSet.empty());
 
