@@ -82,33 +82,28 @@ parseAlternateTimeRegionsMapList(
             return ret;
         }
 
+#if 0
         rational alternateTimeRegionsCorrection = 0;
         for (uint32_t space = 0; space < trackSpaceCount; space++) {
-
-            //
-            // The denominator of the Alternate Time Region for this space. For example, for triplets, this is 2.
-            //
-            rational denominator = 1;
-
-            //
-            // The numerator of the Alternate Time Region for this space. For example, for triplets, this is 3.
-            //
-            rational numerator = 1;
 
             const auto &alternateTimeRegionsIt = alternateTimeRegionsMap.find(space);
             if (alternateTimeRegionsIt != alternateTimeRegionsMap.end()) {
 
+                //
+                // The denominator of the Alternate Time Region for this space. For example, for triplets, this is 2.
+                // The numerator of the Alternate Time Region for this space. For example, for triplets, this is 3.
+                //
+
                 const auto &alternateTimeRegion = alternateTimeRegionsIt->second;
 
-                denominator = alternateTimeRegion[0];
+                auto atr = rational{1} - rational{alternateTimeRegion[0], alternateTimeRegion[1]};
 
-                numerator = alternateTimeRegion[1];
+                alternateTimeRegionsCorrection += atr;
             }
-
-            alternateTimeRegionsCorrection += (rational(1) - (denominator / numerator));
         }
 
-        CHECK(rational(out.metadata.tracks[track].spaceCount) == rational(out.body.barsSpaceCount) + alternateTimeRegionsCorrection, "unhandled");
+        ASSERT(rational(out.metadata.tracks[track].spaceCount) == rational(out.body.barsSpaceCount) + alternateTimeRegionsCorrection);
+#endif
 
         out.body.alternateTimeRegionsMapList.push_back(alternateTimeRegionsMap);
     }

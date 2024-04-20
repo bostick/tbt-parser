@@ -285,36 +285,40 @@ computeTempoMap(
             // Compute actual space
             //
             {
-                //
-                // The denominator of the Alternate Time Region for this space. For example, for triplets, this is 2.
-                //
-                rational denominator = 1;
-
-                //
-                // The numerator of the Alternate Time Region for this space. For example, for triplets, this is 3.
-                //
-                rational numerator = 1;
-
                 if constexpr (HASALTERNATETIMEREGIONS) {
 
-                    const auto &alternateTimeRegionsStruct = t.body.alternateTimeRegionsMapList[track];
-
-                    const auto &alternateTimeRegionsIt = alternateTimeRegionsStruct.find(space);
-                    if (alternateTimeRegionsIt != alternateTimeRegionsStruct.end()) {
+                    const auto &alternateTimeRegionsIt = maps.alternateTimeRegionsMap.find(space);
+                    if (alternateTimeRegionsIt != maps.alternateTimeRegionsMap.end()) {
 
                         const auto &alternateTimeRegion = alternateTimeRegionsIt->second;
 
-                        denominator = alternateTimeRegion[0];
+                        //
+                        // The denominator of the Alternate Time Region for this space. For example, for triplets, this is 2.
+                        // The numerator of the Alternate Time Region for this space. For example, for triplets, this is 3.
+                        //
 
-                        numerator = alternateTimeRegion[1];
+                        auto atr = rational{ alternateTimeRegion[0], alternateTimeRegion[1] };
+
+                        space++;
+
+                        actualSpace += atr;
+
+                    } else {
+
+                        space++;
+
+                        ++actualSpace;
                     }
+
+                } else {
+
+                    space++;
+
+                    actualSpace = space;
                 }
-
-                actualSpace += (denominator / numerator);
-
-                space++;
             }
         }
+
     } // for track
 }
 
@@ -1466,36 +1470,43 @@ TconvertToMidi(
             // Compute actual space
             //
             {
-                //
-                // The denominator of the Alternate Time Region for this space. For example, for triplets, this is 2.
-                //
-                rational denominator = 1;
-
-                //
-                // The numerator of the Alternate Time Region for this space. For example, for triplets, this is 3.
-                //
-                rational numerator = 1;
-
                 if constexpr (HASALTERNATETIMEREGIONS) {
 
-                    const auto &alternateTimeRegionsStruct = t.body.alternateTimeRegionsMapList[track];
+                    const auto &alternateTimeRegionsIt = maps.alternateTimeRegionsMap.find(space);
+                    if (alternateTimeRegionsIt != maps.alternateTimeRegionsMap.end()) {
 
-                    const auto &alternateTimeRegionsIt = alternateTimeRegionsStruct.find(space);
-                    if (alternateTimeRegionsIt != alternateTimeRegionsStruct.end()) {
+                        //
+                        // The denominator of the Alternate Time Region for this space. For example, for triplets, this is 2.
+                        // The numerator of the Alternate Time Region for this space. For example, for triplets, this is 3.
+                        //
 
                         const auto &alternateTimeRegion = alternateTimeRegionsIt->second;
 
-                        denominator = static_cast<rational>(alternateTimeRegion[0]);
+                        auto atr = rational{ alternateTimeRegion[0], alternateTimeRegion[1] };
 
-                        numerator = static_cast<rational>(alternateTimeRegion[1]);
+                        tick += (atr * TICKS_PER_SPACE);
+
+                        space++;
+
+                        actualSpace += atr;
+
+                    } else {
+
+                        tick += TICKS_PER_SPACE;
+
+                        space++;
+
+                        ++actualSpace;
                     }
+
+                } else {
+
+                    tick += TICKS_PER_SPACE;
+                    
+                    space++;
+
+                    actualSpace = space;
                 }
-
-                tick += (denominator * TICKS_PER_SPACE / numerator);
-                
-                actualSpace += (denominator / numerator);
-
-                space++;
             }
 
         } // for space
