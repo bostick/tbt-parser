@@ -590,18 +590,26 @@ TconvertToMidi(
         
         tmp.clear();
 
+        auto diff = (tick - lastEventTick).round();
+
         tmp.push_back(TrackNameEvent{
-            0, // delta time
+            diff.to_int32(), // delta time
             "tbt-parser MIDI - Track 0"
         });
 
+        lastEventTick += diff;
+
+        diff = (tick - lastEventTick).round();
+
         tmp.push_back(TimeSignatureEvent{
-            0, // delta time
+            diff.to_int32(), // delta time
             4, // numerator
             2, // denominator (as 2^d)
             24, // ticks per metronome click
             8, // notated 32-notes in MIDI quarter notes
         });
+
+        lastEventTick += diff;
 
         //
         // Emit tempo
@@ -620,8 +628,8 @@ TconvertToMidi(
             // auto microsPerBeat = (MICROS_PER_MINUTE / tempoBPM).round();
             auto microsPerBeat = (MICROS_PER_MINUTE / tempoBPM).floor();
 
-            auto diff = (tick - lastEventTick).round();
-            
+            diff = (tick - lastEventTick).round();
+
             tmp.push_back(TempoChangeEvent{
                 diff.to_int32(), // delta time
                 microsPerBeat.to_uint32()
@@ -685,7 +693,7 @@ TconvertToMidi(
                 // auto microsPerBeat = (MICROS_PER_MINUTE / tempoBPM).round();
                 auto microsPerBeat = (MICROS_PER_MINUTE / tempoBPM).floor();
 
-                auto diff = (tick - lastEventTick).round();
+                diff = (tick - lastEventTick).round();
 
                 tmp.push_back(TempoChangeEvent{
                     diff.to_int32(), // delta time
@@ -720,11 +728,13 @@ TconvertToMidi(
             ASSERT(repeats == 0);
         }
 
-        auto diff = (tick - lastEventTick).round();
+        diff = (tick - lastEventTick).round();
 
         tmp.push_back(EndOfTrackEvent{
             diff.to_int32() // delta time
         });
+
+        lastEventTick += diff;
 
         out.tracks.push_back(tmp);
 
@@ -810,10 +820,14 @@ TconvertToMidi(
 
         tmp.clear();
 
+        auto diff = (tick - lastEventTick).round();
+
         tmp.push_back(TrackNameEvent{
-            0, // delta time
+            diff.to_int32(), // delta time
             std::string("tbt-parser MIDI - Track ") + std::to_string(track + 1)
         });
+
+        lastEventTick += diff;
 
         if (midiBank != 0) {
 
@@ -823,77 +837,121 @@ TconvertToMidi(
             //
             uint8_t midiBankMSB = midiBank;
 
+            diff = (tick - lastEventTick).round();
+
             tmp.push_back(BankSelectMSBEvent{
-                0, // delta time
+                diff.to_int32(), // delta time
                 channel,
                 midiBankMSB
             });
+
+            lastEventTick += diff;
         }
 
+        diff = (tick - lastEventTick).round();
+
         tmp.push_back(ProgramChangeEvent{
-            0, // delta time
+            diff.to_int32(), // delta time
             channel,
             midiProgram
         });
 
+        lastEventTick += diff;
+
+        diff = (tick - lastEventTick).round();
+
         tmp.push_back(PanEvent{
-            0, // delta time
+            diff.to_int32(), // delta time
             channel,
             pan
         });
 
+        lastEventTick += diff;
+
+        diff = (tick - lastEventTick).round();
+
         tmp.push_back(ReverbEvent{
-            0, // delta time
+            diff.to_int32(), // delta time
             channel,
             reverb
         });
 
+        lastEventTick += diff;
+
+        diff = (tick - lastEventTick).round();
+
         tmp.push_back(ChorusEvent{
-            0, // delta time
+            diff.to_int32(), // delta time
             channel,
             chorus
         });
 
+        lastEventTick += diff;
+
+        diff = (tick - lastEventTick).round();
+
         tmp.push_back(ModulationEvent{
-            0, // delta time
+            diff.to_int32(), // delta time
             channel,
             modulation
         });
+
+        lastEventTick += diff;
 
         //
         // RPN Parameter MSB 0, RPN Parameter LSB 0 = RPN Parameter 0
         // RPN Parameter 0 is standardized for pitch bend range
         //
 
+        diff = (tick - lastEventTick).round();
+
         tmp.push_back(RPNParameterMSBEvent{
-            0, // delta time
+            diff.to_int32(), // delta time
             channel,
             0
         });
+
+        lastEventTick += diff;
+
+        diff = (tick - lastEventTick).round();
 
         tmp.push_back(RPNParameterLSBEvent{
-            0, // delta time
+            diff.to_int32(), // delta time
             channel,
             0
         });
 
+        lastEventTick += diff;
+
+        diff = (tick - lastEventTick).round();
+
         tmp.push_back(DataEntryMSBEvent{
-            0, // delta time
+            diff.to_int32(), // delta time
             channel,
             24 // semi-tones
         });
 
+        lastEventTick += diff;
+
+        diff = (tick - lastEventTick).round();
+
         tmp.push_back(DataEntryLSBEvent{
-            0, // delta time
+            diff.to_int32(), // delta time
             channel,
             0 // cents
         });
 
+        lastEventTick += diff;
+
+        diff = (tick - lastEventTick).round();
+
         tmp.push_back(PitchBendEvent{
-            0, // delta time
+            diff.to_int32(), // delta time
             channel,
             pitchBend
         });
+
+        lastEventTick += diff;
 
         uint32_t trackSpaceCount;
         if constexpr (0x70 <= VERSION) {
@@ -1125,7 +1183,7 @@ TconvertToMidi(
                             midiNote = stringNote + STRING_MIDI_NOTE_LE6A[string];
                         }
 
-                        auto diff = (tick - lastEventTick).round();
+                        diff = (tick - lastEventTick).round();
 
                         tmp.push_back(NoteOffEvent{
                             diff.to_int32(), // delta time
@@ -1163,8 +1221,6 @@ TconvertToMidi(
                                 midiBank     = ((newInstrument & 0b0111111100000000) >> 8);
                                 dontLetRing  = ((newInstrument & 0b0000000010000000) == 0b0000000010000000);
                                 midiProgram  =  (newInstrument & 0b0000000001111111);
-
-                                auto diff = (tick - lastEventTick).round();
                                 
                                 if (midiBankFlag) {
 
@@ -1174,12 +1230,18 @@ TconvertToMidi(
                                     //
                                     uint8_t midiBankMSB = midiBank;
                                     
+                                    diff = (tick - lastEventTick).round();
+
                                     tmp.push_back(BankSelectMSBEvent{
                                         diff.to_int32(), // delta time
                                         channel,
                                         midiBankMSB
                                     });
+
+                                    lastEventTick += diff;
                                 }
+
+                                diff = (tick - lastEventTick).round();
 
                                 tmp.push_back(ProgramChangeEvent{
                                     diff.to_int32(), // delta time
@@ -1214,7 +1276,7 @@ TconvertToMidi(
                                 
                                 auto newPan = change.value;
 
-                                auto diff = (tick - lastEventTick).round();
+                                diff = (tick - lastEventTick).round();
 
                                 tmp.push_back(PanEvent{
                                     diff.to_int32(), // delta time
@@ -1230,7 +1292,7 @@ TconvertToMidi(
                                 
                                 auto newChorus = change.value;
 
-                                auto diff = (tick - lastEventTick).round();
+                                diff = (tick - lastEventTick).round();
 
                                 tmp.push_back(ChorusEvent{
                                     diff.to_int32(), // delta time
@@ -1246,7 +1308,7 @@ TconvertToMidi(
                                 
                                 auto newReverb = change.value;
 
-                                auto diff = (tick - lastEventTick).round();
+                                diff = (tick - lastEventTick).round();
 
                                 tmp.push_back(ReverbEvent{
                                     diff.to_int32(), // delta time
@@ -1262,7 +1324,7 @@ TconvertToMidi(
                                 
                                 auto newModulation = change.value;
 
-                                auto diff = (tick - lastEventTick).round();
+                                diff = (tick - lastEventTick).round();
 
                                 tmp.push_back(ModulationEvent{
                                     diff.to_int32(), // delta time
@@ -1284,7 +1346,7 @@ TconvertToMidi(
                                 //
                                 newPitchBend = static_cast<int16_t>(round(((static_cast<double>(newPitchBend) + 2400.0) * 16383.0) / (2.0 * 2400.0)));
 
-                                auto diff = (tick - lastEventTick).round();
+                                diff = (tick - lastEventTick).round();
 
                                 tmp.push_back(PitchBendEvent{
                                     diff.to_int32(), // delta time
@@ -1324,7 +1386,7 @@ TconvertToMidi(
                             dontLetRing = ((newInstrument & 0b10000000) == 0b10000000);
                             midiProgram = (newInstrument & 0b01111111);
 
-                            auto diff = (tick - lastEventTick).round();
+                            diff = (tick - lastEventTick).round();
 
                             tmp.push_back(ProgramChangeEvent{
                                 diff.to_int32(), // delta time
@@ -1360,7 +1422,7 @@ TconvertToMidi(
 
                             auto newChorus = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
-                            auto diff = (tick - lastEventTick).round();
+                            diff = (tick - lastEventTick).round();
 
                             tmp.push_back(ChorusEvent{
                                 diff.to_int32(), // delta time
@@ -1376,7 +1438,7 @@ TconvertToMidi(
 
                             auto newPan = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
-                            auto diff = (tick - lastEventTick).round();
+                            diff = (tick - lastEventTick).round();
 
                             tmp.push_back(PanEvent{
                                 diff.to_int32(), // delta time
@@ -1392,7 +1454,7 @@ TconvertToMidi(
 
                             auto newReverb = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
-                            auto diff = (tick - lastEventTick).round();
+                            diff = (tick - lastEventTick).round();
 
                             tmp.push_back(ReverbEvent{
                                 diff.to_int32(), // delta time
@@ -1447,7 +1509,7 @@ TconvertToMidi(
                             midiNote = stringNote + STRING_MIDI_NOTE_LE6A[string];
                         }
 
-                        auto diff = (tick - lastEventTick).round();
+                        diff = (tick - lastEventTick).round();
 
                         tmp.push_back(NoteOnEvent{
                             diff.to_int32(), // delta time
@@ -1553,7 +1615,7 @@ TconvertToMidi(
                     midiNote = stringNote + STRING_MIDI_NOTE_LE6A[string];
                 }
 
-                auto diff = (tick - lastEventTick).round();
+                diff = (tick - lastEventTick).round();
 
                 tmp.push_back(NoteOffEvent{
                     diff.to_int32(), // delta time
@@ -1566,11 +1628,13 @@ TconvertToMidi(
             }
         }
 
-        auto diff = (tick - lastEventTick).round();
-        
+        diff = (tick - lastEventTick).round();
+
         tmp.push_back(EndOfTrackEvent{
             diff.to_int32() // delta time
         });
+
+        lastEventTick += diff;
 
         out.tracks.push_back(tmp);
 
