@@ -140,7 +140,7 @@ void
 insertTempoMap_atActualSpace72(
     const std::vector<tbt_track_effect_change> &changes,
     rational actualSpace,
-    std::map<rational, uint16_t> &tempoMap) {
+    std::map<rational, std::map<rational, uint16_t> > &tempoMap) {
 
     for (const auto &change : changes) {
 
@@ -150,18 +150,44 @@ insertTempoMap_atActualSpace72(
 
         auto newTempo = change.value;
 
-        const auto &tempoMapIt = tempoMap.find(actualSpace);
+        auto flooredActualSpace = actualSpace.floor();
+
+        auto spaceDiff = (actualSpace - flooredActualSpace);
+
+        ASSERT(spaceDiff.is_nonnegative());
+
+        if (spaceDiff.is_positive()) {
+            LOGW("tempo change at non-integral space: %f", actualSpace.to_double());
+        }
+
+        const auto &tempoMapIt = tempoMap.find(flooredActualSpace);
         if (tempoMapIt != tempoMap.end()) {
-            
-            if (tempoMapIt->second != newTempo) {
-                LOGW("actualSpace %f has conflicting tempo changes: %d, %d", actualSpace.to_double(), tempoMapIt->second, newTempo);
+
+            auto &m = tempoMapIt->second;
+
+            const auto mIt = m.find(actualSpace);
+            if (mIt != m.end()) {
+
+                auto &tempo = mIt->second;
+
+                if (tempo != newTempo) {
+                    LOGW("actualSpace %f has conflicting tempo changes: %d, %d", actualSpace.to_double(), tempo, newTempo);
+                }
+
+                tempo = newTempo;
+
+            } else {
+
+                m[actualSpace] = newTempo;
             }
-            
-            tempoMapIt->second = newTempo;
-            
+
         } else {
-            
-            tempoMap[actualSpace] = newTempo;
+
+            std::map<rational, uint16_t> m;
+
+            m[actualSpace] = newTempo;
+
+            tempoMap[flooredActualSpace] = m;
         }
     }
 }
@@ -172,7 +198,7 @@ void
 insertTempoMap_atActualSpace(
     const std::array<uint8_t, STRINGS_PER_TRACK + STRINGS_PER_TRACK + 4> &vsqs,
     rational actualSpace,
-    std::map<rational, uint16_t> &tempoMap) {
+    std::map<rational, std::map<rational, uint16_t> > &tempoMap) {
 
     auto trackEffect = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 0];
 
@@ -181,18 +207,44 @@ insertTempoMap_atActualSpace(
 
             auto newTempo = static_cast<uint16_t>(vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3]);
 
-            const auto &tempoMapIt = tempoMap.find(actualSpace);
+            auto flooredActualSpace = actualSpace.floor();
+
+            auto spaceDiff = (actualSpace - flooredActualSpace);
+
+            ASSERT(spaceDiff.is_nonnegative());
+
+            if (spaceDiff.is_positive()) {
+                LOGW("tempo change at non-integral space: %f", actualSpace.to_double());
+            }
+
+            const auto &tempoMapIt = tempoMap.find(flooredActualSpace);
             if (tempoMapIt != tempoMap.end()) {
-                
-                if (tempoMapIt->second != newTempo) {
-                    LOGW("actualSpace %f has conflicting tempo changes: %d, %d", actualSpace.to_double(), tempoMapIt->second, newTempo);
+
+                auto &m = tempoMapIt->second;
+
+                const auto mIt = m.find(actualSpace);
+                if (mIt != m.end()) {
+
+                    auto &tempo = mIt->second;
+
+                    if (tempo != newTempo) {
+                        LOGW("actualSpace %f has conflicting tempo changes: %d, %d", actualSpace.to_double(), tempo, newTempo);
+                    }
+
+                    tempo = newTempo;
+
+                } else {
+
+                    m[actualSpace] = newTempo;
                 }
-                
-                tempoMapIt->second = newTempo;
-                
+
             } else {
-                
-                tempoMap[actualSpace] = newTempo;
+
+                std::map<rational, uint16_t> m;
+
+                m[actualSpace] = newTempo;
+
+                tempoMap[flooredActualSpace] = m;
             }
 
             break;
@@ -201,18 +253,44 @@ insertTempoMap_atActualSpace(
 
             auto newTempo = static_cast<uint16_t>(vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3] + 250);
 
-            const auto &tempoMapIt = tempoMap.find(actualSpace);
+            auto flooredActualSpace = actualSpace.floor();
+
+            auto spaceDiff = (actualSpace - flooredActualSpace);
+
+            ASSERT(spaceDiff.is_nonnegative());
+
+            if (spaceDiff.is_positive()) {
+                LOGW("tempo change at non-integral space: %f", actualSpace.to_double());
+            }
+
+            const auto &tempoMapIt = tempoMap.find(flooredActualSpace);
             if (tempoMapIt != tempoMap.end()) {
-                
-                if (tempoMapIt->second != newTempo) {
-                    LOGW("actualSpace %f has conflicting tempo changes: %d, %d", actualSpace.to_double(), tempoMapIt->second, newTempo);
+
+                auto &m = tempoMapIt->second;
+
+                const auto mIt = m.find(actualSpace);
+                if (mIt != m.end()) {
+
+                    auto &tempo = mIt->second;
+
+                    if (tempo != newTempo) {
+                        LOGW("actualSpace %f has conflicting tempo changes: %d, %d", actualSpace.to_double(), tempo, newTempo);
+                    }
+
+                    tempo = newTempo;
+
+                } else {
+
+                    m[actualSpace] = newTempo;
                 }
-                
-                tempoMapIt->second = newTempo;
-                
+
             } else {
-                
-                tempoMap[actualSpace] = newTempo;
+
+                std::map<rational, uint16_t> m;
+
+                m[actualSpace] = newTempo;
+
+                tempoMap[flooredActualSpace] = m;
             }
 
             break;
@@ -227,7 +305,7 @@ template <uint8_t VERSION, bool HASALTERNATETIMEREGIONS, typename tbt_file_t, si
 void
 computeTempoMap(
     const tbt_file_t &t,
-    std::map<rational, uint16_t> &tempoMap) {
+    std::map<rational, std::map<rational, uint16_t> > &tempoMap) {
 
     for (uint8_t track = 0; track < t.header.trackCount; track++) {
 
@@ -539,9 +617,12 @@ TconvertToMidi(
     //
     // compute tempo map
     //
-    // actualSpace -> tempoBPM
+    // flooredActualSpace -> ( actualSpace -> tempo )
     //
-    std::map<rational, uint16_t> tempoMap;
+    // there can be more than one tempo change mapped to the same flooredActualSpace
+    // so this needs to be a map of actualSpace -> tempo
+    //
+    std::map<rational, std::map<rational, uint16_t> > tempoMap;
 
     computeTempoMap<VERSION, HASALTERNATETIMEREGIONS, tbt_file_t, STRINGS_PER_TRACK>(t, tempoMap);
 
@@ -686,22 +767,45 @@ TconvertToMidi(
             const auto &tempoMapIt = tempoMap.find(space);
             if (tempoMapIt != tempoMap.end()) {
 
-                auto tempoBPM = tempoMapIt->second;
-
                 //
-                // TabIt uses floor(), but using round() is more accurate
+                // map of tempo changes at this floored space
                 //
-                // auto microsPerBeat = (MICROS_PER_MINUTE / tempoBPM).round();
-                auto microsPerBeat = (MICROS_PER_MINUTE / tempoBPM).floor();
+                auto &m = tempoMapIt->second;
 
-                diff = (tick - lastEventTick).round();
+                for (const auto &mIt : m) {
 
-                tmp.push_back(TempoChangeEvent{
-                    diff.to_int32(), // delta time
-                    microsPerBeat.to_uint32()
-                });
+                    auto actualSpace = mIt.first;
+                    auto tempoBPM = mIt.second;
 
-                lastEventTick += diff;
+                    auto spaceDiff = (actualSpace - space);
+
+                    ASSERT(spaceDiff.is_nonnegative());
+
+                    //
+                    // TabIt uses floor(), but using round() is more accurate
+                    //
+                    // auto microsPerBeat = (MICROS_PER_MINUTE / tempoBPM).round();
+                    auto microsPerBeat = (MICROS_PER_MINUTE / tempoBPM).floor();
+
+                    //
+                    // increment by spaceDiff
+                    //
+                    tick += spaceDiff * TICKS_PER_SPACE;
+
+                    diff = (tick - lastEventTick).round();
+
+                    tmp.push_back(TempoChangeEvent{
+                        diff.to_int32(), // delta time
+                        microsPerBeat.to_uint32()
+                    });
+
+                    lastEventTick += diff;
+
+                    //
+                    // restore tick
+                    //
+                    tick -= spaceDiff * TICKS_PER_SPACE;
+                }
             }
             
             //     every bar: lyric for current bars ?
