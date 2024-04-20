@@ -140,7 +140,7 @@ void
 insertTempoMap_atActualSpace72(
     const std::vector<tbt_track_effect_change> &changes,
     rational actualSpace,
-    std::map<rational, std::map<rational, uint16_t> > &tempoMap) {
+    std::map<uint32_t, std::map<rational, uint16_t> > &tempoMap) {
 
     for (const auto &change : changes) {
 
@@ -152,6 +152,8 @@ insertTempoMap_atActualSpace72(
 
         auto flooredActualSpace = actualSpace.floor();
 
+        auto flooredActualSpaceI = flooredActualSpace.to_uint32();
+
         auto spaceDiff = (actualSpace - flooredActualSpace);
 
         ASSERT(spaceDiff.is_nonnegative());
@@ -160,7 +162,7 @@ insertTempoMap_atActualSpace72(
             LOGW("tempo change at non-integral space: %f", actualSpace.to_double());
         }
 
-        const auto &tempoMapIt = tempoMap.find(flooredActualSpace);
+        const auto &tempoMapIt = tempoMap.find(flooredActualSpaceI);
         if (tempoMapIt != tempoMap.end()) {
 
             auto &m = tempoMapIt->second;
@@ -187,7 +189,7 @@ insertTempoMap_atActualSpace72(
 
             m[actualSpace] = newTempo;
 
-            tempoMap[flooredActualSpace] = m;
+            tempoMap[flooredActualSpaceI] = m;
         }
     }
 }
@@ -198,7 +200,7 @@ void
 insertTempoMap_atActualSpace(
     const std::array<uint8_t, STRINGS_PER_TRACK + STRINGS_PER_TRACK + 4> &vsqs,
     rational actualSpace,
-    std::map<rational, std::map<rational, uint16_t> > &tempoMap) {
+    std::map<uint32_t, std::map<rational, uint16_t> > &tempoMap) {
 
     auto trackEffect = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 0];
 
@@ -209,6 +211,8 @@ insertTempoMap_atActualSpace(
 
             auto flooredActualSpace = actualSpace.floor();
 
+            auto flooredActualSpaceI = flooredActualSpace.to_uint32();
+
             auto spaceDiff = (actualSpace - flooredActualSpace);
 
             ASSERT(spaceDiff.is_nonnegative());
@@ -217,7 +221,7 @@ insertTempoMap_atActualSpace(
                 LOGW("tempo change at non-integral space: %f", actualSpace.to_double());
             }
 
-            const auto &tempoMapIt = tempoMap.find(flooredActualSpace);
+            const auto &tempoMapIt = tempoMap.find(flooredActualSpaceI);
             if (tempoMapIt != tempoMap.end()) {
 
                 auto &m = tempoMapIt->second;
@@ -244,7 +248,7 @@ insertTempoMap_atActualSpace(
 
                 m[actualSpace] = newTempo;
 
-                tempoMap[flooredActualSpace] = m;
+                tempoMap[flooredActualSpaceI] = m;
             }
 
             break;
@@ -255,6 +259,8 @@ insertTempoMap_atActualSpace(
 
             auto flooredActualSpace = actualSpace.floor();
 
+            auto flooredActualSpaceI = flooredActualSpace.to_uint32();
+
             auto spaceDiff = (actualSpace - flooredActualSpace);
 
             ASSERT(spaceDiff.is_nonnegative());
@@ -263,7 +269,7 @@ insertTempoMap_atActualSpace(
                 LOGW("tempo change at non-integral space: %f", actualSpace.to_double());
             }
 
-            const auto &tempoMapIt = tempoMap.find(flooredActualSpace);
+            const auto &tempoMapIt = tempoMap.find(flooredActualSpaceI);
             if (tempoMapIt != tempoMap.end()) {
 
                 auto &m = tempoMapIt->second;
@@ -290,7 +296,7 @@ insertTempoMap_atActualSpace(
 
                 m[actualSpace] = newTempo;
 
-                tempoMap[flooredActualSpace] = m;
+                tempoMap[flooredActualSpaceI] = m;
             }
 
             break;
@@ -305,7 +311,7 @@ template <uint8_t VERSION, bool HASALTERNATETIMEREGIONS, typename tbt_file_t, si
 void
 computeTempoMap(
     const tbt_file_t &t,
-    std::map<rational, std::map<rational, uint16_t> > &tempoMap) {
+    std::map<uint32_t, std::map<rational, uint16_t> > &tempoMap) {
 
     for (uint8_t track = 0; track < t.header.trackCount; track++) {
 
@@ -400,7 +406,7 @@ computeTempoMap(
 
 
 struct repeat_close_struct {
-    rational open;
+    uint32_t open;
     int repeats;
 };
 
@@ -410,8 +416,8 @@ void
 computeRepeats(
     const tbt_file_t &t,
     uint32_t barsSpaceCount,
-    std::vector<std::set<rational> > &openSpaceSets,
-    std::vector<std::map<rational, repeat_close_struct> > &repeatCloseMaps) {
+    std::vector<std::set<uint32_t> > &openSpaceSets,
+    std::vector<std::map<uint32_t, repeat_close_struct> > &repeatCloseMaps) {
 
     //
     // Setup repeats
@@ -424,7 +430,7 @@ computeRepeats(
         openSpaceSets.push_back( {} );
     }
 
-    rational lastOpenSpace = 0;
+    uint32_t lastOpenSpace = 0;
 
     bool currentlyOpen = false;
     bool savedClose = false;
@@ -456,7 +462,7 @@ computeRepeats(
 
                         if (openSpaceSets[track].find(lastOpenSpace) == openSpaceSets[track].end()) {
                         
-                            LOGW("there was no repeat open at %f", lastOpenSpace.to_double());
+                            LOGW("there was no repeat open at %d", lastOpenSpace);
                             
                             openSpaceSets[track].insert(lastOpenSpace);
                         }
@@ -485,7 +491,7 @@ computeRepeats(
 
                     if (currentlyOpen) {
 
-                        LOGW("repeat open at space %f is ignored", lastOpenSpace.to_double());
+                        LOGW("repeat open at space %d is ignored", lastOpenSpace);
 
                     } else {
 
@@ -518,7 +524,7 @@ computeRepeats(
                         
                         if (openSpaceSets[track].find(lastOpenSpace) == openSpaceSets[track].end()) {
                         
-                            LOGW("there was no repeat open at %f", lastOpenSpace.to_double());
+                            LOGW("there was no repeat open at %d", lastOpenSpace);
                             
                             openSpaceSets[track].insert(lastOpenSpace);
                         }
@@ -540,7 +546,7 @@ computeRepeats(
 
                     if (currentlyOpen) {
 
-                        LOGW("repeat open at space %f is ignored", lastOpenSpace.to_double());
+                        LOGW("repeat open at space %d is ignored", lastOpenSpace);
 
                     } else {
 
@@ -585,7 +591,7 @@ computeRepeats(
 
                 if (openSpaceSets[track].find(lastOpenSpace) == openSpaceSets[track].end()) {
 
-                    LOGW("there was no repeat open at %f", lastOpenSpace.to_double());
+                    LOGW("there was no repeat open at %d", lastOpenSpace);
 
                     openSpaceSets[track].insert(lastOpenSpace);
                 }
@@ -622,7 +628,7 @@ TconvertToMidi(
     // there can be more than one tempo change mapped to the same flooredActualSpace
     // so this needs to be a map of actualSpace -> tempo
     //
-    std::map<rational, std::map<rational, uint16_t> > tempoMap;
+    std::map<uint32_t, std::map<rational, uint16_t> > tempoMap;
 
     computeTempoMap<VERSION, HASALTERNATETIMEREGIONS, tbt_file_t, STRINGS_PER_TRACK>(t, tempoMap);
 
@@ -637,13 +643,13 @@ TconvertToMidi(
     // for each track:
     //   set of spaces that repeat opens occur
     //
-    std::vector<std::set<rational> > openSpaceSets;
+    std::vector<std::set<uint32_t> > openSpaceSets;
 
     //
     // for each track, including tempo track:
     //   actual space of close -> repeat_close_struct
     //
-    std::vector<std::map<rational, repeat_close_struct> > repeatCloseMaps;
+    std::vector<std::map<uint32_t, repeat_close_struct> > repeatCloseMaps;
 
     computeRepeats<VERSION, tbt_file_t>(t, barsSpaceCount, openSpaceSets, repeatCloseMaps);
 
@@ -752,7 +758,7 @@ TconvertToMidi(
                     // jump to the repeat open
                     //
 
-                    space = r.open.to_uint32();
+                    space = r.open;
 
                     r.repeats--;
 
@@ -1088,12 +1094,14 @@ TconvertToMidi(
 
             auto flooredActualSpace = actualSpace.floor();
 
+            auto flooredActualSpaceI = flooredActualSpace.to_uint32();
+
             {
                 //
                 // handle any repeat closes first
                 //
 
-                const auto &repeatCloseMapIt = repeatCloseMap.find(flooredActualSpace);
+                const auto &repeatCloseMapIt = repeatCloseMap.find(flooredActualSpaceI);
                 if (repeatCloseMapIt != repeatCloseMap.end()) {
 
                     //
@@ -1146,7 +1154,7 @@ TconvertToMidi(
                 // if there is an open repeat at this actual space, then store the track space for later
                 //
 
-                if (openSpaceSet.find(flooredActualSpace) != openSpaceSet.end()) {
+                if (openSpaceSet.find(flooredActualSpaceI) != openSpaceSet.end()) {
 
                     auto diff = (actualSpace - flooredActualSpace);
 
@@ -1161,7 +1169,7 @@ TconvertToMidi(
                     //
                     // after adding to spaceMap, can be removed from openSpaceSet
                     //
-                    openSpaceSet.erase(flooredActualSpace);
+                    openSpaceSet.erase(flooredActualSpaceI);
                 }
             }
 
