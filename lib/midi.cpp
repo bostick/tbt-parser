@@ -1086,12 +1086,14 @@ TconvertToMidi(
         //
         for (uint32_t space = 0; space < trackSpaceCount + 1;) { // space count, + 1 for handling repeats at end
 
+            auto flooredActualSpace = actualSpace.floor();
+
             {
                 //
                 // handle any repeat closes first
                 //
 
-                const auto &repeatCloseMapIt = repeatCloseMap.find(actualSpace);
+                const auto &repeatCloseMapIt = repeatCloseMap.find(flooredActualSpace);
                 if (repeatCloseMapIt != repeatCloseMap.end()) {
 
                     //
@@ -1105,6 +1107,22 @@ TconvertToMidi(
                     //
 
                     if (r.repeats > 0) {
+
+                        auto spaceDiff = (actualSpace - flooredActualSpace);
+
+                        ASSERT(spaceDiff.is_nonnegative());
+
+                        if (spaceDiff.is_positive()) {
+
+                            LOGW("repeat CLOSE at non-integral space: %f", actualSpace.to_double());
+
+                            //
+                            // overshot the repeat close
+                            //
+                            // now backup by the difference between flooredActualSpace and actualSpace
+                            //
+                            tick -= spaceDiff * TICKS_PER_SPACE;
+                        }
 
                         //
                         // jump to the repeat open
@@ -1128,7 +1146,13 @@ TconvertToMidi(
                 // if there is an open repeat at this actual space, then store the track space for later
                 //
 
-                if (openSpaceSet.find(actualSpace) != openSpaceSet.end()) {
+                if (openSpaceSet.find(flooredActualSpace) != openSpaceSet.end()) {
+
+                    auto diff = (actualSpace - flooredActualSpace);
+
+                    if (diff > 0) {
+                        LOGW("repeat OPEN at non-integral space: %f", actualSpace.to_double());
+                    }
 
                     ASSERT(!spaceMap.contains(actualSpace));
 
@@ -1137,7 +1161,7 @@ TconvertToMidi(
                     //
                     // after adding to spaceMap, can be removed from openSpaceSet
                     //
-                    openSpaceSet.erase(actualSpace);
+                    openSpaceSet.erase(flooredActualSpace);
                 }
             }
 
