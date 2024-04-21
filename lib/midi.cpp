@@ -3159,33 +3159,39 @@ midiFileInfo(const midi_file &m) {
 
     auto times = midiFileTimes(m);
 
-    LOGI("times:");
+    LOGI("times:                  h:mm:sssss");
     if (times.lastNoteOnMicros != -1) {
         double lastNoteOnSec = times.lastNoteOnMicros / 1e6;
-        LOGI("    lastNoteOn: %.0f:%05.2f", floor(lastNoteOnSec / 60.0), fmod(lastNoteOnSec, 60.0));
+        double lastNoteOnMin = lastNoteOnSec / 60.0;
+        double lastNoteOnHr = lastNoteOnMin / 60.0;
+        LOGI("   last Note On (wall): %.0f:%02.0f:%05.2f", floor(lastNoteOnHr), fmod(lastNoteOnMin, 60.0), fmod(lastNoteOnSec, 60.0));
     } else {
-        LOGI("    lastNoteOn: (none)");
+        LOGI("   last Note On (wall): (none)");
     }
     if (times.lastNoteOffMicros != -1) {
         double lastNoteOffSec = times.lastNoteOffMicros / 1e6;
-        LOGI("   lastNoteOff: %.0f:%05.2f", floor(lastNoteOffSec / 60.0), fmod(lastNoteOffSec, 60.0));
+        double lastNoteOffMin = lastNoteOffSec / 60.0;
+        double lastNoteOffHr = lastNoteOffMin / 60.0;
+        LOGI("  last Note Off (wall): %.0f:%02.0f:%05.2f", floor(lastNoteOffHr), fmod(lastNoteOffMin, 60.0), fmod(lastNoteOffSec, 60.0));
     } else {
-        LOGI("   lastNoteOff: (none)");
+        LOGI("  last Note Off (wall): (none)");
     }
     if (times.lastEndOfTrackMicros != -1) {
         double lastEndOfTrackSec = times.lastEndOfTrackMicros / 1e6;
-        LOGI("lastEndOfTrack: %.0f:%05.2f", floor(lastEndOfTrackSec / 60.0), fmod(lastEndOfTrackSec, 60.0));
+        double lastEndOfTrackMin = lastEndOfTrackSec / 60.0;
+        double lastEndOfTrackHr = lastEndOfTrackMin / 60.0;
+        LOGI("   End Of Track (wall): %.0f:%02.0f:%05.2f", floor(lastEndOfTrackHr), fmod(lastEndOfTrackMin, 60.0), fmod(lastEndOfTrackSec, 60.0));
     } else {
-        LOGI("lastEndOfTrack: (none)");
+        LOGI("   End Of Track (wall): (none)");
     }
 
-    LOGI("    lastNoteOn: %.17f", times.lastNoteOnMicros);
-    LOGI("   lastNoteOff: %.17f", times.lastNoteOffMicros);
-    LOGI("lastEndOfTrack: %.17f", times.lastEndOfTrackMicros);
+    LOGI(" last Note On (micros): %.17f", times.lastNoteOnMicros);
+    LOGI("last Note Off (micros): %.17f", times.lastNoteOffMicros);
+    LOGI(" End Of Track (micros): %.17f", times.lastEndOfTrackMicros);
 
-    LOGI("    lastNoteOn: %d", times.lastNoteOnTick);
-    LOGI("   lastNoteOff: %d", times.lastNoteOffTick);
-    LOGI("lastEndOfTrack: %d", times.lastEndOfTrackTick);
+    LOGI("  last Note On (ticks): %d", times.lastNoteOnTick);
+    LOGI(" last Note Off (ticks): %d", times.lastNoteOffTick);
+    LOGI("  End Of Track (ticks): %d", times.lastEndOfTrackTick);
 }
 
 
