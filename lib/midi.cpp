@@ -1925,7 +1925,7 @@ struct EventExportVisitor {
             0x03 // microsPerBeatBytes size VLQ
         });
 
-        tmp.insert(tmp.end(), microsPerBeatBytes.cbegin() + 1, microsPerBeatBytes.cend()); // only last 3 bytes of microsPerBeatBytes
+        toDigitsBEOnly3(e.microsPerBeat, tmp); // only last 3 bytes of microsPerBeatBytes
     }
 
     void operator()(const EndOfTrackEvent &e) {
@@ -2126,16 +2126,15 @@ exportMidiBytes(
     // header
     //
     {
-        auto lengthBytes = toDigitsBE(static_cast<uint32_t>(6));
-        auto formatBytes = toDigitsBE(static_cast<uint16_t>(m.header.format));
-        auto trackCountBytes = toDigitsBE(static_cast<uint16_t>(m.header.trackCount));
-        auto divisionBytes = toDigitsBE(static_cast<uint16_t>(m.header.division));
-
         out.insert(out.end(), { 'M', 'T', 'h', 'd' }); // type
-        out.insert(out.end(), lengthBytes.cbegin(), lengthBytes.cend()); // length
-        out.insert(out.end(), formatBytes.cbegin(), formatBytes.cend()); // format
-        out.insert(out.end(), trackCountBytes.cbegin(), trackCountBytes.cend()); // track count
-        out.insert(out.end(), divisionBytes.cbegin(), divisionBytes.cend()); // division
+
+        toDigitsBE(static_cast<uint32_t>(6), out); // length
+
+        toDigitsBE(static_cast<uint16_t>(m.header.format), out); // format
+
+        toDigitsBE(static_cast<uint16_t>(m.header.trackCount), out); // track count
+
+        toDigitsBE(static_cast<uint16_t>(m.header.division), out); // division
     }
 
     //
@@ -2151,10 +2150,10 @@ exportMidiBytes(
             std::visit(eventExportVisitor, event);
         }
 
-        auto lengthBytes = toDigitsBE(static_cast<uint32_t>(tmp.size()));
-
         out.insert(out.end(), { 'M', 'T', 'r', 'k' }); // type
-        out.insert(out.end(), lengthBytes.cbegin(), lengthBytes.cend()); // length
+
+        toDigitsBE(static_cast<uint32_t>(tmp.size()), out); // length
+
         out.insert(out.end(), tmp.cbegin(), tmp.cend());
     }
 

@@ -484,31 +484,46 @@ computeDeltaListCount(
 }
 
 
-std::array<uint8_t, 2> toDigitsBE(uint16_t value) {
+void toDigitsBE(uint16_t value, std::vector<uint8_t> &out) {
 
-    std::array<uint8_t, 2> arr{};
-
-    arr[1] = value & 0xffu;
+    uint8_t arr1 = value & 0xffu;
     value >>= 8;
-    arr[0] = value & 0xffu;
+    uint8_t arr0 = value & 0xffu;
 
-    return arr;
+    out.push_back(arr0);
+    out.push_back(arr1);
 }
 
+void toDigitsBE(uint32_t value, std::vector<uint8_t> &out) {
 
-std::array<uint8_t, 4> toDigitsBE(uint32_t value) {
-
-    std::array<uint8_t, 4> arr{};
-
-    arr[3] = value & 0xffu;
+    uint8_t arr3 = value & 0xffu;
     value >>= 8;
-    arr[2] = value & 0xffu;
+    uint8_t arr2 = value & 0xffu;
     value >>= 8;
-    arr[1] = value & 0xffu;
+    uint8_t arr1 = value & 0xffu;
     value >>= 8;
-    arr[0] = value & 0xffu;
+    uint8_t arr0 = value & 0xffu;
 
-    return arr;
+    out.push_back(arr0);
+    out.push_back(arr1);
+    out.push_back(arr2);
+    out.push_back(arr3);
+}
+
+void toDigitsBEOnly3(uint32_t value, std::vector<uint8_t> &out) {
+
+    uint8_t arr3 = value & 0xffu;
+    value >>= 8;
+    uint8_t arr2 = value & 0xffu;
+    value >>= 8;
+    uint8_t arr1 = value & 0xffu;
+    // value >>= 8;
+    // uint8_t arr0 = value & 0xffu;
+
+    // out.push_back(arr0);
+    out.push_back(arr1);
+    out.push_back(arr2);
+    out.push_back(arr3);
 }
 
 
