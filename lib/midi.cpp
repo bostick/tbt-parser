@@ -1893,7 +1893,7 @@ convertToMidi(
 }
 
 
-struct EventVisitor {
+struct EventExportVisitor {
     
     std::vector<uint8_t> &tmp;
     
@@ -2184,10 +2184,10 @@ exportMidiBytes(
 
         std::vector<uint8_t> tmp;
 
-        EventVisitor eventVisitor{ tmp };
+        EventExportVisitor eventExportVisitor{ tmp };
 
         for (const auto &event : track) {
-            std::visit(eventVisitor, event);
+            std::visit(eventExportVisitor, event);
         }
 
         auto lengthBytes = toDigitsBE(static_cast<uint32_t>(tmp.size()));
