@@ -44,7 +44,7 @@ parseVLQ(
     const std::vector<uint8_t>::const_iterator end,
     uint32_t &out);
 
-std::vector<uint8_t> toVLQ(uint32_t value);
+void toVLQ(uint32_t value, std::vector<uint8_t> &out);
 
 
 Status

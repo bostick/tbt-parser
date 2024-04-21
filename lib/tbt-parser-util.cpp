@@ -106,29 +106,68 @@ parseVLQ(
 }
 
 
-//
-// adapted from:
-// https://www.rosettacode.org/wiki/Variable-length_quantity#C++
-//
-std::vector<uint8_t> toVLQ(uint32_t value) {
+void toVLQ(uint32_t value, std::vector<uint8_t> &out) {
 
-    uint8_t i;
-    for (i = 9; i > 0; i--) {
-        if (value & 127ULL << i * 7) {
-            break;
-        }
+    if (value <= 0b1111111) {
+
+        uint8_t v0 = value & 0b01111111;
+
+        out.push_back(v0);
+
+    } else if (value <= 0b11111111111111) {
+
+        uint8_t v1 = value & 0b01111111;
+        value >>= 7;
+        uint8_t v0 = value & 0b01111111;
+
+        out.push_back(v0 | 0b10000000);
+        out.push_back(v1);
+
+    } else if (value <= 0b111111111111111111111) {
+
+        uint8_t v2 = value & 0b01111111;
+        value >>= 7;
+        uint8_t v1 = value & 0b01111111;
+        value >>= 7;
+        uint8_t v0 = value & 0b01111111;
+
+        out.push_back(v0 | 0b10000000);
+        out.push_back(v1 | 0b10000000);
+        out.push_back(v2);
+
+    } else if (value <= 0b1111111111111111111111111111) {
+
+        uint8_t v3 = value & 0b01111111;
+        value >>= 7;
+        uint8_t v2 = value & 0b01111111;
+        value >>= 7;
+        uint8_t v1 = value & 0b01111111;
+        value >>= 7;
+        uint8_t v0 = value & 0b01111111;
+
+        out.push_back(v0 | 0b10000000);
+        out.push_back(v1 | 0b10000000);
+        out.push_back(v2 | 0b10000000);
+        out.push_back(v3);
+
+    } else {
+
+        uint8_t v4 = value & 0b01111111;
+        value >>= 7;
+        uint8_t v3 = value & 0b01111111;
+        value >>= 7;
+        uint8_t v2 = value & 0b01111111;
+        value >>= 7;
+        uint8_t v1 = value & 0b01111111;
+        value >>= 7;
+        uint8_t v0 = value & 0b00001111;
+
+        out.push_back(v0 | 0b10000000);
+        out.push_back(v1 | 0b10000000);
+        out.push_back(v2 | 0b10000000);
+        out.push_back(v3 | 0b10000000);
+        out.push_back(v4);
     }
-
-    std::vector<uint8_t> out;
-    out.reserve(i);
-    
-    for (uint8_t j = 0; j <= i; j++) {
-        out.push_back(((value >> ((i - j) * 7)) & 127) | 128);
-    }
-
-    out[i] ^= 128;
-
-    return out;
 }
 
 

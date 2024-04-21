@@ -135,3 +135,126 @@ TEST_F(UtilTest, partitionInto1) {
                                          testing::ElementsAre(3, 4),
                                          testing::ElementsAre(5, 6)));
 }
+
+
+TEST_F(UtilTest, toVLQ) {
+
+  std::vector<uint8_t> data;
+  
+  toVLQ(0x00, data);
+  
+  EXPECT_EQ(data, (std::vector<uint8_t>{ 0x00 }) );
+
+  uint32_t out;
+
+  auto it = data.cbegin();
+  auto end = data.cend();
+
+  parseVLQ(it, end, out);
+
+  EXPECT_EQ(out, 0x00);
+
+
+
+  data.clear();
+
+  toVLQ(0x7f, data);
+  
+  EXPECT_EQ(data, (std::vector<uint8_t>{ 0x7f }) );
+
+  it = data.cbegin();
+  end = data.cend();
+
+  parseVLQ(it, end, out);
+
+  EXPECT_EQ(out, 0x7f);
+
+
+
+  data.clear();
+
+  toVLQ(0x80, data);
+  
+  EXPECT_EQ(data, (std::vector<uint8_t>{ 0x81, 0x00 }) );
+
+  it = data.cbegin();
+  end = data.cend();
+
+  parseVLQ(it, end, out);
+
+  EXPECT_EQ(out, 0x80);
+
+
+
+  data.clear();
+
+  toVLQ(0x2000, data);
+  
+  EXPECT_EQ(data, (std::vector<uint8_t>{ 0xc0, 0x00 }) );
+
+  it = data.cbegin();
+  end = data.cend();
+
+  parseVLQ(it, end, out);
+
+  EXPECT_EQ(out, 0x2000);
+
+
+
+  data.clear();
+
+  toVLQ(0x3fff, data);
+  
+  EXPECT_EQ(data, (std::vector<uint8_t>{ 0xff, 0x7f }) );
+
+  it = data.cbegin();
+  end = data.cend();
+
+  parseVLQ(it, end, out);
+
+  EXPECT_EQ(out, 0x3fff);
+
+
+
+  data.clear();
+
+  toVLQ(0x4000, data);
+  
+  EXPECT_EQ(data, (std::vector<uint8_t>{ 0x81, 0x80, 0x00 }) );
+
+  it = data.cbegin();
+  end = data.cend();
+
+  parseVLQ(it, end, out);
+
+  EXPECT_EQ(out, 0x4000);
+
+
+
+  data.clear();
+
+  toVLQ(0xffffffff, data);
+  
+  EXPECT_EQ(data, (std::vector<uint8_t>{ 0x8f, 0xff, 0xff, 0xff, 0x7f }) );
+
+  it = data.cbegin();
+  end = data.cend();
+
+  parseVLQ(it, end, out);
+
+  EXPECT_EQ(out, 0xffffffff);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

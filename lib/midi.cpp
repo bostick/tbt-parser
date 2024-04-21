@@ -1899,9 +1899,7 @@ struct EventExportVisitor {
     
     void operator()(const TimeSignatureEvent &e) {
 
-        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-
-        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
+        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
 
         tmp.insert(tmp.end(), {
             0xff, // meta event
@@ -1916,10 +1914,7 @@ struct EventExportVisitor {
 
     void operator()(const TempoChangeEvent &e) {
 
-        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-        auto microsPerBeatBytes = toDigitsBE(e.microsPerBeat);
-
-        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
+        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
 
         tmp.insert(tmp.end(), {
             0xff, // meta event
@@ -1935,9 +1930,7 @@ struct EventExportVisitor {
 
     void operator()(const EndOfTrackEvent &e) {
 
-        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-
-        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
+        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
 
         tmp.insert(tmp.end(), {
             0xff, // meta event
@@ -1948,9 +1941,7 @@ struct EventExportVisitor {
 
     void operator()(const ProgramChangeEvent &e) {
 
-        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-
-        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
+        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
 
         tmp.insert(tmp.end(), {
             static_cast<uint8_t>(0xc0 | e.channel), // program change
@@ -1960,9 +1951,7 @@ struct EventExportVisitor {
 
     void operator()(const PanEvent &e) {
 
-        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-
-        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
+        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
 
         tmp.insert(tmp.end(), {
             static_cast<uint8_t>(0xb0 | e.channel), // control event
@@ -1973,9 +1962,7 @@ struct EventExportVisitor {
 
     void operator()(const ReverbEvent &e) {
 
-        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-
-        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
+        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
 
         tmp.insert(tmp.end(), {
             static_cast<uint8_t>(0xb0 | e.channel), // control event
@@ -1986,9 +1973,7 @@ struct EventExportVisitor {
 
     void operator()(const ChorusEvent &e) {
 
-        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-
-        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
+        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
 
         tmp.insert(tmp.end(), {
             static_cast<uint8_t>(0xb0 | e.channel), // control event
@@ -1999,9 +1984,7 @@ struct EventExportVisitor {
 
     void operator()(const ModulationEvent &e) {
 
-        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-
-        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
+        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
 
         tmp.insert(tmp.end(), {
             static_cast<uint8_t>(0xb0 | e.channel), // control event
@@ -2012,9 +1995,7 @@ struct EventExportVisitor {
 
     void operator()(const RPNParameterMSBEvent &e) {
 
-        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-
-        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
+        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
 
         tmp.insert(tmp.end(), {
             static_cast<uint8_t>(0xb0 | e.channel), // control event
@@ -2025,9 +2006,7 @@ struct EventExportVisitor {
 
     void operator()(const RPNParameterLSBEvent &e) {
 
-        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-
-        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
+        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
 
         tmp.insert(tmp.end(), {
             static_cast<uint8_t>(0xb0 | e.channel), // control event
@@ -2038,9 +2017,7 @@ struct EventExportVisitor {
 
     void operator()(const DataEntryMSBEvent &e) {
 
-        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-
-        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
+        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
 
         tmp.insert(tmp.end(), {
             static_cast<uint8_t>(0xb0 | e.channel), // control event
@@ -2051,9 +2028,7 @@ struct EventExportVisitor {
 
     void operator()(const DataEntryLSBEvent &e) {
 
-        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-
-        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
+        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
 
         tmp.insert(tmp.end(), {
             static_cast<uint8_t>(0xb0 | e.channel), // control event
@@ -2064,12 +2039,10 @@ struct EventExportVisitor {
 
     void operator()(const PitchBendEvent &e) {
 
-        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-
         uint8_t pitchBendLSB = (e.pitchBend & 0b01111111);
         uint8_t pitchBendMSB = ((e.pitchBend >> 7) & 0b01111111);
 
-        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
+        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
 
         tmp.insert(tmp.end(), {
             static_cast<uint8_t>(0xe0 | e.channel), // pitch bend
@@ -2080,9 +2053,7 @@ struct EventExportVisitor {
 
     void operator()(const NoteOffEvent &e) {
 
-        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-
-        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
+        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
 
         tmp.insert(tmp.end(), {
             static_cast<uint8_t>(0x80 | e.channel), // note off
@@ -2093,9 +2064,7 @@ struct EventExportVisitor {
 
     void operator()(const NoteOnEvent &e) {
 
-        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-
-        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
+        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
 
         tmp.insert(tmp.end(), {
             static_cast<uint8_t>(0x90 | e.channel), // note on
@@ -2110,27 +2079,21 @@ struct EventExportVisitor {
 
     void operator()(const TrackNameEvent &e) {
 
-        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-
-        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
+        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
 
         tmp.insert(tmp.end(), {
             0xff, // meta event
             0x03, // Sequence/Track Name
         });
 
-        vlq = toVLQ(static_cast<uint32_t>(e.name.size()));
-
-        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // len
+        toVLQ(static_cast<uint32_t>(e.name.size()), tmp); // len
 
         tmp.insert(tmp.end(), e.name.data(), e.name.data() + e.name.size());
     }
 
     void operator()(const BankSelectMSBEvent &e) {
 
-        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-
-        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
+        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
 
         tmp.insert(tmp.end(), {
             static_cast<uint8_t>(0xb0 | e.channel), // control event
@@ -2141,9 +2104,7 @@ struct EventExportVisitor {
 
     void operator()(const BankSelectLSBEvent &e) {
 
-        auto vlq = toVLQ(static_cast<uint32_t>(e.deltaTime));
-
-        tmp.insert(tmp.end(), vlq.cbegin(), vlq.cend()); // delta time
+        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
 
         tmp.insert(tmp.end(), {
             static_cast<uint8_t>(0xb0 | e.channel), // control event
