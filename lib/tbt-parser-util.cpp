@@ -546,9 +546,9 @@ std::string trim(const std::string str) {
 
     std::string tmp(str);
     
-    tmp.erase(0, tmp.find_first_not_of(" "));
+    tmp.erase(0, tmp.find_first_not_of(" \r\n"));
     
-    tmp.erase(tmp.find_last_not_of(" ") + 1);
+    tmp.erase(tmp.find_last_not_of(" \r\n") + 1);
 
     return tmp;
 }
