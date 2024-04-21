@@ -411,6 +411,12 @@ struct repeat_close_struct {
 };
 
 
+struct repeat_open_struct {
+    rational actualSpace;
+    uint32_t space;
+};
+
+
 template <uint8_t VERSION, typename tbt_file_t>
 void
 computeRepeats(
@@ -1073,9 +1079,9 @@ TconvertToMidi(
         }
 
         //
-        // actualSpace -> track space
+        // flooredActualSpace -> repeat_open_struct
         //
-        std::map<rational, uint32_t> spaceMap;
+        std::map<uint32_t, repeat_open_struct> repeatOpenMap;
 
         auto &openSpaceSet = openSpaceSets[track + 1];
 
@@ -1136,11 +1142,29 @@ TconvertToMidi(
                         // jump to the repeat open
                         //
 
-                        ASSERT(spaceMap.contains(r.open));
+                        ASSERT(repeatOpenMap.contains(r.open));
 
-                        space = spaceMap[r.open];
+                        const auto &openStruct = repeatOpenMap[r.open];
 
-                        actualSpace = r.open;
+                        space = openStruct.space;
+
+                        actualSpace = openStruct.actualSpace;
+
+                        spaceDiff = (actualSpace - r.open);
+
+                        ASSERT(spaceDiff.is_nonnegative());
+
+                        if (spaceDiff.is_positive()) {
+
+                            LOGW("repeat OPEN at non-integral space: %f", actualSpace.to_double());
+
+                            //
+                            // undershot the repeat open
+                            //
+                            // now scoot up by the difference between actualSpace and r.open
+                            //
+                            tick += spaceDiff * TICKS_PER_SPACE;
+                        }
 
                         r.repeats--;
 
@@ -1156,18 +1180,12 @@ TconvertToMidi(
 
                 if (openSpaceSet.find(flooredActualSpaceI) != openSpaceSet.end()) {
 
-                    auto diff = (actualSpace - flooredActualSpace);
+                    ASSERT(!repeatOpenMap.contains(flooredActualSpaceI));
 
-                    if (diff > 0) {
-                        LOGW("repeat OPEN at non-integral space: %f", actualSpace.to_double());
-                    }
-
-                    ASSERT(!spaceMap.contains(actualSpace));
-
-                    spaceMap[actualSpace] = space;
+                    repeatOpenMap[flooredActualSpaceI] = { actualSpace, space };
 
                     //
-                    // after adding to spaceMap, can be removed from openSpaceSet
+                    // after adding to repeatOpenMap, can be removed from openSpaceSet
                     //
                     openSpaceSet.erase(flooredActualSpaceI);
                 }
