@@ -467,15 +467,10 @@ enum tbt_track_effect : uint8_t {
     PITCH_BEND = 10,
 };
 
-struct tbt_track_effect_change {
-    tbt_track_effect effect;
-    uint16_t value;
-};
-
 struct maps71 {
     std::map<uint32_t, std::array<uint8_t, 20> > notesMap;
     std::map<uint32_t, std::array<uint8_t, 2> > alternateTimeRegionsMap;
-    std::map<uint32_t, std::vector<tbt_track_effect_change> > trackEffectChangesMap;
+    std::map<uint32_t, std::map<tbt_track_effect, uint16_t> > trackEffectChangesMap;
 };
 
 struct maps70 {

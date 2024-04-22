@@ -228,11 +228,13 @@ computeTempoMap(
                     
                     const auto &changes = it->second;
 
-                    for (const auto &change : changes) {
+                    for (const auto &p : changes) {
 
-                        if (change.effect == TEMPO) {
+                        auto effect = p.first;
 
-                            auto newTempo = change.value;
+                        if (effect == TEMPO) {
+
+                            auto newTempo = p.second;
 
                             insertTempoMap_atActualSpace(newTempo, actualSpace, tempoMap);
 
@@ -1265,12 +1267,15 @@ TconvertToMidi(
 
                         const auto &changes = trackEffectChangesIt->second;
 
-                        for (const auto &change : changes) {
+                        for (const auto &p : changes) {
 
-                            switch(change.effect) {
+                            auto effect = p.first;
+                            auto value = p.second;
+
+                            switch(effect) {
                             case INSTRUMENT: {
 
-                                auto newInstrument = change.value;
+                                auto newInstrument = value;
 
                                 bool midiBankFlag;
 
@@ -1312,7 +1317,7 @@ TconvertToMidi(
                             }
                             case VOLUME: {
 
-                                auto newVolume = change.value;
+                                auto newVolume = value;
 
                                 volume = static_cast<uint8_t>(newVolume);
 
@@ -1331,7 +1336,7 @@ TconvertToMidi(
                                 break;
                             case PAN: {
                                 
-                                auto newPan = change.value;
+                                auto newPan = value;
 
                                 diff = (tick - lastEventTick).round();
 
@@ -1347,7 +1352,7 @@ TconvertToMidi(
                             }
                             case CHORUS: {
                                 
-                                auto newChorus = change.value;
+                                auto newChorus = value;
 
                                 diff = (tick - lastEventTick).round();
 
@@ -1363,7 +1368,7 @@ TconvertToMidi(
                             }
                             case REVERB: {
                                 
-                                auto newReverb = change.value;
+                                auto newReverb = value;
 
                                 diff = (tick - lastEventTick).round();
 
@@ -1379,7 +1384,7 @@ TconvertToMidi(
                             }
                             case MODULATION: {
                                 
-                                auto newModulation = change.value;
+                                auto newModulation = value;
 
                                 diff = (tick - lastEventTick).round();
 
@@ -1395,7 +1400,7 @@ TconvertToMidi(
                             }
                             case PITCH_BEND: {
                                 
-                                int16_t newPitchBend = static_cast<int16_t>(change.value); // -2400 to 2400
+                                int16_t newPitchBend = static_cast<int16_t>(value); // -2400 to 2400
                                 //
                                 // 0b0000000000000000 to 0b0011111111111111 (0 to 16383)
                                 //

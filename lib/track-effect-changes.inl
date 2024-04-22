@@ -67,9 +67,7 @@ parseTrackEffectChangesMapList(
 
             auto &changes = trackEffectChangesMap[space];
 
-            tbt_track_effect_change change{ static_cast<tbt_track_effect>(e), v };
-
-            changes.push_back(change);
+            changes[static_cast<tbt_track_effect>(e)] = v;
         }
     }
 
