@@ -137,172 +137,51 @@ computeChannelMap(
 
 
 void
-insertTempoMap_atActualSpace72(
-    const std::vector<tbt_track_effect_change> &changes,
+insertTempoMap_atActualSpace(
+    uint16_t newTempo,
     rational actualSpace,
     std::map<uint32_t, std::map<rational, uint16_t> > &tempoMap) {
 
-    for (const auto &change : changes) {
+    auto flooredActualSpace = actualSpace.floor();
 
-        if (change.effect != TEMPO) {
-            continue;
-        }
+    auto flooredActualSpaceI = flooredActualSpace.to_uint32();
 
-        auto newTempo = change.value;
+    auto spaceDiff = (actualSpace - flooredActualSpace);
 
-        auto flooredActualSpace = actualSpace.floor();
+    ASSERT(spaceDiff.is_nonnegative());
 
-        auto flooredActualSpaceI = flooredActualSpace.to_uint32();
+    if (spaceDiff.is_positive()) {
+        LOGW("tempo change at non-integral space: %f", actualSpace.to_double());
+    }
 
-        auto spaceDiff = (actualSpace - flooredActualSpace);
+    const auto &tempoMapIt = tempoMap.find(flooredActualSpaceI);
+    if (tempoMapIt != tempoMap.end()) {
 
-        ASSERT(spaceDiff.is_nonnegative());
+        auto &m = tempoMapIt->second;
 
-        if (spaceDiff.is_positive()) {
-            LOGW("tempo change at non-integral space: %f", actualSpace.to_double());
-        }
+        const auto mIt = m.find(actualSpace);
+        if (mIt != m.end()) {
 
-        const auto &tempoMapIt = tempoMap.find(flooredActualSpaceI);
-        if (tempoMapIt != tempoMap.end()) {
+            auto &tempo = mIt->second;
 
-            auto &m = tempoMapIt->second;
-
-            const auto mIt = m.find(actualSpace);
-            if (mIt != m.end()) {
-
-                auto &tempo = mIt->second;
-
-                if (tempo != newTempo) {
-                    LOGW("actualSpace %f has conflicting tempo changes: %d, %d", actualSpace.to_double(), tempo, newTempo);
-                }
-
-                tempo = newTempo;
-
-            } else {
-
-                m[actualSpace] = newTempo;
+            if (tempo != newTempo) {
+                LOGW("actualSpace %f has conflicting tempo changes: %d, %d", actualSpace.to_double(), tempo, newTempo);
             }
+
+            tempo = newTempo;
 
         } else {
 
-            std::map<rational, uint16_t> m;
-
             m[actualSpace] = newTempo;
-
-            tempoMap[flooredActualSpaceI] = m;
         }
-    }
-}
 
+    } else {
 
-template <size_t STRINGS_PER_TRACK>
-void
-insertTempoMap_atActualSpace(
-    const std::array<uint8_t, STRINGS_PER_TRACK + STRINGS_PER_TRACK + 4> &vsqs,
-    rational actualSpace,
-    std::map<uint32_t, std::map<rational, uint16_t> > &tempoMap) {
+        std::map<rational, uint16_t> m;
 
-    auto trackEffect = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 0];
+        m[actualSpace] = newTempo;
 
-    switch (trackEffect) {
-        case 'T': {
-
-            auto newTempo = static_cast<uint16_t>(vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3]);
-
-            auto flooredActualSpace = actualSpace.floor();
-
-            auto flooredActualSpaceI = flooredActualSpace.to_uint32();
-
-            auto spaceDiff = (actualSpace - flooredActualSpace);
-
-            ASSERT(spaceDiff.is_nonnegative());
-
-            if (spaceDiff.is_positive()) {
-                LOGW("tempo change at non-integral space: %f", actualSpace.to_double());
-            }
-
-            const auto &tempoMapIt = tempoMap.find(flooredActualSpaceI);
-            if (tempoMapIt != tempoMap.end()) {
-
-                auto &m = tempoMapIt->second;
-
-                const auto mIt = m.find(actualSpace);
-                if (mIt != m.end()) {
-
-                    auto &tempo = mIt->second;
-
-                    if (tempo != newTempo) {
-                        LOGW("actualSpace %f has conflicting tempo changes: %d, %d", actualSpace.to_double(), tempo, newTempo);
-                    }
-
-                    tempo = newTempo;
-
-                } else {
-
-                    m[actualSpace] = newTempo;
-                }
-
-            } else {
-
-                std::map<rational, uint16_t> m;
-
-                m[actualSpace] = newTempo;
-
-                tempoMap[flooredActualSpaceI] = m;
-            }
-
-            break;
-        }
-        case 't': {
-
-            auto newTempo = static_cast<uint16_t>(vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3] + 250);
-
-            auto flooredActualSpace = actualSpace.floor();
-
-            auto flooredActualSpaceI = flooredActualSpace.to_uint32();
-
-            auto spaceDiff = (actualSpace - flooredActualSpace);
-
-            ASSERT(spaceDiff.is_nonnegative());
-
-            if (spaceDiff.is_positive()) {
-                LOGW("tempo change at non-integral space: %f", actualSpace.to_double());
-            }
-
-            const auto &tempoMapIt = tempoMap.find(flooredActualSpaceI);
-            if (tempoMapIt != tempoMap.end()) {
-
-                auto &m = tempoMapIt->second;
-
-                const auto mIt = m.find(actualSpace);
-                if (mIt != m.end()) {
-
-                    auto &tempo = mIt->second;
-
-                    if (tempo != newTempo) {
-                        LOGW("actualSpace %f has conflicting tempo changes: %d, %d", actualSpace.to_double(), tempo, newTempo);
-                    }
-
-                    tempo = newTempo;
-
-                } else {
-
-                    m[actualSpace] = newTempo;
-                }
-
-            } else {
-
-                std::map<rational, uint16_t> m;
-
-                m[actualSpace] = newTempo;
-
-                tempoMap[flooredActualSpaceI] = m;
-            }
-
-            break;
-        }
-        default:
-            break;
+        tempoMap[flooredActualSpaceI] = m;
     }
 }
 
@@ -349,7 +228,17 @@ computeTempoMap(
                     
                     const auto &changes = it->second;
 
-                    insertTempoMap_atActualSpace72(changes, actualSpace, tempoMap);
+                    for (const auto &change : changes) {
+
+                        if (change.effect == TEMPO) {
+
+                            auto newTempo = change.value;
+
+                            insertTempoMap_atActualSpace(newTempo, actualSpace, tempoMap);
+
+                            break;
+                        }
+                    }
                 }
 
             } else {
@@ -359,7 +248,26 @@ computeTempoMap(
 
                     const auto &vsqs = it->second;
 
-                    insertTempoMap_atActualSpace<STRINGS_PER_TRACK>(vsqs, actualSpace, tempoMap);
+                    const auto &trackEffect = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 0];
+
+                    switch (trackEffect) {
+                    case 'T': {
+
+                        auto newTempo = static_cast<uint16_t>(vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3]);
+
+                        insertTempoMap_atActualSpace(newTempo, actualSpace, tempoMap);
+
+                        break;
+                    }
+                    case 't': {
+
+                        auto newTempo = static_cast<uint16_t>(vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3] + 250);
+
+                        insertTempoMap_atActualSpace(newTempo, actualSpace, tempoMap);
+
+                        break;
+                    }
+                    }
                 }
             }
 
