@@ -1,6 +1,20 @@
 # tbt-parser internal docs
 
 
+With GTest for testing:
+```
+cd cpp
+mkdir build-test
+cd build-test
+cmake -DBUILD_TESTS=ON -DGTEST_ROOT=/Users/brenton/development/github/googletest/build/install ..
+cmake --build . --target tbt-test-exe
+
+test/tbt-test
+```
+
+
+
+
 When processing MIDI, there are some common variable names and patterns in the code.
 
 
