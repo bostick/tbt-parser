@@ -63,7 +63,7 @@ parseMetadata(
 
     if constexpr (0x70 <= VERSION) {
         for (uint8_t track = 0; track < out.header.trackCount; track++) {
-            out.metadata.tracks[track].spaceCount = parseLE4(*it++, *it++, *it++, *it++);
+            out.metadata.tracks[track].spaceCount = parseLE4(it);
         }
     }
 
@@ -90,7 +90,7 @@ parseMetadata(
         }
 
         for (uint8_t track = 0; track < out.header.trackCount; track++) {
-            out.metadata.tracks[track].pitchBend = static_cast<int16_t>(parseLE2(*it++, *it++));
+            out.metadata.tracks[track].pitchBend = static_cast<int16_t>(parseLE2(it));
         }
     }
 

@@ -2089,11 +2089,14 @@ parseChunk(
 
     CHECK(it + 4 <= end, "out of data");
 
-    out.type = { *it++, *it++, *it++, *it++ };
+    out.type[0] = *it++;
+    out.type[1] = *it++;
+    out.type[2] = *it++;
+    out.type[3] = *it++;
 
     CHECK(it + 4 <= end, "out of data");
 
-    uint32_t len = parseBE4(*it++, *it++, *it++, *it++);
+    uint32_t len = parseBE4(it);
     
     CHECK(it + len <= end, "out of data");
     
@@ -2126,15 +2129,15 @@ parseHeader(
 
     CHECK(it2 + 2 <= end2, "out of data");
 
-    out.header.format = parseBE2(*it2++, *it2++);
+    out.header.format = parseBE2(it2);
 
     CHECK(it2 + 2 <= end2, "out of data");
 
-    out.header.trackCount = parseBE2(*it2++, *it2++);
+    out.header.trackCount = parseBE2(it2);
 
     CHECK(it2 + 2 <= end2, "out of data");
 
-    out.header.division = parseBE2(*it2++, *it2++);
+    out.header.division = parseBE2(it2);
 
     if (it2 != end2) {
         LOGW("bytes after header: %zu", (end2 - it2));
@@ -2420,7 +2423,7 @@ parseTrackEvent(
 
                 CHECK(len == 3, "len != 3");
 
-                auto microsPerBeat = parseBE4(0, *it++, *it++, *it++);
+                auto microsPerBeat = parseBE3(it);
 
                 out = TempoChangeEvent{deltaTime, microsPerBeat};
 

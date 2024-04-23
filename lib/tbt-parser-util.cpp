@@ -32,7 +32,11 @@
 
 
 uint16_t parseLE2(std::vector<uint8_t>::const_iterator &it) {
-    return static_cast<uint16_t>((*it++ << 0) | (*it++ << 8));
+    
+    auto d0 = *it++;
+    auto d1 = *it++;
+
+    return static_cast<uint16_t>((d0 << 0) | (d1 << 8));
 }
 
 
@@ -47,7 +51,13 @@ uint16_t parseLE2(uint8_t b0, uint8_t b1) {
 
 
 uint32_t parseLE4(std::vector<uint8_t>::const_iterator &it) {
-    return static_cast<uint32_t>((*it++ << 0) | (*it++ << 8) | (*it++ << 16) | (*it++ << 24));
+    
+    auto d0 = *it++;
+    auto d1 = *it++;
+    auto d2 = *it++;
+    auto d3 = *it++;
+
+    return static_cast<uint32_t>((d0 << 0) | (d1 << 8) | (d2 << 16) | (d3 << 24));
 }
 
 
@@ -62,7 +72,11 @@ uint32_t parseLE4(uint8_t b0, uint8_t b1, uint8_t b2, uint8_t b3) {
 
 
 uint16_t parseBE2(std::vector<uint8_t>::const_iterator &it) {
-    return static_cast<uint16_t>((*it++ << 8) | (*it++ << 0));
+    
+    auto d0 = *it++;
+    auto d1 = *it++;
+
+    return static_cast<uint16_t>((d0 << 8) | (d1 << 0));
 }
 
 
@@ -71,8 +85,24 @@ uint16_t parseBE2(uint8_t b0, uint8_t b1) {
 }
 
 
+uint32_t parseBE3(std::vector<uint8_t>::const_iterator &it) {
+    
+    auto d0 = *it++;
+    auto d1 = *it++;
+    auto d2 = *it++;
+
+    return static_cast<uint32_t>((0 << 24) | (d0 << 16) | (d1 << 8) | (d2 << 0));
+}
+
+
 uint32_t parseBE4(std::vector<uint8_t>::const_iterator &it) {
-    return static_cast<uint32_t>((*it++ << 24) | (*it++ << 16) | (*it++ << 8) | (*it++ << 0));
+    
+    auto d0 = *it++;
+    auto d1 = *it++;
+    auto d2 = *it++;
+    auto d3 = *it++;
+
+    return static_cast<uint32_t>((d0 << 24) | (d1 << 16) | (d2 << 8) | (d3 << 0));
 }
 
 
@@ -183,7 +213,7 @@ readPascal2String(
 
     CHECK(it + 2 <= end, "out of data");
 
-    auto len = parseLE2(*it++, *it++);
+    auto len = parseLE2(it);
 
     CHECK(it + len <= end, "out of data");
 
@@ -202,7 +232,7 @@ parseDeltaListChunk(
 
     CHECK(it + 2 <= end, "out of data");
 
-    auto count = parseLE2(*it++, *it++);
+    auto count = parseLE2(it);
 
     CHECK(count <= 0x1000, "out of data");
 
@@ -223,7 +253,7 @@ parseChunk4(
 
     CHECK(it + 4 <= end, "out of data");
 
-    auto count = parseLE4(*it++, *it++, *it++, *it++);
+    auto count = parseLE4(it);
 
     static const int MAX_SIGNED_INT32 = 0x7fffffff;
 
