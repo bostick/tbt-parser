@@ -99,12 +99,19 @@ jobs:
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest --build-config ${{ matrix.build_type }} --verbose --extra-verbose --output-on-failure
 
-    - name: Upload (Windows)
+    - name: Upload tbt-converter-exe (Windows)
       if: runner.os == 'Windows'
       uses: actions/upload-artifact@v4
       with:
         name: tbt-converter-exe
         path: ${{ steps.strings.outputs.build-output-dir }}/exe/Release/tbt-converter.exe
+
+    - name: Upload midi-info-exe (Windows)
+      if: runner.os == 'Windows'
+      uses: actions/upload-artifact@v4
+      with:
+        name: midi-info-exe
+        path: ${{ steps.strings.outputs.build-output-dir }}/exe/Release/midi-info.exe
 
 
 
