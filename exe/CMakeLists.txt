@@ -106,10 +106,21 @@ endif()
 
 add_test(
     NAME
-        tbt-converter-exe-test
+        tbt-converter-exe-black-test
     COMMAND
-        $<TARGET_FILE:tbt-converter-exe>
+        $<TARGET_FILE:tbt-converter-exe> --input-file ../../test/black.tbt
 )
+
+
+add_test(
+    NAME
+        midi-info-exe-black-test
+    COMMAND
+        $<TARGET_FILE:midi-info-exe> --input-file ../../test/black.mid
+)
+
+
+
 
 
 
