@@ -205,18 +205,6 @@ computeTempoMap(
 
         const auto &maps = t.body.mapsList[track];
 
-        //
-        // space is the visible space on screen for each track
-        // integer
-        // does not take alternate time regions into account
-        // not monotonic
-        // may skip around because of repeats
-        //
-        // actualSpace takes alternate time regions into account
-        // rational
-        // not monotonic
-        // may skip around because of repeats
-        //
         rational actualSpace = 0;
 
         for (uint32_t space = 0; space < trackSpaceCount;) {
@@ -284,11 +272,6 @@ computeTempoMap(
 
                         const auto &alternateTimeRegion = alternateTimeRegionsIt->second;
 
-                        //
-                        // The denominator of the Alternate Time Region for this space. For example, for triplets, this is 2.
-                        // The numerator of the Alternate Time Region for this space. For example, for triplets, this is 3.
-                        //
-
                         auto atr = rational{ alternateTimeRegion[0], alternateTimeRegion[1] };
 
                         space++;
@@ -352,13 +335,6 @@ computeRepeats(
     bool savedClose = false;
     uint8_t savedRepeats = 0;
 
-    //
-    // space is the visible space on screen for each track
-    // integer
-    // does not take alternate time regions into account
-    // not monotonic
-    // may skip around because of repeats
-    //
     for (uint32_t space = 0; space < barsSpaceCount;) {
 
         //
@@ -589,10 +565,6 @@ TconvertToMidi(
         // Emit events for tempo track
         //
         
-        //
-        // tick is MIDI ticks
-        // monotonic
-        //
         rational tick = 0;
         
         rational lastEventTick = 0;
@@ -828,16 +800,8 @@ TconvertToMidi(
         //
         pitchBend = static_cast<int16_t>(round(((static_cast<double>(pitchBend) + 2400.0) * 16383.0) / (2.0 * 2400.0)));
 
-        //
-        // tick is MIDI ticks
-        // monotonic
-        //
         rational tick = 0;
         
-        //
-        // actualSpace is the actual space for each track
-        // taking alternate time regions into account
-        //
         rational actualSpace = 0;
 
         rational lastEventTick = 0;
@@ -999,13 +963,6 @@ TconvertToMidi(
 
         const auto &maps = t.body.mapsList[track];
 
-        //
-        // space is the visible space on screen for each track
-        // integer
-        // does not take alternate time regions into account
-        // not monotonic
-        // may skip around because of repeats
-        //
         for (uint32_t space = 0; space < trackSpaceCount + 1;) { // space count, + 1 for handling repeats at end
 
             auto flooredActualSpace = actualSpace.floor();
@@ -1593,11 +1550,6 @@ TconvertToMidi(
 
                     const auto &alternateTimeRegionsIt = maps.alternateTimeRegionsMap.find(space);
                     if (alternateTimeRegionsIt != maps.alternateTimeRegionsMap.end()) {
-
-                        //
-                        // The denominator of the Alternate Time Region for this space. For example, for triplets, this is 2.
-                        // The numerator of the Alternate Time Region for this space. For example, for triplets, this is 3.
-                        //
 
                         const auto &alternateTimeRegion = alternateTimeRegionsIt->second;
 

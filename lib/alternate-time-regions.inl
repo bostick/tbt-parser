@@ -84,11 +84,6 @@ parseAlternateTimeRegionsMapList(
             const auto &alternateTimeRegionsIt = alternateTimeRegionsMap.find(space);
             if (alternateTimeRegionsIt != alternateTimeRegionsMap.end()) {
 
-                //
-                // The denominator of the Alternate Time Region for this space. For example, for triplets, this is 2.
-                // The numerator of the Alternate Time Region for this space. For example, for triplets, this is 3.
-                //
-
                 const auto &alternateTimeRegion = alternateTimeRegionsIt->second;
 
                 auto atr = rational{1} - rational{alternateTimeRegion[0], alternateTimeRegion[1]};
