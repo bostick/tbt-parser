@@ -813,19 +813,17 @@ TconvertToMidi(
         if constexpr (0x71 <= VERSION) {
             
             modulation = trackMetadata.modulation;
-            pitchBend = trackMetadata.pitchBend; // -2400 to 2400
+
+            //
+            // convert from (-2400, 2400) to (0b0000000000000000 to 0b0011111111111111) i.e. (0 to 16383)
+            //
+            pitchBend = (((rational(trackMetadata.pitchBend) + 2400) * 0b0011111111111111) / (2 * 2400)).round().to_int16();
             
         } else {
             
             modulation = 0;
-            pitchBend = 0;
+            pitchBend = 0b0010000000000000; // 8192
         }
-        //
-        // 0b0000000000000000 to 0b0011111111111111 (0 to 16383)
-        //
-        // important that value of 0 goes to value of 0x2000 (8192)
-        //
-        pitchBend = static_cast<int16_t>(round(((static_cast<double>(pitchBend) + 2400.0) * 16383.0) / (2.0 * 2400.0)));
 
         rational tick = 0;
 
@@ -1387,14 +1385,11 @@ TconvertToMidi(
                                 break;
                             }
                             case PITCH_BEND: {
-                                
-                                int16_t newPitchBend = static_cast<int16_t>(value); // -2400 to 2400
+
                                 //
-                                // 0b0000000000000000 to 0b0011111111111111 (0 to 16383)
+                                // convert from (-2400, 2400) to (0b0000000000000000 to 0b0011111111111111) i.e. (0 to 16383)
                                 //
-                                // important that value of 0 goes to value of 0x2000 (8192)
-                                //
-                                newPitchBend = static_cast<int16_t>(round(((static_cast<double>(newPitchBend) + 2400.0) * 16383.0) / (2.0 * 2400.0)));
+                                auto newPitchBend = (((rational(static_cast<int16_t>(value)) + 2400) * 0b0011111111111111) / (2 * 2400)).round().to_int16();
 
                                 diff = (roundedTick - lastEventTick);
 

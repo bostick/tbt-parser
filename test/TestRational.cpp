@@ -58,3 +58,28 @@ TEST_F(RationalTest, basic) {
 }
 
 
+TEST_F(RationalTest, pitchBend1) {
+    
+    //
+    // important that value of 0 goes to value of 0x2000 (8192)
+    //
+    auto a = (((rational(0) + 2400) * 16383) / (2 * 2400)).round();
+    auto b = rational{8192, 1};
+    EXPECT_EQ(a, b);
+    
+    a = (((rational(-2400) + 2400) * 16383) / (2 * 2400)).round();
+    b = rational{0, 1};
+    EXPECT_EQ(a, b);
+    
+    a = (((rational(2400) + 2400) * 16383) / (2 * 2400)).round();
+    b = rational{16383, 1};
+    EXPECT_EQ(a, b);
+}
+
+
+
+
+
+
+
+
