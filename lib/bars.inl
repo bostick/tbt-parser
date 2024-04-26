@@ -33,11 +33,14 @@ parseBarsMap(
     tbt_file_t &out) {
 
     if constexpr (0x70 <= VERSION) {
-
-        CHECK(it + out.header.barCount * 6 <= end, "unhandled");
         
-        std::vector<uint8_t> data(it, it + out.header.barCount * 6);
+        auto begin = it;
+
         it += out.header.barCount * 6;
+
+        CHECK(it <= end, "unhandled");
+
+        std::vector<uint8_t> data(begin, it);
 
         std::vector<std::array<uint8_t, 6> > parts;
 

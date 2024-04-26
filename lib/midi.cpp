@@ -346,6 +346,9 @@ computeRepeats(
             const auto &barsMapIt = t.body.barsMap.find(space);
             if (barsMapIt != t.body.barsMap.end()) {
 
+                //
+                // typical bar is at spaces: 0, 16, 32, etc.
+                //
                 auto bar = barsMapIt->second;
 
                 if (savedClose) {
@@ -403,6 +406,10 @@ computeRepeats(
             const auto &barsMapIt = t.body.barsMap.find(space);
             if (barsMapIt != t.body.barsMap.end()) {
 
+                //
+                // typical CLOSE, SINGLE, DOUBLE is at spaces: 15, 31, etc.
+                // typical OPEN is at spaces: 0, 16, 32, etc.
+                //
                 auto bar = barsMapIt->second;
 
                 auto change = static_cast<tbt_bar_line>(bar[0] & 0b00001111);
@@ -717,14 +724,7 @@ TconvertToMidi(
                     roundedTick = oldRoundedTick;
                 }
             }
-            
-            //     every bar: lyric for current bars ?
-            //     every space: lyric for current tempo
-            //     tmp;
 
-            // tmp.insert(tmp.end(), { 0x00, 0xFF, 0x05, 0x11 }); // lyric
-            // tmp.insert(tmp.end(), { 0x73, 0x70, 0x61, 0x63, 0x65, 0x20, 0x30, 0x20, 0x74, 0x65, 0x6d, 0x70, 0x6f, 0x20, 0x31, 0x32, 0x30, });
-        
             tick += TICKS_PER_SPACE;
 
             roundedTick = tick.round();
@@ -2141,20 +2141,21 @@ parseChunk(
     const std::vector<uint8_t>::const_iterator end,
     chunk &out) {
 
-    CHECK(it + 4 <= end, "out of data");
+    CHECK(it + 4 + 4 <= end, "out of data");
 
     std::memcpy(out.type.data(), &*it, 4);
 
     it += 4;
 
-    CHECK(it + 4 <= end, "out of data");
-
     uint32_t len = parseBE4(it);
     
-    CHECK(it + len <= end, "out of data");
+    auto begin = it;
     
-    out.data = std::vector<uint8_t>(it, it + len);
     it += len;
+
+    CHECK(it <= end, "out of data");
+
+    out.data = std::vector<uint8_t>(begin, it);
 
     return OK;
 }
@@ -2180,15 +2181,11 @@ parseHeader(
 
     auto end2 = c.data.cend();
 
-    CHECK(it2 + 2 <= end2, "out of data");
+    CHECK(it2 + 2 + 2 + 2 <= end2, "out of data");
 
     out.header.format = parseBE2(it2);
 
-    CHECK(it2 + 2 <= end2, "out of data");
-
     out.header.trackCount = parseBE2(it2);
-
-    CHECK(it2 + 2 <= end2, "out of data");
 
     out.header.division = parseBE2(it2);
 
@@ -2321,10 +2318,8 @@ parseTrackEvent(
         //
         // Polyphonic Key Pressure (Aftertouch)
         //
-        
-        CHECK(it + 1 <= end, "out of data");
 
-        it += 1;
+        it++;
 
         out = NullEvent{};
 
@@ -2461,8 +2456,6 @@ parseTrackEvent(
                 return ret;
             }
 
-            CHECK(it + len <= end, "out of data");
-
             switch (b) {
             case 0x2f: {
 
@@ -2476,6 +2469,8 @@ parseTrackEvent(
 
                 CHECK(len == 3, "len != 3");
 
+                CHECK(it + 3 <= end, "out of data");
+
                 auto microsPerBeat = parseBE3(it);
 
                 out = TempoChangeEvent{deltaTime, microsPerBeat};
@@ -2485,6 +2480,8 @@ parseTrackEvent(
             case 0x58: {
 
                 CHECK(len == 4, "len != 4");
+
+                CHECK(it + 4 <= end, "out of data");
 
                 auto numerator = *it++;
 
@@ -2510,8 +2507,13 @@ parseTrackEvent(
             }
             case 0x03: { // Sequence/Track Name
                 
-                std::string str(it, it + len);
+                auto begin = it;
+
                 it += len;
+
+                CHECK(it <= end, "out of data");
+
+                std::string str(begin, it);
 
                 out = TrackNameEvent{deltaTime, str};
 
@@ -2601,6 +2603,11 @@ parseTrack(
 
         if (std::holds_alternative<EndOfTrackEvent>(e)) {
 
+            //
+            // FluidSynth ignores bytes after EndOfTrack
+            //
+            // so just warn here
+            //
             if (it2 != end2) {
                 LOGW("bytes after EndOfTrack: %zu", (end2 - it2));
             }

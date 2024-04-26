@@ -128,7 +128,8 @@ parseVLQ(
 
         auto b = *it++;
 
-        out = (out << 7) | (b & 0b01111111);
+        out <<= 7;
+        out |= (b & 0b01111111);
 
         if ((b & 0b10000000) == 0b00000000) {
             break;
@@ -216,10 +217,11 @@ readPascal2String(
 
     auto len = parseLE2(it);
 
-    CHECK(it + len <= end, "out of data");
-
-    out = std::vector<char>(begin, it + len);
     it += len;
+
+    CHECK(it <= end, "out of data");
+
+    out = std::vector<char>(begin, it);
 
     return OK;
 }
@@ -237,10 +239,13 @@ parseDeltaListChunk(
 
     CHECK(count <= 0x1000, "out of data");
 
-    CHECK(it + 2 <= end, "out of data");
+    auto begin = it;
 
-    out = std::vector<uint8_t>(it, it + 2 * count);
     it += 2 * count;
+
+    CHECK(it <= end, "out of data");
+
+    out = std::vector<uint8_t>(begin, it);
 
     return OK;
 }
@@ -260,10 +265,13 @@ parseChunk4(
 
     CHECK(count <= MAX_SIGNED_INT32, "unhandled");
 
-    CHECK(it + static_cast<int32_t>(count) <= end, "unhandled");
+    auto begin = it;
 
-    out = std::vector<uint8_t>(it, it + static_cast<int32_t>(count));
-    it += static_cast<int32_t>(count);
+    it += count;
+
+    CHECK(it <= end, "unhandled");
+
+    out = std::vector<uint8_t>(begin, it);
 
     return OK;
 }

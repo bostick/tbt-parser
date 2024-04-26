@@ -176,11 +176,11 @@ TparseTbtBytes(
                 out.metadata.tracks = std::vector<tbt_track_metadata6e>(out.header.trackCount);
             }
 
-            CHECK(it + out.header.compressedMetadataLen <= end, "file is corrupted.");
-
             auto metadataToInflate_it = it;
 
             it += out.header.compressedMetadataLen;
+
+            CHECK(it <= end, "file is corrupted.");
 
             auto metadataToInflate_end = it;
 
@@ -286,27 +286,36 @@ TparseTbtBytes(
             auto strLen = *it;
 
             CHECK(it + 1 + strLen <= end, "file is corrupted.");
-            
-            out.metadata.title = std::vector<char>(it, it + 1 + strLen);
-            it += 1 + strLen;
-            
-            CHECK(it + 1 <= end, "file is corrupted.");
 
-            strLen = *it;
+            auto begin = it;
 
-            CHECK(it + 1 + strLen <= end, "file is corrupted.");
-            
-            out.metadata.artist = std::vector<char>(it, it + 1 + strLen);
             it += 1 + strLen;
-            
+
+            out.metadata.title = std::vector<char>(begin, it);
+
             CHECK(it + 1 <= end, "file is corrupted.");
 
             strLen = *it;
 
             CHECK(it + 1 + strLen <= end, "file is corrupted.");
 
-            out.metadata.comment = std::vector<char>(it, it + 1 + strLen);
+            begin = it;
+
             it += 1 + strLen;
+
+            out.metadata.artist = std::vector<char>(begin, it);
+
+            CHECK(it + 1 <= end, "file is corrupted.");
+
+            strLen = *it;
+
+            CHECK(it + 1 + strLen <= end, "file is corrupted.");
+
+            begin = it;
+
+            it += 1 + strLen;
+
+            out.metadata.comment = std::vector<char>(begin, it);
 
             //
             // Nothing to assert
