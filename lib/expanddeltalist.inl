@@ -93,71 +93,145 @@ expandDeltaList(
         uint32_t newSpace = static_cast<uint32_t>(dv.quot);
         uint32_t newSlot = static_cast<uint32_t>(dv.rem);
 
-        if (space == newSpace) {
+        if (y == x) {
 
-            CHECK(slot < newSlot, "unhandled");
+            if (space == newSpace) {
 
-            //
-            // continue filling current space;
-            //
-            // fill-in from slot to newSlot with value y;
-            //
+                CHECK(slot < newSlot, "unhandled");
 
-            for (uint32_t u = slot; u < newSlot; u++) {
+                //
+                // continue filling current space;
+                //
+                // fill-in from slot to newSlot with value y;
+                //
 
-                units[u] = y;
+                for (uint32_t u = slot; u < newSlot; u++) {
 
+                    units[u] = y;
+
+                    if (y != x) {
+                        hasNonDefaultValue = true;
+                    }
+                }
+
+            } else {
+
+                ASSERT(space < newSpace);
+
+                //
+                // finish filling current space
+                //
+
+                for (uint32_t u = slot; u < S; u++) {
+                    
+                    units[u] = y;
+                    
+                    if (y != x) {
+                        hasNonDefaultValue = true;
+                    }
+                }
+
+                if (hasNonDefaultValue) {
+
+                    map[space] = units;
+
+                    hasNonDefaultValue = false;
+                }
+
+                //
+                // completely start and finish any whole spaces between space + 1 and newSpace
+                //
                 if (y != x) {
-                    hasNonDefaultValue = true;
+
+                    for (uint32_t sp = space + 1; sp < newSpace; sp++) {
+
+                        map[space].fill(y);
+
+                        hasNonDefaultValue = false;
+                    }
+                }
+
+                //
+                // start filling new space
+                //
+                for (uint32_t u = 0; u < newSlot; u++) {
+                    
+                    units[u] = y;
+                    
+                    if (y != x) {
+                        hasNonDefaultValue = true;
+                    }
                 }
             }
 
         } else {
 
-            ASSERT(space < newSpace);
+            if (space == newSpace) {
 
-            //
-            // finish filling current space
-            //
+                CHECK(slot < newSlot, "unhandled");
 
-            for (uint32_t u = slot; u < S; u++) {
-                
-                units[u] = y;
-                
-                if (y != x) {
-                    hasNonDefaultValue = true;
+                //
+                // continue filling current space;
+                //
+                // fill-in from slot to newSlot with value y;
+                //
+
+                for (uint32_t u = slot; u < newSlot; u++) {
+
+                    units[u] = y;
+
+                    if (y != x) {
+                        hasNonDefaultValue = true;
+                    }
                 }
-            }
 
-            if (hasNonDefaultValue) {
+            } else {
 
-                map[space] = units;
+                ASSERT(space < newSpace);
 
-                hasNonDefaultValue = false;
-            }
+                //
+                // finish filling current space
+                //
 
-            //
-            // completely start and finish any whole spaces between space + 1 and newSpace
-            //
-            if (y != x) {
+                for (uint32_t u = slot; u < S; u++) {
+                    
+                    units[u] = y;
+                    
+                    if (y != x) {
+                        hasNonDefaultValue = true;
+                    }
+                }
 
-                for (uint32_t sp = space + 1; sp < newSpace; sp++) {
+                if (hasNonDefaultValue) {
 
-                    map[space].fill(y);
+                    map[space] = units;
 
                     hasNonDefaultValue = false;
                 }
-            }
 
-            //
-            // start filling new space
-            //
-            for (uint32_t u = 0; u < newSlot; u++) {
-                
-                units[u] = y;
-                
+                //
+                // completely start and finish any whole spaces between space + 1 and newSpace
+                //
                 if (y != x) {
-                    hasNonDefaultValue = true;
+
+                    for (uint32_t sp = space + 1; sp < newSpace; sp++) {
+
+                        map[space].fill(y);
+
+                        hasNonDefaultValue = false;
+                    }
+                }
+
+                //
+                // start filling new space
+                //
+                for (uint32_t u = 0; u < newSlot; u++) {
+                    
+                    units[u] = y;
+                    
+                    if (y != x) {
+                        hasNonDefaultValue = true;
+                    }
                 }
             }
         }
