@@ -613,13 +613,13 @@ TconvertToMidi(
             // TabIt uses floor(), but using round() is more accurate
             //
             // auto microsPerBeat = (MICROS_PER_MINUTE / tempoBPM).round();
-            auto microsPerBeat = (MICROS_PER_MINUTE / tempoBPM).floor();
+            auto microsPerBeat = (MICROS_PER_MINUTE.to_uint32() / tempoBPM);
 
             diff = (roundedTick - lastEventTick);
 
             tmp.push_back(TempoChangeEvent{
                 diff.to_int32(), // delta time
-                microsPerBeat.to_uint32()
+                microsPerBeat
             });
 
             lastEventTick = roundedTick;
@@ -687,7 +687,7 @@ TconvertToMidi(
                     // TabIt uses floor(), but using round() is more accurate
                     //
                     // auto microsPerBeat = (MICROS_PER_MINUTE / tempoBPM).round();
-                    auto microsPerBeat = (MICROS_PER_MINUTE / tempoBPM).floor();
+                    auto microsPerBeat = (MICROS_PER_MINUTE.to_uint32() / tempoBPM);
 
                     //
                     // increment by spaceDiff
@@ -704,7 +704,7 @@ TconvertToMidi(
 
                     tmp.push_back(TempoChangeEvent{
                         diff.to_int32(), // delta time
-                        microsPerBeat.to_uint32()
+                        microsPerBeat
                     });
 
                     lastEventTick = roundedTick;
