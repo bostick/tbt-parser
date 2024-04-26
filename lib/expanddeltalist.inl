@@ -53,6 +53,17 @@ expandDeltaList(
     );
 
     uint32_t unit = 0;
+
+    auto dv = std::div(static_cast<int>(unit), S);
+
+    auto space = static_cast<uint32_t>(dv.quot);
+    auto slot = static_cast<uint32_t>(dv.rem);
+
+    uint32_t newUnit;
+
+    uint32_t newSpace;
+    uint32_t newSlot;
+
     std::array<uint8_t, S> units{};
     bool hasNonDefaultValue = false;
 
@@ -81,19 +92,18 @@ expandDeltaList(
             y = s[0][1];
         }
 
-        auto dv = std::div(static_cast<int>(unit), S);
-
-        uint32_t space = static_cast<uint32_t>(dv.quot);
-        uint32_t slot = static_cast<uint32_t>(dv.rem);
-        
-        uint32_t newUnit = unit + n;
+        newUnit = unit + n;
 
         dv = std::div(static_cast<int>(newUnit), S);
 
-        uint32_t newSpace = static_cast<uint32_t>(dv.quot);
-        uint32_t newSlot = static_cast<uint32_t>(dv.rem);
+        newSpace = static_cast<uint32_t>(dv.quot);
+        newSlot = static_cast<uint32_t>(dv.rem);
 
         if (y == x) {
+
+            //
+            // using default value
+            //
 
             if (space == newSpace) {
 
@@ -104,15 +114,7 @@ expandDeltaList(
                 //
                 // fill-in from slot to newSlot with value y;
                 //
-
-                for (uint32_t u = slot; u < newSlot; u++) {
-
-                    units[u] = y;
-
-                    if (y != x) {
-                        hasNonDefaultValue = true;
-                    }
-                }
+                std::memset(units.data() + slot, y, (newSlot - slot));
 
             } else {
 
@@ -121,51 +123,34 @@ expandDeltaList(
                 //
                 // finish filling current space
                 //
-
-                for (uint32_t u = slot; u < S; u++) {
-                    
-                    units[u] = y;
-                    
-                    if (y != x) {
-                        hasNonDefaultValue = true;
-                    }
-                }
+                std::memset(units.data() + slot, y, (S - slot));
 
                 if (hasNonDefaultValue) {
+
+                    //
+                    // only insert into map if has non-default value
+                    //
 
                     map[space] = units;
 
                     hasNonDefaultValue = false;
                 }
 
-                //
-                // completely start and finish any whole spaces between space + 1 and newSpace
-                //
-                if (y != x) {
+                if (0 < newSlot) {
 
-                    for (uint32_t sp = space + 1; sp < newSpace; sp++) {
-
-                        map[space].fill(y);
-
-                        hasNonDefaultValue = false;
-                    }
-                }
-
-                //
-                // start filling new space
-                //
-                for (uint32_t u = 0; u < newSlot; u++) {
-                    
-                    units[u] = y;
-                    
-                    if (y != x) {
-                        hasNonDefaultValue = true;
-                    }
+                    //
+                    // start filling new space
+                    //
+                    std::memset(units.data(), y, (newSlot - 0));
                 }
             }
 
         } else {
 
+            //
+            // NOT using default value
+            //
+
             if (space == newSpace) {
 
                 CHECK(slot < newSlot, "unhandled");
@@ -175,15 +160,9 @@ expandDeltaList(
                 //
                 // fill-in from slot to newSlot with value y;
                 //
+                std::memset(units.data() + slot, y, (newSlot - slot));
 
-                for (uint32_t u = slot; u < newSlot; u++) {
-
-                    units[u] = y;
-
-                    if (y != x) {
-                        hasNonDefaultValue = true;
-                    }
-                }
+                hasNonDefaultValue = true;
 
             } else {
 
@@ -192,51 +171,43 @@ expandDeltaList(
                 //
                 // finish filling current space
                 //
+                std::memset(units.data() + slot, y, (S - slot));
 
-                for (uint32_t u = slot; u < S; u++) {
-                    
-                    units[u] = y;
-                    
-                    if (y != x) {
-                        hasNonDefaultValue = true;
-                    }
-                }
+                map[space] = units;
 
-                if (hasNonDefaultValue) {
-
-                    map[space] = units;
-
-                    hasNonDefaultValue = false;
-                }
+                hasNonDefaultValue = false;
 
                 //
                 // completely start and finish any whole spaces between space + 1 and newSpace
                 //
-                if (y != x) {
+                if (space + 1 < newSpace) {
 
                     for (uint32_t sp = space + 1; sp < newSpace; sp++) {
 
-                        map[space].fill(y);
+                        //
+                        // this is not actually exercised by any known .tbt file
+                        //
 
-                        hasNonDefaultValue = false;
+                        map[sp].fill(y);
                     }
                 }
 
-                //
-                // start filling new space
-                //
-                for (uint32_t u = 0; u < newSlot; u++) {
-                    
-                    units[u] = y;
-                    
-                    if (y != x) {
-                        hasNonDefaultValue = true;
-                    }
+                if (0 < newSlot) {
+
+                    //
+                    // start filling new space
+                    //
+                    std::memset(units.data() + 0, y, (newSlot - 0));
+
+                    hasNonDefaultValue = true;
                 }
             }
         }
 
         unit = newUnit;
+
+        space = newSpace;
+        slot = newSlot;
     }
 
 #ifndef NDEBUG
