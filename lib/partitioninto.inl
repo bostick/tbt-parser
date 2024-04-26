@@ -33,13 +33,13 @@ partitionInto(
 
     CHECK(data.size() % S == 0, "unhandled");
 
+    out.reserve(data.size() / S);
+
     for (size_t i = 0; i < data.size(); i += S) {
 
         std::array<uint8_t, S> part;
 
-        for (size_t j = 0; j < S; j++) {
-            part[j] = data[i + j];
-        }
+        std::memcpy(part.data(), data.data() + i, S);
 
         out.push_back(part);
     }
