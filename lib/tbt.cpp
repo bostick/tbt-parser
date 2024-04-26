@@ -62,13 +62,13 @@ TparseTbtBytes(
     // parse header
     //
 
-    memcpy(&out.header, &*it, HEADER_SIZE);
+    std::memcpy(&out.header, &*it, HEADER_SIZE);
 
     //
     // handle file corruption
     //
 
-    CHECK(memcmp(out.header.magic.data(), "TBT", 3) == 0, "file is corrupted. magic bytes do not match. expected: TBT, actual: %c%c%c", out.header.magic[0], out.header.magic[1], out.header.magic[2]);
+    CHECK(std::memcmp(out.header.magic.data(), "TBT", 3) == 0, "file is corrupted. magic bytes do not match. expected: TBT, actual: %c%c%c", out.header.magic[0], out.header.magic[1], out.header.magic[2]);
 
     if constexpr (0x68 <= VERSION) {
 

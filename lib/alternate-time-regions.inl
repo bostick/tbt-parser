@@ -34,7 +34,7 @@ parseAlternateTimeRegionsMapList(
 
     for (uint8_t track = 0; track < out.header.trackCount; track++) {
 
-        uint32_t trackSpaceCount = out.metadata.tracks[track].spaceCount;
+        auto trackSpaceCount = out.metadata.tracks[track].spaceCount;
 
         std::vector<uint8_t> alternateTimeRegionsDeltaListAcc;
         uint32_t dsqCount = 0;

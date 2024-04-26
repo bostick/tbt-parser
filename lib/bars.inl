@@ -53,7 +53,7 @@ parseBarsMap(
 
         for (const std::array<uint8_t, 6> &part : parts) {
 
-            uint32_t space = out.body.barsSpaceCount;
+            auto space = out.body.barsSpaceCount;
 
             out.body.barsSpaceCount += parseLE4(part[0], part[1], part[2], part[3]);
 

@@ -24,6 +24,9 @@
 
 #include "zlib.h"
 
+#include <cstring>
+
+
 #include "partitioninto.inl"
 #include "splitat.inl"
 
@@ -206,8 +209,6 @@ readPascal2String(
     std::vector<uint8_t>::const_iterator &it,
     const std::vector<uint8_t>::const_iterator end,
     std::vector<char> &out) {
-
-    (void)end;
 
     auto begin = it;
 

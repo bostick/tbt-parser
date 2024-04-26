@@ -546,7 +546,7 @@ TconvertToMidi(
     computeRepeats<VERSION, tbt_file_t>(t, barsSpaceCount, openSpaceSets, repeatCloseMaps);
 
 
-    out.header = midi_header{
+    out.header = {
         1, // format
         static_cast<uint16_t>(t.header.trackCount + 1), // track count, + 1 for tempo track
         TICKS_PER_BEAT.to_uint16() // division
@@ -589,7 +589,7 @@ TconvertToMidi(
             4, // numerator
             2, // denominator (as 2^d)
             24, // ticks per metronome click
-            8, // notated 32-notes in MIDI quarter notes
+            8 // notated 32-notes in MIDI quarter notes
         });
 
         lastEventTick += diff;
@@ -605,6 +605,8 @@ TconvertToMidi(
                 tempoBPM = t.header.tempo1;
             }
 
+            //
+            // convert BeatsPerMinute -> MicrosPerBeat
             //
             // TabIt uses floor(), but using round() is more accurate
             //
@@ -677,6 +679,8 @@ TconvertToMidi(
 
                     ASSERT(spaceDiff.is_nonnegative());
 
+                    //
+                    // convert BeatsPerMinute -> MicrosPerBeat
                     //
                     // TabIt uses floor(), but using round() is more accurate
                     //
@@ -764,8 +768,11 @@ TconvertToMidi(
             midiBank = 0;
         }
 
-        bool dontLetRing = ((trackMetadata.cleanGuitar & 0b10000000) == 0b10000000);
-        uint8_t midiProgram = (trackMetadata.cleanGuitar & 0b01111111);
+        bool dontLetRing;
+        uint8_t midiProgram;
+
+        dontLetRing = ((trackMetadata.cleanGuitar & 0b10000000) == 0b10000000);
+        midiProgram =  (trackMetadata.cleanGuitar & 0b01111111);
 
         uint8_t pan;
         if constexpr (0x6b <= VERSION) {
@@ -1067,7 +1074,7 @@ TconvertToMidi(
             const auto &notesMapIt = maps.notesMap.find(space);
 
             //
-            // Emit note offs
+            // Compute note offs and note ons and emit note offs
             //
             {
                 if (notesMapIt != maps.notesMap.end()) {
@@ -1182,7 +1189,7 @@ TconvertToMidi(
                     //
                     for (uint8_t string = 0; string < trackMetadata.stringCount; string++) {
 
-                        uint8_t off = offVsqs[string];
+                        auto off = offVsqs[string];
 
                         if (off == 0) {
                             continue;
@@ -1190,7 +1197,7 @@ TconvertToMidi(
 
                         ASSERT(off >= 0x80);
 
-                        uint8_t stringNote = off - 0x80;
+                        uint8_t stringNote = (off - 0x80);
 
                         stringNote += static_cast<uint8_t>(trackMetadata.tuning[string]);
 
@@ -1211,7 +1218,7 @@ TconvertToMidi(
                             diff.to_int32(), // delta time
                             channel,
                             midiNote,
-                            0
+                            0 // velocity
                         });
 
                         lastEventTick += diff;
@@ -1280,9 +1287,7 @@ TconvertToMidi(
                             }
                             case VOLUME: {
 
-                                auto newVolume = value;
-
-                                volume = static_cast<uint8_t>(newVolume);
+                                volume = static_cast<uint8_t>(value);
 
                                 break;
                             }
@@ -1299,14 +1304,14 @@ TconvertToMidi(
                                 break;
                             case PAN: {
                                 
-                                auto newPan = value;
+                                auto newPan = static_cast<uint8_t>(value);
 
                                 diff = (tick - lastEventTick).round();
 
                                 tmp.push_back(PanEvent{
                                     diff.to_int32(), // delta time
                                     channel,
-                                    static_cast<uint8_t>(newPan)
+                                    newPan
                                 });
 
                                 lastEventTick += diff;
@@ -1315,14 +1320,14 @@ TconvertToMidi(
                             }
                             case CHORUS: {
                                 
-                                auto newChorus = value;
+                                auto newChorus = static_cast<uint8_t>(value);
 
                                 diff = (tick - lastEventTick).round();
 
                                 tmp.push_back(ChorusEvent{
                                     diff.to_int32(), // delta time
                                     channel,
-                                    static_cast<uint8_t>(newChorus)
+                                    newChorus
                                 });
 
                                 lastEventTick += diff;
@@ -1331,14 +1336,14 @@ TconvertToMidi(
                             }
                             case REVERB: {
                                 
-                                auto newReverb = value;
+                                auto newReverb = static_cast<uint8_t>(value);
 
                                 diff = (tick - lastEventTick).round();
 
                                 tmp.push_back(ReverbEvent{
                                     diff.to_int32(), // delta time
                                     channel,
-                                    static_cast<uint8_t>(newReverb)
+                                    newReverb
                                 });
 
                                 lastEventTick += diff;
@@ -1347,14 +1352,14 @@ TconvertToMidi(
                             }
                             case MODULATION: {
                                 
-                                auto newModulation = value;
+                                auto newModulation = static_cast<uint8_t>(value);
 
                                 diff = (tick - lastEventTick).round();
 
                                 tmp.push_back(ModulationEvent{
                                     diff.to_int32(), // delta time
                                     channel,
-                                    static_cast<uint8_t>(newModulation)
+                                    newModulation
                                 });
 
                                 lastEventTick += diff;
@@ -1409,7 +1414,7 @@ TconvertToMidi(
                             auto newInstrument = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
                             dontLetRing = ((newInstrument & 0b10000000) == 0b10000000);
-                            midiProgram = (newInstrument & 0b01111111);
+                            midiProgram =  (newInstrument & 0b01111111);
 
                             diff = (tick - lastEventTick).round();
 
@@ -1509,7 +1514,7 @@ TconvertToMidi(
                     
                     for (uint8_t string = 0; string < trackMetadata.stringCount; string++) {
 
-                        uint8_t on = onVsqs[string];
+                        auto on = onVsqs[string];
 
                         if (on == 0 ||
                             on == MUTED ||
@@ -1613,7 +1618,7 @@ TconvertToMidi(
 
             for (uint8_t string = 0; string < trackMetadata.stringCount; string++) {
 
-                uint8_t off = offVsqs[string];
+                auto off = offVsqs[string];
 
                 if (off == 0) {
                     continue;
@@ -1642,7 +1647,7 @@ TconvertToMidi(
                     diff.to_int32(), // delta time
                     channel,
                     midiNote,
-                    0
+                    0 // velocity
                 });
 
                 lastEventTick += diff;
@@ -2001,7 +2006,7 @@ exportMidiBytes(
     {
         out.insert(out.end(), { 'M', 'T', 'h', 'd' }); // type
 
-        toDigitsBE(static_cast<uint32_t>(6), out); // length
+        toDigitsBE(static_cast<uint32_t>(2 + 2 + 2), out); // length
 
         toDigitsBE(static_cast<uint16_t>(m.header.format), out); // format
 
@@ -2097,10 +2102,9 @@ parseChunk(
 
     CHECK(it + 4 <= end, "out of data");
 
-    out.type[0] = *it++;
-    out.type[1] = *it++;
-    out.type[2] = *it++;
-    out.type[3] = *it++;
+    std::memcpy(out.type.data(), &*it, 4);
+
+    it += 4;
 
     CHECK(it + 4 <= end, "out of data");
 
@@ -2129,7 +2133,7 @@ parseHeader(
         return ret;
     }
 
-    CHECK(memcmp(c.type.data(), "MThd", 4) == 0, "expected MThd type");
+    CHECK(std::memcmp(c.type.data(), "MThd", 4) == 0, "expected MThd type");
 
     auto it2 = c.data.cbegin();
 
@@ -2339,7 +2343,7 @@ parseTrackEvent(
 
         auto channel = lo;
 
-        auto midiProgram = static_cast<uint8_t>(b & 0b01111111);
+        uint8_t midiProgram = (b & 0b01111111);
 
         out = ProgramChangeEvent{deltaTime, channel, midiProgram};
 
@@ -2532,7 +2536,7 @@ parseTrack(
         return ret;
     }
 
-    CHECK(memcmp(c.type.data(), "MTrk", 4) == 0, "expected MTrk type");
+    CHECK(std::memcmp(c.type.data(), "MTrk", 4) == 0, "expected MTrk type");
 
     std::vector<midi_track_event> track;
 
@@ -2576,7 +2580,7 @@ parseMidiBytes(
     const std::vector<uint8_t>::const_iterator end,
     midi_file &out) {
 
-    auto len = end - it;
+    auto len = (end - it);
 
     CHECK(len != 0, "empty file");
 
@@ -2625,6 +2629,9 @@ struct EventFileTimesTempoMapVisitor {
 
         runningTick += e.deltaTime;
 
+        //
+        // convert MicrosPerBeat -> MicrosPerTick
+        //
         auto newMicrosPerTick = rational(e.microsPerBeat) / TICKS_PER_BEAT;
 
         const auto &tempoMapIt = tempoMap.find(runningTick);
@@ -2642,7 +2649,7 @@ struct EventFileTimesTempoMapVisitor {
 
                 auto bBPM = (MICROS_PER_MINUTE / (newMicrosPerTick * TICKS_PER_BEAT));
 
-                LOGW("tick %f has conflicting tempo changes: %d, %d", runningTick.to_double(), aBPM.to_uint16(), bBPM.to_uint16());
+                LOGW("tick %f has conflicting tempo changes: %f, %f", runningTick.to_double(), aBPM.to_double(), bBPM.to_double());
             }
         }
 
@@ -2742,6 +2749,10 @@ struct EventFileTimesLastTicksVisitor {
 
         if (runningTick > lastTempoChangeTick) {
             lastTempoChangeTick = runningTick;
+
+            //
+            // convert MicrosPerBeat -> MicrosPerTick
+            //
             lastMicrosPerTick = rational(e.microsPerBeat) / TICKS_PER_BEAT;
         }
     }
@@ -3040,7 +3051,7 @@ midiFileInfo(const midi_file &m) {
         double lastNoteOnSec = times.lastNoteOnMicros / 1e6;
         double lastNoteOnMin = lastNoteOnSec / 60.0;
         double lastNoteOnHr = lastNoteOnMin / 60.0;
-        LOGI("   last Note On (wall): %.0f:%02.0f:%05.2f", floor(lastNoteOnHr), fmod(lastNoteOnMin, 60.0), fmod(lastNoteOnSec, 60.0));
+        LOGI("   last Note On (wall): %.0f:%02.0f:%05.2f", std::floor(lastNoteOnHr), std::fmod(lastNoteOnMin, 60.0), std::fmod(lastNoteOnSec, 60.0));
     } else {
         LOGI("   last Note On (wall): (none)");
     }
@@ -3048,7 +3059,7 @@ midiFileInfo(const midi_file &m) {
         double lastNoteOffSec = times.lastNoteOffMicros / 1e6;
         double lastNoteOffMin = lastNoteOffSec / 60.0;
         double lastNoteOffHr = lastNoteOffMin / 60.0;
-        LOGI("  last Note Off (wall): %.0f:%02.0f:%05.2f", floor(lastNoteOffHr), fmod(lastNoteOffMin, 60.0), fmod(lastNoteOffSec, 60.0));
+        LOGI("  last Note Off (wall): %.0f:%02.0f:%05.2f", std::floor(lastNoteOffHr), std::fmod(lastNoteOffMin, 60.0), std::fmod(lastNoteOffSec, 60.0));
     } else {
         LOGI("  last Note Off (wall): (none)");
     }
@@ -3056,7 +3067,7 @@ midiFileInfo(const midi_file &m) {
         double lastEndOfTrackSec = times.lastEndOfTrackMicros / 1e6;
         double lastEndOfTrackMin = lastEndOfTrackSec / 60.0;
         double lastEndOfTrackHr = lastEndOfTrackMin / 60.0;
-        LOGI("   End Of Track (wall): %.0f:%02.0f:%05.2f", floor(lastEndOfTrackHr), fmod(lastEndOfTrackMin, 60.0), fmod(lastEndOfTrackSec, 60.0));
+        LOGI("   End Of Track (wall): %.0f:%02.0f:%05.2f", std::floor(lastEndOfTrackHr), std::fmod(lastEndOfTrackMin, 60.0), std::fmod(lastEndOfTrackSec, 60.0));
     } else {
         LOGI("   End Of Track (wall): (none)");
     }

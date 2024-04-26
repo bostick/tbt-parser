@@ -56,10 +56,10 @@ parseTrackEffectChangesMapList(
 
         for (const auto &part : parts) {
 
-            uint16_t s = parseLE2(part[0], part[1]);
-            uint16_t e = parseLE2(part[2], part[3]);
-            uint16_t r = parseLE2(part[4], part[5]);
-            uint16_t v = parseLE2(part[6], part[7]);
+            auto s = parseLE2(part[0], part[1]);
+            auto e = static_cast<tbt_track_effect>(parseLE2(part[2], part[3]));
+            auto r = parseLE2(part[4], part[5]);
+            auto v = parseLE2(part[6], part[7]);
 
             CHECK(r == 0x02, "unhandled");
 
@@ -67,7 +67,7 @@ parseTrackEffectChangesMapList(
 
             auto &changes = trackEffectChangesMap[space];
 
-            changes[static_cast<tbt_track_effect>(e)] = v;
+            changes[e] = v;
         }
     }
 
