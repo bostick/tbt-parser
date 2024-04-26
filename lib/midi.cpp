@@ -831,6 +831,10 @@ TconvertToMidi(
 
         rational actualSpace = 0;
 
+        rational flooredActualSpace = 0;
+
+        uint32_t flooredActualSpaceI = 0;
+
         rational lastEventTick = 0;
 
         std::array<uint8_t, STRINGS_PER_TRACK> currentlyPlayingStrings{};
@@ -992,10 +996,6 @@ TconvertToMidi(
 
         for (uint32_t space = 0; space < trackSpaceCount + 1;) { // space count, + 1 for handling repeats at end
 
-            auto flooredActualSpace = actualSpace.floor();
-
-            auto flooredActualSpaceI = flooredActualSpace.to_uint32();
-
             {
                 //
                 // handle any repeat closes first
@@ -1045,6 +1045,10 @@ TconvertToMidi(
                         space = openStruct.space;
 
                         actualSpace = openStruct.actualSpace;
+
+                        flooredActualSpace = actualSpace.floor();
+
+                        flooredActualSpaceI = flooredActualSpace.to_uint16();
 
                         spaceDiff = (actualSpace - r.open);
 
@@ -1589,6 +1593,10 @@ TconvertToMidi(
 
                         actualSpace += atr;
 
+                        flooredActualSpace = actualSpace.floor();
+
+                        flooredActualSpaceI = flooredActualSpace.to_uint16();
+
                     } else {
 
                         tick += TICKS_PER_SPACE;
@@ -1598,6 +1606,10 @@ TconvertToMidi(
                         space++;
 
                         ++actualSpace;
+
+                        flooredActualSpace = actualSpace.floor();
+
+                        flooredActualSpaceI = flooredActualSpace.to_uint16();
                     }
 
                 } else {
@@ -1609,6 +1621,10 @@ TconvertToMidi(
                     space++;
 
                     actualSpace = space;
+
+                    flooredActualSpace = space;
+
+                    flooredActualSpaceI = space;
                 }
             }
 
