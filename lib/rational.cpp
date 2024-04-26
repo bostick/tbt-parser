@@ -18,6 +18,7 @@
 
 #include "tbt-parser/rational.h"
 
+#include "common/assert.h"
 #include "common/logging.h"
 
 #include <utility>
@@ -106,7 +107,11 @@ void rational::simplify() {
             return;
         }
     }
-    
+
+    //
+    // general case
+    //
+
     int64_t denom = gcd(n, d);
     n /= denom;
     d /= denom;
@@ -217,6 +222,10 @@ rational& rational::operator+=(const rational x) {
             }
         }
 
+        //
+        // general case
+        //
+
         n += x.n;
 
         simplify();
@@ -313,45 +322,36 @@ double rational::to_double() const {
     return static_cast<double>(n) / static_cast<double>(d);
 }
 
-uint16_t rational::to_uint16() const {
-    
-    if (n < 0) {
-        LOGE("NEGATIVE");
-    }
+int16_t rational::to_int16() const {
 
-    if (d == 1) {
-        return static_cast<uint16_t>(n);
-    }
+    ASSERT(d == 1);
 
-    LOGW("NON-INTEGER");
-
-    return static_cast<uint16_t>(n) / static_cast<uint16_t>(d);
+    return static_cast<int16_t>(n);
 }
 
-uint32_t rational::to_uint32() const {
+uint16_t rational::to_uint16() const {
+    
+    ASSERT(n >= 0);
 
-    if (n < 0) {
-        LOGE("NEGATIVE");
-    }
+    ASSERT(d == 1);
 
-    if (d == 1) {
-        return static_cast<uint32_t>(n);
-    }
-
-    LOGW("NON-INTEGER");
-
-    return static_cast<uint32_t>(n) / static_cast<uint32_t>(d);
+    return static_cast<uint16_t>(n);
 }
 
 int32_t rational::to_int32() const {
 
-    if (d == 1) {
-        return static_cast<int32_t>(n);
-    }
+    ASSERT(d == 1);
 
-    LOGW("NON-INTEGER");
+    return static_cast<int32_t>(n);
+}
 
-    return static_cast<int32_t>(n) / static_cast<int32_t>(d);
+uint32_t rational::to_uint32() const {
+
+    ASSERT(n >= 0);
+
+    ASSERT(d == 1);
+
+    return static_cast<uint32_t>(n);
 }
 
 rational rational::floor() const {
@@ -367,10 +367,33 @@ rational rational::floor() const {
 rational rational::round() const {
     
     if (d == 1) {
+
         return *this;
+
+    } else if (d == 2) {
+
+        //
+        // we already know n is odd, since the denominator is 2
+        //
+
+        if (n % 4 == 1) {
+
+            return { (n - 1) / 2, 1 };
+
+        } else {
+
+            //
+            // n % 4 == 3
+            //
+            return { (n + 1) / 2, 1 };
+        }
     }
 
-    return { static_cast<int64_t>(::round(to_double())), 1 };
+    //
+    // general case
+    //
+
+    return { static_cast<int64_t>(std::round(to_double())), 1 };
 }
 
 
