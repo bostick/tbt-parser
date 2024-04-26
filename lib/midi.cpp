@@ -569,20 +569,22 @@ TconvertToMidi(
         
         rational tick = 0;
         
+        rational roundedTick = 0;
+
         rational lastEventTick = 0;
         
         tmp.clear();
 
-        auto diff = (tick - lastEventTick).round();
+        auto diff = (roundedTick - lastEventTick);
 
         tmp.push_back(TrackNameEvent{
             diff.to_int32(), // delta time
             "tbt-parser MIDI - Track 0"
         });
 
-        lastEventTick += diff;
+        lastEventTick = roundedTick;
 
-        diff = (tick - lastEventTick).round();
+        diff = (roundedTick - lastEventTick);
 
         tmp.push_back(TimeSignatureEvent{
             diff.to_int32(), // delta time
@@ -592,7 +594,7 @@ TconvertToMidi(
             8 // notated 32-notes in MIDI quarter notes
         });
 
-        lastEventTick += diff;
+        lastEventTick = roundedTick;
 
         //
         // Emit tempo
@@ -613,14 +615,14 @@ TconvertToMidi(
             // auto microsPerBeat = (MICROS_PER_MINUTE / tempoBPM).round();
             auto microsPerBeat = (MICROS_PER_MINUTE / tempoBPM).floor();
 
-            diff = (tick - lastEventTick).round();
+            diff = (roundedTick - lastEventTick);
 
             tmp.push_back(TempoChangeEvent{
                 diff.to_int32(), // delta time
                 microsPerBeat.to_uint32()
             });
 
-            lastEventTick += diff;
+            lastEventTick = roundedTick;
         }
 
         auto &repeatCloseMap = repeatCloseMaps[0];
@@ -690,21 +692,29 @@ TconvertToMidi(
                     //
                     // increment by spaceDiff
                     //
+                    auto oldTick = tick;
+
+                    auto oldRoundedTick = roundedTick;
+
                     tick += spaceDiff * TICKS_PER_SPACE;
 
-                    diff = (tick - lastEventTick).round();
+                    roundedTick = tick.round();
+
+                    diff = (roundedTick - lastEventTick);
 
                     tmp.push_back(TempoChangeEvent{
                         diff.to_int32(), // delta time
                         microsPerBeat.to_uint32()
                     });
 
-                    lastEventTick += diff;
+                    lastEventTick = roundedTick;
 
                     //
                     // restore tick
                     //
-                    tick -= spaceDiff * TICKS_PER_SPACE;
+                    tick = oldTick;
+
+                    roundedTick = oldRoundedTick;
                 }
             }
             
@@ -717,6 +727,8 @@ TconvertToMidi(
         
             tick += TICKS_PER_SPACE;
 
+            roundedTick = tick.round();
+
             space++;
 
         } // for space
@@ -727,6 +739,8 @@ TconvertToMidi(
 
         tick -= TICKS_PER_SPACE;
 
+        roundedTick = tick.round();
+
 #ifndef NDEBUG
         for (const auto &repeatCloseMapIt : repeatCloseMap) {
             const auto &r = repeatCloseMapIt.second;
@@ -734,13 +748,13 @@ TconvertToMidi(
         }
 #endif // NDEBUG
 
-        diff = (tick - lastEventTick).round();
+        diff = (roundedTick - lastEventTick);
 
         tmp.push_back(EndOfTrackEvent{
             diff.to_int32() // delta time
         });
 
-        lastEventTick += diff;
+        lastEventTick = roundedTick;
 
         out.tracks.push_back(tmp);
 
@@ -814,7 +828,9 @@ TconvertToMidi(
         pitchBend = static_cast<int16_t>(round(((static_cast<double>(pitchBend) + 2400.0) * 16383.0) / (2.0 * 2400.0)));
 
         rational tick = 0;
-        
+
+        rational roundedTick = 0;
+
         rational actualSpace = 0;
 
         rational lastEventTick = 0;
@@ -823,14 +839,14 @@ TconvertToMidi(
 
         tmp.clear();
 
-        auto diff = (tick - lastEventTick).round();
+        auto diff = (roundedTick - lastEventTick);
 
         tmp.push_back(TrackNameEvent{
             diff.to_int32(), // delta time
             std::string("tbt-parser MIDI - Track ") + std::to_string(track + 1)
         });
 
-        lastEventTick += diff;
+        lastEventTick = roundedTick;
 
         if (midiBank != 0) {
 
@@ -840,7 +856,7 @@ TconvertToMidi(
             //
             uint8_t midiBankMSB = midiBank;
 
-            diff = (tick - lastEventTick).round();
+            diff = (roundedTick - lastEventTick);
 
             tmp.push_back(BankSelectMSBEvent{
                 diff.to_int32(), // delta time
@@ -848,10 +864,10 @@ TconvertToMidi(
                 midiBankMSB
             });
 
-            lastEventTick += diff;
+            lastEventTick = roundedTick;
         }
 
-        diff = (tick - lastEventTick).round();
+        diff = (roundedTick - lastEventTick);
 
         tmp.push_back(ProgramChangeEvent{
             diff.to_int32(), // delta time
@@ -859,9 +875,9 @@ TconvertToMidi(
             midiProgram
         });
 
-        lastEventTick += diff;
+        lastEventTick = roundedTick;
 
-        diff = (tick - lastEventTick).round();
+        diff = (roundedTick - lastEventTick);
 
         tmp.push_back(PanEvent{
             diff.to_int32(), // delta time
@@ -869,9 +885,9 @@ TconvertToMidi(
             pan
         });
 
-        lastEventTick += diff;
+        lastEventTick = roundedTick;
 
-        diff = (tick - lastEventTick).round();
+        diff = (roundedTick - lastEventTick);
 
         tmp.push_back(ReverbEvent{
             diff.to_int32(), // delta time
@@ -879,9 +895,9 @@ TconvertToMidi(
             reverb
         });
 
-        lastEventTick += diff;
+        lastEventTick = roundedTick;
 
-        diff = (tick - lastEventTick).round();
+        diff = (roundedTick - lastEventTick);
 
         tmp.push_back(ChorusEvent{
             diff.to_int32(), // delta time
@@ -889,9 +905,9 @@ TconvertToMidi(
             chorus
         });
 
-        lastEventTick += diff;
+        lastEventTick = roundedTick;
 
-        diff = (tick - lastEventTick).round();
+        diff = (roundedTick - lastEventTick);
 
         tmp.push_back(ModulationEvent{
             diff.to_int32(), // delta time
@@ -899,14 +915,14 @@ TconvertToMidi(
             modulation
         });
 
-        lastEventTick += diff;
+        lastEventTick = roundedTick;
 
         //
         // RPN Parameter MSB 0, RPN Parameter LSB 0 = RPN Parameter 0
         // RPN Parameter 0 is standardized for pitch bend range
         //
 
-        diff = (tick - lastEventTick).round();
+        diff = (roundedTick - lastEventTick);
 
         tmp.push_back(RPNParameterMSBEvent{
             diff.to_int32(), // delta time
@@ -914,9 +930,9 @@ TconvertToMidi(
             0
         });
 
-        lastEventTick += diff;
+        lastEventTick = roundedTick;
 
-        diff = (tick - lastEventTick).round();
+        diff = (roundedTick - lastEventTick);
 
         tmp.push_back(RPNParameterLSBEvent{
             diff.to_int32(), // delta time
@@ -924,9 +940,9 @@ TconvertToMidi(
             0
         });
 
-        lastEventTick += diff;
+        lastEventTick = roundedTick;
 
-        diff = (tick - lastEventTick).round();
+        diff = (roundedTick - lastEventTick);
 
         tmp.push_back(DataEntryMSBEvent{
             diff.to_int32(), // delta time
@@ -934,9 +950,9 @@ TconvertToMidi(
             24 // semi-tones
         });
 
-        lastEventTick += diff;
+        lastEventTick = roundedTick;
 
-        diff = (tick - lastEventTick).round();
+        diff = (roundedTick - lastEventTick);
 
         tmp.push_back(DataEntryLSBEvent{
             diff.to_int32(), // delta time
@@ -944,9 +960,9 @@ TconvertToMidi(
             0 // cents
         });
 
-        lastEventTick += diff;
+        lastEventTick = roundedTick;
 
-        diff = (tick - lastEventTick).round();
+        diff = (roundedTick - lastEventTick);
 
         tmp.push_back(PitchBendEvent{
             diff.to_int32(), // delta time
@@ -954,7 +970,7 @@ TconvertToMidi(
             pitchBend
         });
 
-        lastEventTick += diff;
+        lastEventTick = roundedTick;
 
         uint32_t trackSpaceCount;
         if constexpr (0x70 <= VERSION) {
@@ -1016,6 +1032,8 @@ TconvertToMidi(
                             // now backup by the difference between flooredActualSpace and actualSpace
                             //
                             tick -= spaceDiff * TICKS_PER_SPACE;
+
+                            roundedTick = tick.round();
                         }
 
                         //
@@ -1044,6 +1062,8 @@ TconvertToMidi(
                             // now scoot up by the difference between actualSpace and r.open
                             //
                             tick += spaceDiff * TICKS_PER_SPACE;
+
+                            roundedTick = tick.round();
                         }
 
                         r.repeats--;
@@ -1212,7 +1232,7 @@ TconvertToMidi(
                             midiNote = stringNote + STRING_MIDI_NOTE_LE6A[string];
                         }
 
-                        diff = (tick - lastEventTick).round();
+                        diff = (roundedTick - lastEventTick);
 
                         tmp.push_back(NoteOffEvent{
                             diff.to_int32(), // delta time
@@ -1221,7 +1241,7 @@ TconvertToMidi(
                             0 // velocity
                         });
 
-                        lastEventTick += diff;
+                        lastEventTick = roundedTick;
                     }
                 }
             }
@@ -1262,7 +1282,7 @@ TconvertToMidi(
                                     //
                                     uint8_t midiBankMSB = midiBank;
                                     
-                                    diff = (tick - lastEventTick).round();
+                                    diff = (roundedTick - lastEventTick);
 
                                     tmp.push_back(BankSelectMSBEvent{
                                         diff.to_int32(), // delta time
@@ -1270,10 +1290,10 @@ TconvertToMidi(
                                         midiBankMSB
                                     });
 
-                                    lastEventTick += diff;
+                                    lastEventTick = roundedTick;
                                 }
 
-                                diff = (tick - lastEventTick).round();
+                                diff = (roundedTick - lastEventTick);
 
                                 tmp.push_back(ProgramChangeEvent{
                                     diff.to_int32(), // delta time
@@ -1281,7 +1301,7 @@ TconvertToMidi(
                                     midiProgram
                                 });
 
-                                lastEventTick += diff;
+                                lastEventTick = roundedTick;
 
                                 break;
                             }
@@ -1306,7 +1326,7 @@ TconvertToMidi(
                                 
                                 auto newPan = static_cast<uint8_t>(value);
 
-                                diff = (tick - lastEventTick).round();
+                                diff = (roundedTick - lastEventTick);
 
                                 tmp.push_back(PanEvent{
                                     diff.to_int32(), // delta time
@@ -1314,7 +1334,7 @@ TconvertToMidi(
                                     newPan
                                 });
 
-                                lastEventTick += diff;
+                                lastEventTick = roundedTick;
 
                                 break;
                             }
@@ -1322,7 +1342,7 @@ TconvertToMidi(
                                 
                                 auto newChorus = static_cast<uint8_t>(value);
 
-                                diff = (tick - lastEventTick).round();
+                                diff = (roundedTick - lastEventTick);
 
                                 tmp.push_back(ChorusEvent{
                                     diff.to_int32(), // delta time
@@ -1330,7 +1350,7 @@ TconvertToMidi(
                                     newChorus
                                 });
 
-                                lastEventTick += diff;
+                                lastEventTick = roundedTick;
 
                                 break;
                             }
@@ -1338,7 +1358,7 @@ TconvertToMidi(
                                 
                                 auto newReverb = static_cast<uint8_t>(value);
 
-                                diff = (tick - lastEventTick).round();
+                                diff = (roundedTick - lastEventTick);
 
                                 tmp.push_back(ReverbEvent{
                                     diff.to_int32(), // delta time
@@ -1346,7 +1366,7 @@ TconvertToMidi(
                                     newReverb
                                 });
 
-                                lastEventTick += diff;
+                                lastEventTick = roundedTick;
 
                                 break;
                             }
@@ -1354,7 +1374,7 @@ TconvertToMidi(
                                 
                                 auto newModulation = static_cast<uint8_t>(value);
 
-                                diff = (tick - lastEventTick).round();
+                                diff = (roundedTick - lastEventTick);
 
                                 tmp.push_back(ModulationEvent{
                                     diff.to_int32(), // delta time
@@ -1362,7 +1382,7 @@ TconvertToMidi(
                                     newModulation
                                 });
 
-                                lastEventTick += diff;
+                                lastEventTick = roundedTick;
 
                                 break;
                             }
@@ -1376,7 +1396,7 @@ TconvertToMidi(
                                 //
                                 newPitchBend = static_cast<int16_t>(round(((static_cast<double>(newPitchBend) + 2400.0) * 16383.0) / (2.0 * 2400.0)));
 
-                                diff = (tick - lastEventTick).round();
+                                diff = (roundedTick - lastEventTick);
 
                                 tmp.push_back(PitchBendEvent{
                                     diff.to_int32(), // delta time
@@ -1384,7 +1404,7 @@ TconvertToMidi(
                                     newPitchBend
                                 });
 
-                                lastEventTick += diff;
+                                lastEventTick = roundedTick;
 
                                 break;
                             }
@@ -1416,7 +1436,7 @@ TconvertToMidi(
                             dontLetRing = ((newInstrument & 0b10000000) == 0b10000000);
                             midiProgram =  (newInstrument & 0b01111111);
 
-                            diff = (tick - lastEventTick).round();
+                            diff = (roundedTick - lastEventTick);
 
                             tmp.push_back(ProgramChangeEvent{
                                 diff.to_int32(), // delta time
@@ -1424,7 +1444,7 @@ TconvertToMidi(
                                 midiProgram
                             });
 
-                            lastEventTick += diff;
+                            lastEventTick = roundedTick;
 
                             break;
                         }
@@ -1452,7 +1472,7 @@ TconvertToMidi(
 
                             auto newChorus = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
-                            diff = (tick - lastEventTick).round();
+                            diff = (roundedTick - lastEventTick);
 
                             tmp.push_back(ChorusEvent{
                                 diff.to_int32(), // delta time
@@ -1460,7 +1480,7 @@ TconvertToMidi(
                                 newChorus
                             });
 
-                            lastEventTick += diff;
+                            lastEventTick = roundedTick;
 
                             break;
                         }
@@ -1468,7 +1488,7 @@ TconvertToMidi(
 
                             auto newPan = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
-                            diff = (tick - lastEventTick).round();
+                            diff = (roundedTick - lastEventTick);
 
                             tmp.push_back(PanEvent{
                                 diff.to_int32(), // delta time
@@ -1476,7 +1496,7 @@ TconvertToMidi(
                                 newPan
                             });
 
-                            lastEventTick += diff;
+                            lastEventTick = roundedTick;
 
                             break;
                         }
@@ -1484,7 +1504,7 @@ TconvertToMidi(
 
                             auto newReverb = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
-                            diff = (tick - lastEventTick).round();
+                            diff = (roundedTick - lastEventTick);
 
                             tmp.push_back(ReverbEvent{
                                 diff.to_int32(), // delta time
@@ -1492,7 +1512,7 @@ TconvertToMidi(
                                 newReverb
                             });
 
-                            lastEventTick += diff;
+                            lastEventTick = roundedTick;
 
                             break;
                         }
@@ -1539,7 +1559,7 @@ TconvertToMidi(
                             midiNote = stringNote + STRING_MIDI_NOTE_LE6A[string];
                         }
 
-                        diff = (tick - lastEventTick).round();
+                        diff = (roundedTick - lastEventTick);
 
                         tmp.push_back(NoteOnEvent{
                             diff.to_int32(), // delta time
@@ -1548,7 +1568,7 @@ TconvertToMidi(
                             volume // velocity
                         });
 
-                        lastEventTick += diff;
+                        lastEventTick = roundedTick;
                     }
                 }
             }
@@ -1568,6 +1588,8 @@ TconvertToMidi(
 
                         tick += (atr * TICKS_PER_SPACE);
 
+                        roundedTick = tick.round();
+
                         space++;
 
                         actualSpace += atr;
@@ -1575,6 +1597,8 @@ TconvertToMidi(
                     } else {
 
                         tick += TICKS_PER_SPACE;
+
+                        roundedTick = tick.round();
 
                         space++;
 
@@ -1584,7 +1608,9 @@ TconvertToMidi(
                 } else {
 
                     tick += TICKS_PER_SPACE;
-                    
+
+                    roundedTick = tick.round();
+
                     space++;
 
                     actualSpace = space;
@@ -1598,10 +1624,14 @@ TconvertToMidi(
         //
 
         tick -= TICKS_PER_SPACE;
+        
+        roundedTick = tick.round();
+        
         --actualSpace;
 
 #ifndef NDEBUG
         ASSERT(tick == tickCount);
+        ASSERT(roundedTick == tickCount);
         ASSERT(actualSpace == barsSpaceCount);
         for (const auto &repeatCloseMapIt : repeatCloseMap) {
             const auto &r = repeatCloseMapIt.second;
@@ -1641,7 +1671,7 @@ TconvertToMidi(
                     midiNote = stringNote + STRING_MIDI_NOTE_LE6A[string];
                 }
 
-                diff = (tick - lastEventTick).round();
+                diff = (roundedTick - lastEventTick);
 
                 tmp.push_back(NoteOffEvent{
                     diff.to_int32(), // delta time
@@ -1650,17 +1680,17 @@ TconvertToMidi(
                     0 // velocity
                 });
 
-                lastEventTick += diff;
+                lastEventTick = roundedTick;
             }
         }
 
-        diff = (tick - lastEventTick).round();
+        diff = (roundedTick - lastEventTick);
 
         tmp.push_back(EndOfTrackEvent{
             diff.to_int32() // delta time
         });
 
-        lastEventTick += diff;
+        lastEventTick = roundedTick;
 
         out.tracks.push_back(tmp);
 
