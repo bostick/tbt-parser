@@ -2321,6 +2321,8 @@ parseTrackEvent(
 
         it++;
 
+        ASSERT(deltaTime == 0 && "deltaTime for NullEvent must be 0");
+
         out = NullEvent{};
 
         return OK;
@@ -2371,7 +2373,8 @@ parseTrackEvent(
             out = RPNParameterMSBEvent{deltaTime, channel, b};
             return OK;
         default:
-            out = NullEvent{deltaTime};
+            ASSERT(deltaTime == 0 && "deltaTime for NullEvent must be 0");
+            out = NullEvent{};
             return OK;
         }
     }
@@ -2390,6 +2393,8 @@ parseTrackEvent(
         //
         // Channel Pressure (After-touch)
         //
+
+        ASSERT(deltaTime == 0 && "deltaTime for NullEvent must be 0");
 
         out = NullEvent{};
 
@@ -2437,6 +2442,8 @@ parseTrackEvent(
 
                 tmp.push_back(b);
             }
+
+            ASSERT(deltaTime == 0 && "deltaTime for NullEvent must be 0");
 
             out = NullEvent{};
 
@@ -2501,7 +2508,9 @@ parseTrackEvent(
                 
                 it += len;
 
-                out = NullEvent{deltaTime};
+                ASSERT(deltaTime == 0 && "deltaTime for NullEvent must be 0");
+
+                out = NullEvent{};
 
                 return OK;
             }
@@ -2533,7 +2542,9 @@ parseTrackEvent(
 
                 it += len;
 
-                out = NullEvent{deltaTime};
+                ASSERT(deltaTime == 0 && "deltaTime for NullEvent must be 0");
+
+                out = NullEvent{};
 
                 return OK;
             }
@@ -2757,7 +2768,7 @@ struct EventFileTimesTempoMapVisitor {
     }
 
     void operator()(const NullEvent &e) {
-        runningTick += e.deltaTime;
+        (void)e;
     }
 
     void operator()(const TrackNameEvent &e) {
@@ -2873,7 +2884,7 @@ struct EventFileTimesLastTicksVisitor {
     }
 
     void operator()(const NullEvent &e) {
-        runningTick += e.deltaTime;
+        (void)e;
     }
 
     void operator()(const TrackNameEvent &e) {

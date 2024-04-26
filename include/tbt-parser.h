@@ -581,7 +581,6 @@ struct midi_header {
 
 
 struct NullEvent {
-    int32_t deltaTime;
 };
 
 struct TimeSignatureEvent {
