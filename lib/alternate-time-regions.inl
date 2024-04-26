@@ -67,17 +67,19 @@ parseAlternateTimeRegionsMapList(
             }
         }
 
+        auto &alternateTimeRegionsMap = out.body.mapsList[track].alternateTimeRegionsMap;
+
         Status ret = expandDeltaList<2>(
             alternateTimeRegionsDeltaListAcc,
             dsqCount,
             1,
-            out.body.mapsList[track].alternateTimeRegionsMap);
+            alternateTimeRegionsMap);
 
         if (ret != OK) {
             return ret;
         }
 
-#if 0
+#ifndef NDEBUG
         rational alternateTimeRegionsCorrection = 0;
         for (uint32_t space = 0; space < trackSpaceCount; space++) {
 
@@ -93,7 +95,7 @@ parseAlternateTimeRegionsMapList(
         }
 
         ASSERT(rational(out.metadata.tracks[track].spaceCount) == rational(out.body.barsSpaceCount) + alternateTimeRegionsCorrection);
-#endif
+#endif // NDEBUG
     }
 
     return OK;

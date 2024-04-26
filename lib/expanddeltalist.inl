@@ -165,7 +165,11 @@ expandDeltaList(
         unit = newUnit;
     }
 
+#ifndef NDEBUG
     ASSERT(unit == unitCount);
+#else
+    (void)unitCount;
+#endif // NDEBUG
 
     return OK;
 }

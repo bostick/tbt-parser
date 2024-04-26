@@ -20,9 +20,17 @@
 
 #include "common/abort.h"
 
+#ifdef NDEBUG
+
+#define ASSERT(cond) ((void)0)
+
+#else
+
 #define ASSERT(cond) \
    do { \
       if (!(cond)) { \
          ABORT("ASSERTION FAILED: %s %s:%d", #cond, __FILE__, __LINE__); \
       } \
    } while (0)
+
+#endif // NDEBUG

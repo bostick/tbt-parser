@@ -555,7 +555,9 @@ TconvertToMidi(
 
     std::vector<midi_track_event> tmp;
 
+#ifndef NDEBUG
     uint32_t tickCount;
+#endif // NDEBUG
 
     //
     // Track 0
@@ -721,10 +723,12 @@ TconvertToMidi(
 
         tick -= TICKS_PER_SPACE;
 
+#ifndef NDEBUG
         for (const auto &repeatCloseMapIt : repeatCloseMap) {
             const auto &r = repeatCloseMapIt.second;
             ASSERT(r.repeats == 0);
         }
+#endif // NDEBUG
 
         diff = (tick - lastEventTick).round();
 
@@ -736,7 +740,9 @@ TconvertToMidi(
 
         out.tracks.push_back(tmp);
 
+#ifndef NDEBUG
         tickCount = tick.to_uint32();
+#endif // NDEBUG
 
     } // Track 0
 
@@ -1589,6 +1595,7 @@ TconvertToMidi(
         tick -= TICKS_PER_SPACE;
         --actualSpace;
 
+#ifndef NDEBUG
         ASSERT(tick == tickCount);
         ASSERT(actualSpace == barsSpaceCount);
         for (const auto &repeatCloseMapIt : repeatCloseMap) {
@@ -1596,6 +1603,7 @@ TconvertToMidi(
             ASSERT(r.repeats == 0);
         }
         ASSERT(openSpaceSet.empty());
+#endif // NDEBUG
 
         //
         // Emit any final note offs

@@ -147,23 +147,31 @@ TparseTbtBytes(
     {
         if constexpr (0x6e <= VERSION) {
 
+#ifndef NDEBUG
             uint32_t metadataLen;
+#endif // NDEBUG
 
             if constexpr (0x71 <= VERSION) {
 
+#ifndef NDEBUG
                 metadataLen = sizeof(tbt_track_metadata71) * out.header.trackCount;
+#endif // NDEBUG
 
                 out.metadata.tracks = std::vector<tbt_track_metadata71>(out.header.trackCount);
 
             } else if constexpr (0x70 <= VERSION) {
 
+#ifndef NDEBUG
                 metadataLen = sizeof(tbt_track_metadata70) * out.header.trackCount;
+#endif // NDEBUG
 
                 out.metadata.tracks = std::vector<tbt_track_metadata70>(out.header.trackCount);
 
             } else {
 
+#ifndef NDEBUG
                 metadataLen = sizeof(tbt_track_metadata6e) * out.header.trackCount;
+#endif // NDEBUG
 
                 out.metadata.tracks = std::vector<tbt_track_metadata6e>(out.header.trackCount);
             }
