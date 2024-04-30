@@ -3110,7 +3110,7 @@ midiFileInfo(const midi_file &m) {
         double lastNoteOnSec = times.lastNoteOnMicros / 1e6;
         double lastNoteOnMin = lastNoteOnSec / 60.0;
         double lastNoteOnHr = lastNoteOnMin / 60.0;
-        LOGI("   last Note On (wall): %.0f:%02.0f:%05.2f", std::floor(lastNoteOnHr), std::fmod(lastNoteOnMin, 60.0), std::fmod(lastNoteOnSec, 60.0));
+        LOGI("   last Note On (wall): %.0f:%02.0f:%05.2f", std::floor(lastNoteOnHr), std::floor(std::fmod(lastNoteOnMin, 60.0)), std::fmod(lastNoteOnSec, 60.0));
     } else {
         LOGI("   last Note On (wall): (none)");
     }
@@ -3118,7 +3118,7 @@ midiFileInfo(const midi_file &m) {
         double lastNoteOffSec = times.lastNoteOffMicros / 1e6;
         double lastNoteOffMin = lastNoteOffSec / 60.0;
         double lastNoteOffHr = lastNoteOffMin / 60.0;
-        LOGI("  last Note Off (wall): %.0f:%02.0f:%05.2f", std::floor(lastNoteOffHr), std::fmod(lastNoteOffMin, 60.0), std::fmod(lastNoteOffSec, 60.0));
+        LOGI("  last Note Off (wall): %.0f:%02.0f:%05.2f", std::floor(lastNoteOffHr), std::floor(std::fmod(lastNoteOffMin, 60.0)), std::fmod(lastNoteOffSec, 60.0));
     } else {
         LOGI("  last Note Off (wall): (none)");
     }
@@ -3126,7 +3126,7 @@ midiFileInfo(const midi_file &m) {
         double lastEndOfTrackSec = times.lastEndOfTrackMicros / 1e6;
         double lastEndOfTrackMin = lastEndOfTrackSec / 60.0;
         double lastEndOfTrackHr = lastEndOfTrackMin / 60.0;
-        LOGI("   End Of Track (wall): %.0f:%02.0f:%05.2f", std::floor(lastEndOfTrackHr), std::fmod(lastEndOfTrackMin, 60.0), std::fmod(lastEndOfTrackSec, 60.0));
+        LOGI("   End Of Track (wall): %.0f:%02.0f:%05.2f", std::floor(lastEndOfTrackHr), std::floor(std::fmod(lastEndOfTrackMin, 60.0)), std::fmod(lastEndOfTrackSec, 60.0));
     } else {
         LOGI("   End Of Track (wall): (none)");
     }
