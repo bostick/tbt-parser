@@ -2678,6 +2678,8 @@ struct EventFileTimesTempoMapVisitor {
     //
     std::map<rational, rational> &tempoMap;
 
+    uint16_t track;
+
     rational runningTick;
 
     EventFileTimesTempoMapVisitor(std::map<rational, rational> &tempoMapIn) :
@@ -2713,7 +2715,7 @@ struct EventFileTimesTempoMapVisitor {
 
                 auto bBPM = (MICROS_PER_MINUTE / (newMicrosPerTick * TICKS_PER_BEAT));
 
-                LOGW("tick %f has conflicting tempo changes: %f, %f", runningTick.to_double(), aBPM.to_double(), bBPM.to_double());
+                LOGW("track: %d tick %f has conflicting tempo changes: %f, %f", track, runningTick.to_double(), aBPM.to_double(), bBPM.to_double());
             }
         }
 
@@ -2920,11 +2922,14 @@ midiFileTimes(const midi_file &m) {
 
     EventFileTimesTempoMapVisitor eventFileTimesTempoMapVisitor{ tempoMap };
 
-    for (const auto &track : m.tracks) {
+    for (uint16_t track = 0; track < m.tracks.size(); track++) {
 
+        const auto &t = m.tracks[track];
+
+        eventFileTimesTempoMapVisitor.track = track;
         eventFileTimesTempoMapVisitor.runningTick = 0;
 
-        for (const auto &e : track) {
+        for (const auto &e : t) {
             std::visit(eventFileTimesTempoMapVisitor, e);
         }
     }
