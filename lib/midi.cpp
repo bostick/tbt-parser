@@ -509,6 +509,42 @@ computeRepeats(
 }
 
 
+template <uint8_t VERSION, typename tbt_file_t, size_t STRINGS_PER_TRACK>
+void
+computeMidiNoteOffsetArrays(
+    const tbt_file_t &t,
+    std::vector<std::array<uint8_t, STRINGS_PER_TRACK> > &midiNoteOffsetArrays) {
+
+    for (uint8_t track = 0; track < t.header.trackCount; track++) {
+
+        const auto &trackMetadata = t.metadata.tracks[track];
+
+        std::array<uint8_t, STRINGS_PER_TRACK> midiNoteOffsetArray;
+
+        for (uint8_t string = 0; string < trackMetadata.stringCount; string++) {
+
+            auto offset = static_cast<uint8_t>(-0x80);
+
+            offset += static_cast<uint8_t>(trackMetadata.tuning[string]);
+
+            if constexpr (0x6e <= VERSION) {
+                offset += static_cast<uint8_t>(trackMetadata.transposeHalfSteps);
+            }
+
+            if constexpr (0x6b <= VERSION) {
+                offset += STRING_MIDI_NOTE[string];
+            } else {
+                offset += STRING_MIDI_NOTE_LE6A[string];
+            }
+
+            midiNoteOffsetArray[string] = offset;
+        }
+
+        midiNoteOffsetArrays.push_back(midiNoteOffsetArray);
+    }
+}
+
+
 template <uint8_t VERSION, bool HASALTERNATETIMEREGIONS, typename tbt_file_t, size_t STRINGS_PER_TRACK>
 Status
 TconvertToMidi(
@@ -556,6 +592,14 @@ TconvertToMidi(
     std::vector<std::map<uint32_t, repeat_close_struct> > repeatCloseMaps;
 
     computeRepeats<VERSION, tbt_file_t>(t, barsSpaceCount, openSpaceSets, repeatCloseMaps);
+
+    //
+    // for each track:
+    //   string -> offset needed to obtain midi note
+    //
+    std::vector<std::array<uint8_t, STRINGS_PER_TRACK> > midiNoteOffsetArrays;
+
+    computeMidiNoteOffsetArrays<VERSION, tbt_file_t, STRINGS_PER_TRACK>(t, midiNoteOffsetArrays);
 
 
     out.header = {
@@ -775,6 +819,8 @@ TconvertToMidi(
     for (uint8_t track = 0; track < t.header.trackCount; track++) {
 
         uint8_t channel = channelMap[track];
+
+        const auto &midiNoteOffsetArray = midiNoteOffsetArrays[track];
 
         const auto &trackMetadata = t.metadata.tracks[track];
 
@@ -1224,20 +1270,7 @@ TconvertToMidi(
 
                         ASSERT(off >= 0x80);
 
-                        uint8_t stringNote = (off - 0x80);
-
-                        stringNote += static_cast<uint8_t>(trackMetadata.tuning[string]);
-
-                        if constexpr (0x6e <= VERSION) {
-                            stringNote += static_cast<uint8_t>(trackMetadata.transposeHalfSteps);
-                        }
-                        
-                        uint8_t midiNote;
-                        if constexpr (0x6b <= VERSION) {
-                            midiNote = stringNote + STRING_MIDI_NOTE[string];
-                        } else {
-                            midiNote = stringNote + STRING_MIDI_NOTE_LE6A[string];
-                        }
+                        auto midiNote = static_cast<uint8_t>(off + midiNoteOffsetArray[string]);
 
                         diff = (roundedTick - lastEventTick);
 
@@ -1548,20 +1581,7 @@ TconvertToMidi(
 
                         ASSERT(on >= 0x80);
 
-                        uint8_t stringNote = on - 0x80;
-                        
-                        stringNote += static_cast<uint8_t>(trackMetadata.tuning[string]);
-                        
-                        if constexpr (0x6e <= VERSION) {
-                            stringNote += static_cast<uint8_t>(trackMetadata.transposeHalfSteps);
-                        }
-
-                        uint8_t midiNote;
-                        if constexpr (0x6b <= VERSION) {
-                            midiNote = stringNote + STRING_MIDI_NOTE[string];
-                        } else {
-                            midiNote = stringNote + STRING_MIDI_NOTE_LE6A[string];
-                        }
+                        auto midiNote = static_cast<uint8_t>(on + midiNoteOffsetArray[string]);
 
                         diff = (roundedTick - lastEventTick);
 
@@ -1672,20 +1692,7 @@ TconvertToMidi(
 
                 ASSERT(off >= 0x80);
 
-                uint8_t stringNote = off - 0x80;
-
-                stringNote += static_cast<uint8_t>(trackMetadata.tuning[string]);
-
-                if constexpr (0x6e <= VERSION) {
-                    stringNote += static_cast<uint8_t>(trackMetadata.transposeHalfSteps);
-                }
-
-                uint8_t midiNote;
-                if constexpr (0x6b <= VERSION) {
-                    midiNote = stringNote + STRING_MIDI_NOTE[string];
-                } else {
-                    midiNote = stringNote + STRING_MIDI_NOTE_LE6A[string];
-                }
+                auto midiNote = static_cast<uint8_t>(off + midiNoteOffsetArray[string]);
 
                 diff = (roundedTick - lastEventTick);
 
