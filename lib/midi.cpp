@@ -1144,6 +1144,8 @@ TconvertToMidi(
                 }
             }
 
+            bool anyStringsTurningOff = false;
+
             const auto &notesMapIt = maps.notesMap.find(space);
 
             //
@@ -1180,6 +1182,8 @@ TconvertToMidi(
                         if (anyEvents) {
                             
                             offVsqs = currentlyPlayingStrings;
+
+                            anyStringsTurningOff = true;
 
                             for (uint8_t string = 0; string < trackMetadata.stringCount; string++) {
 
@@ -1229,12 +1233,16 @@ TconvertToMidi(
 
                                         offVsqs[string] = current;
 
+                                        anyStringsTurningOff = true;
+
                                         currentlyPlayingStrings[string] = 0;
                                     }
 
                                 } else {
 
                                     offVsqs[string] = current;
+
+                                    anyStringsTurningOff = true;
 
                                     currentlyPlayingStrings[string] = on;
                                 }
@@ -1245,6 +1253,8 @@ TconvertToMidi(
                     //
                     // Emit note offs
                     //
+                    if (anyStringsTurningOff) {
+
                         for (uint8_t string = 0; string < trackMetadata.stringCount; string++) {
 
                             auto off = offVsqs[string];
@@ -1268,6 +1278,7 @@ TconvertToMidi(
 
                             lastEventTick = roundedTick;
                         }
+                    }
                 }
             }
 
