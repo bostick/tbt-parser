@@ -1897,48 +1897,6 @@ convertToMidi(
 struct EventExportVisitor {
     
     std::vector<uint8_t> &tmp;
-    
-    void operator()(const TimeSignatureEvent &e) {
-
-        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
-
-        tmp.insert(tmp.end(), {
-            0xff, // meta event
-            0x58, // time signature
-            0x04, 
-            e.numerator,
-            e.denominator,
-            e.ticksPerMetronomeClick,
-            e.notated32notesInMIDIQuarterNotes
-        });
-    }
-
-    void operator()(const TempoChangeEvent &e) {
-
-        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
-
-        tmp.insert(tmp.end(), {
-            0xff, // meta event
-            0x51, // tempo change
-            //
-            // FluidSynth hard-codes length of 3, so just do the same
-            //
-            0x03 // microsPerBeatBytes size VLQ
-        });
-
-        toDigitsBEOnly3(e.microsPerBeat, tmp); // only last 3 bytes of microsPerBeatBytes
-    }
-
-    void operator()(const EndOfTrackEvent &e) {
-
-        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
-
-        tmp.insert(tmp.end(), {
-            0xff, // meta event
-            0x2f, // end of track
-            0x00
-        });
-    }
 
     void operator()(const ProgramChangeEvent &e) {
 
@@ -1947,94 +1905,6 @@ struct EventExportVisitor {
         tmp.insert(tmp.end(), {
             static_cast<uint8_t>(0xc0 | e.channel), // program change
             e.midiProgram
-        });
-    }
-
-    void operator()(const PanEvent &e) {
-
-        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
-
-        tmp.insert(tmp.end(), {
-            static_cast<uint8_t>(0xb0 | e.channel), // control event
-            0x0a, // pan
-            e.pan
-        });
-    }
-
-    void operator()(const ReverbEvent &e) {
-
-        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
-
-        tmp.insert(tmp.end(), {
-            static_cast<uint8_t>(0xb0 | e.channel), // control event
-            0x5b, // reverb
-            e.reverb
-        });
-    }
-
-    void operator()(const ChorusEvent &e) {
-
-        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
-
-        tmp.insert(tmp.end(), {
-            static_cast<uint8_t>(0xb0 | e.channel), // control event
-            0x5d, // chorus
-            e.chorus
-        });
-    }
-
-    void operator()(const ModulationEvent &e) {
-
-        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
-
-        tmp.insert(tmp.end(), {
-            static_cast<uint8_t>(0xb0 | e.channel), // control event
-            0x01, // modulation
-            e.modulation
-        });
-    }
-
-    void operator()(const RPNParameterMSBEvent &e) {
-
-        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
-
-        tmp.insert(tmp.end(), {
-            static_cast<uint8_t>(0xb0 | e.channel), // control event
-            0x65, // RPN Parameter MSB
-            e.rpnParameterMSB
-        });
-    }
-
-    void operator()(const RPNParameterLSBEvent &e) {
-
-        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
-
-        tmp.insert(tmp.end(), {
-            static_cast<uint8_t>(0xb0 | e.channel), // control event
-            0x64, // RPN Parameter LSB
-            e.rpnParameterLSB
-        });
-    }
-
-    void operator()(const DataEntryMSBEvent &e) {
-
-        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
-
-        tmp.insert(tmp.end(), {
-            static_cast<uint8_t>(0xb0 | e.channel), // control event
-            0x06, // Data Entry MSB
-            e.dataEntryMSB
-        });
-    }
-
-    void operator()(const DataEntryLSBEvent &e) {
-
-        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
-
-        tmp.insert(tmp.end(), {
-            static_cast<uint8_t>(0xb0 | e.channel), // control event
-            0x26, // Data Entry LSB
-            e.dataEntryLSB
         });
     }
 
@@ -2071,46 +1941,6 @@ struct EventExportVisitor {
             static_cast<uint8_t>(0x90 | e.channel), // note on
             e.midiNote,
             e.velocity
-        });
-    }
-
-    void operator()(const NullEvent &e) {
-        (void)e;
-    }
-
-    void operator()(const TrackNameEvent &e) {
-
-        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
-
-        tmp.insert(tmp.end(), {
-            0xff, // meta event
-            0x03, // Sequence/Track Name
-        });
-
-        toVLQ(static_cast<uint32_t>(e.name.size()), tmp); // len
-
-        tmp.insert(tmp.end(), e.name.data(), e.name.data() + e.name.size());
-    }
-
-    void operator()(const BankSelectMSBEvent &e) {
-
-        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
-
-        tmp.insert(tmp.end(), {
-            static_cast<uint8_t>(0xb0 | e.channel), // control event
-            0x00, // Bank Select MSB
-            e.bankSelectMSB
-        });
-    }
-
-    void operator()(const BankSelectLSBEvent &e) {
-
-        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
-
-        tmp.insert(tmp.end(), {
-            static_cast<uint8_t>(0xb0 | e.channel), // control event
-            0x20, /// Bank Select LSB
-            e.bankSelectLSB
         });
     }
 
@@ -2616,9 +2446,7 @@ parseTrack(
             return ret;
         }
 
-        if (!std::holds_alternative<NullEvent>(e)) {
-            track.push_back(e);
-        }
+        track.push_back(e);
 
         if (auto metaEvent = std::get_if<MetaEvent>(&e)) {
 
@@ -2690,78 +2518,7 @@ struct EventFileTimesTempoMapVisitor {
 
     rational runningTick;
 
-    void operator()(const TimeSignatureEvent &e) {
-        runningTick += e.deltaTime;
-    }
-
-    void operator()(const TempoChangeEvent &e) {
-
-        runningTick += e.deltaTime;
-
-        //
-        // convert MicrosPerBeat -> MicrosPerTick
-        //
-        auto newMicrosPerTick = rational(e.microsPerBeat) / division;
-
-        const auto &tempoMapIt = tempoMap.find(runningTick);
-        if (tempoMapIt != tempoMap.end()) {
-
-            auto microsPerTick = tempoMapIt->second;
-
-            if (microsPerTick != newMicrosPerTick) {
-
-                //
-                // convert MicrosPerTick -> BeatsPerMinute
-                //
-
-                auto aBPM = (MICROS_PER_MINUTE / (microsPerTick * division));
-
-                auto bBPM = (MICROS_PER_MINUTE / (newMicrosPerTick * division));
-
-                LOGW("track: %d tick %f has conflicting tempo changes: %f, %f", track, runningTick.to_double(), aBPM.to_double(), bBPM.to_double());
-            }
-        }
-
-        tempoMap[runningTick] = newMicrosPerTick;
-    }
-
-    void operator()(const EndOfTrackEvent &e) {
-        runningTick += e.deltaTime;
-    }
-
     void operator()(const ProgramChangeEvent &e) {
-        runningTick += e.deltaTime;
-    }
-
-    void operator()(const PanEvent &e) {
-        runningTick += e.deltaTime;
-    }
-
-    void operator()(const ReverbEvent &e) {
-        runningTick += e.deltaTime;
-    }
-
-    void operator()(const ChorusEvent &e) {
-        runningTick += e.deltaTime;
-    }
-
-    void operator()(const ModulationEvent &e) {
-        runningTick += e.deltaTime;
-    }
-
-    void operator()(const RPNParameterMSBEvent &e) {
-        runningTick += e.deltaTime;
-    }
-
-    void operator()(const RPNParameterLSBEvent &e) {
-        runningTick += e.deltaTime;
-    }
-
-    void operator()(const DataEntryMSBEvent &e) {
-        runningTick += e.deltaTime;
-    }
-
-    void operator()(const DataEntryLSBEvent &e) {
         runningTick += e.deltaTime;
     }
 
@@ -2774,22 +2531,6 @@ struct EventFileTimesTempoMapVisitor {
     }
 
     void operator()(const NoteOnEvent &e) {
-        runningTick += e.deltaTime;
-    }
-
-    void operator()(const NullEvent &e) {
-        (void)e;
-    }
-
-    void operator()(const TrackNameEvent &e) {
-        runningTick += e.deltaTime;
-    }
-
-    void operator()(const BankSelectMSBEvent &e) {
-        runningTick += e.deltaTime;
-    }
-
-    void operator()(const BankSelectLSBEvent &e) {
         runningTick += e.deltaTime;
     }
 
@@ -2868,66 +2609,7 @@ struct EventFileTimesLastTicksVisitor {
     rational lastTempoChangeTick = -1;
     rational lastMicrosPerTick = 0;
 
-    void operator()(const TimeSignatureEvent &e) {
-        runningTick += e.deltaTime;
-    }
-
-    void operator()(const TempoChangeEvent &e) {
-        
-        runningTick += e.deltaTime;
-
-        if (runningTick > lastTempoChangeTick) {
-            lastTempoChangeTick = runningTick;
-
-            //
-            // convert MicrosPerBeat -> MicrosPerTick
-            //
-            lastMicrosPerTick = rational(e.microsPerBeat) / division;
-        }
-    }
-
-    void operator()(const EndOfTrackEvent &e) {
-       
-        runningTick += e.deltaTime;
-
-        if (runningTick > lastEndOfTrackTick) {
-            lastEndOfTrackTick = runningTick;
-        }
-    }
-
     void operator()(const ProgramChangeEvent &e) {
-        runningTick += e.deltaTime;
-    }
-
-    void operator()(const PanEvent &e) {
-        runningTick += e.deltaTime;
-    }
-
-    void operator()(const ReverbEvent &e) {
-        runningTick += e.deltaTime;
-    }
-
-    void operator()(const ChorusEvent &e) {
-        runningTick += e.deltaTime;
-    }
-
-    void operator()(const ModulationEvent &e) {
-        runningTick += e.deltaTime;
-    }
-
-    void operator()(const RPNParameterMSBEvent &e) {
-        runningTick += e.deltaTime;
-    }
-
-    void operator()(const RPNParameterLSBEvent &e) {
-        runningTick += e.deltaTime;
-    }
-
-    void operator()(const DataEntryMSBEvent &e) {
-        runningTick += e.deltaTime;
-    }
-
-    void operator()(const DataEntryLSBEvent &e) {
         runningTick += e.deltaTime;
     }
 
@@ -2951,22 +2633,6 @@ struct EventFileTimesLastTicksVisitor {
         if (runningTick > lastNoteOnTick) {
             lastNoteOnTick = runningTick;
         }
-    }
-
-    void operator()(const NullEvent &e) {
-        (void)e;
-    }
-
-    void operator()(const TrackNameEvent &e) {
-        runningTick += e.deltaTime;
-    }
-
-    void operator()(const BankSelectMSBEvent &e) {
-        runningTick += e.deltaTime;
-    }
-
-    void operator()(const BankSelectLSBEvent &e) {
-        runningTick += e.deltaTime;
     }
 
     void operator()(const ControlChangeEvent &e) {
@@ -3141,52 +2807,8 @@ midiFileTimes(const midi_file &m) {
 
 
 struct EventInfoVisitor {
-    
-    void operator()(const TimeSignatureEvent &e) {
-        (void)e;
-    }
-
-    void operator()(const TempoChangeEvent &e) {
-        (void)e;
-    }
-
-    void operator()(const EndOfTrackEvent &e) {
-        (void)e;
-    }
 
     void operator()(const ProgramChangeEvent &e) {
-        (void)e;
-    }
-
-    void operator()(const PanEvent &e) {
-        (void)e;
-    }
-
-    void operator()(const ReverbEvent &e) {
-        (void)e;
-    }
-
-    void operator()(const ChorusEvent &e) {
-        (void)e;
-    }
-
-    void operator()(const ModulationEvent &e) {
-        (void)e;
-    }
-
-    void operator()(const RPNParameterMSBEvent &e) {
-        (void)e;
-    }
-
-    void operator()(const RPNParameterLSBEvent &e) {
-        (void)e;
-    }
-
-    void operator()(const DataEntryMSBEvent &e) {
-        (void)e;
-    }
-
-    void operator()(const DataEntryLSBEvent &e) {
         (void)e;
     }
 
@@ -3199,22 +2821,6 @@ struct EventInfoVisitor {
     }
 
     void operator()(const NoteOnEvent &e) {
-        (void)e;
-    }
-
-    void operator()(const NullEvent &e) {
-        (void)e;
-    }
-
-    void operator()(const TrackNameEvent &e) {
-        LOGI("Track Name: %s", e.name.c_str());
-    }
-
-    void operator()(const BankSelectMSBEvent &e) {
-        (void)e;
-    }
-
-    void operator()(const BankSelectLSBEvent &e) {
         (void)e;
     }
 

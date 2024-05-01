@@ -580,78 +580,10 @@ struct midi_header {
 };
 
 
-struct NullEvent {
-};
-
-struct TimeSignatureEvent {
-    int32_t deltaTime;
-    uint8_t numerator;
-    uint8_t denominator; // (as 2^d)
-    uint8_t ticksPerMetronomeClick;
-    uint8_t notated32notesInMIDIQuarterNotes;
-};
-
-struct TempoChangeEvent {
-    int32_t deltaTime;
-    uint32_t microsPerBeat;
-};
-
-struct EndOfTrackEvent {
-    int32_t deltaTime;
-};
-
 struct ProgramChangeEvent {
     int32_t deltaTime;
     uint8_t channel;
     uint8_t midiProgram;
-};
-
-struct PanEvent {
-    int32_t deltaTime;
-    uint8_t channel;
-    uint8_t pan;
-};
-
-struct ReverbEvent {
-    int32_t deltaTime;
-    uint8_t channel;
-    uint8_t reverb;
-};
-
-struct ChorusEvent {
-    int32_t deltaTime;
-    uint8_t channel;
-    uint8_t chorus;
-};
-
-struct ModulationEvent {
-    int32_t deltaTime;
-    uint8_t channel;
-    uint8_t modulation;
-};
-
-struct RPNParameterMSBEvent {
-    int32_t deltaTime;
-    uint8_t channel;
-    uint8_t rpnParameterMSB;
-};
-
-struct RPNParameterLSBEvent {
-    int32_t deltaTime;
-    uint8_t channel;
-    uint8_t rpnParameterLSB;
-};
-
-struct DataEntryMSBEvent {
-    int32_t deltaTime;
-    uint8_t channel;
-    uint8_t dataEntryMSB;
-};
-
-struct DataEntryLSBEvent {
-    int32_t deltaTime;
-    uint8_t channel;
-    uint8_t dataEntryLSB;
 };
 
 struct PitchBendEvent {
@@ -672,23 +604,6 @@ struct NoteOnEvent {
     uint8_t channel;
     uint8_t midiNote;
     uint8_t velocity;
-};
-
-struct TrackNameEvent {
-    int32_t deltaTime;
-    std::string name;
-};
-
-struct BankSelectMSBEvent {
-    int32_t deltaTime;
-    uint8_t channel;
-    uint8_t bankSelectMSB;
-};
-
-struct BankSelectLSBEvent {
-    int32_t deltaTime;
-    uint8_t channel;
-    uint8_t bankSelectLSB;
 };
 
 struct ControlChangeEvent {
@@ -722,9 +637,7 @@ struct SysExEvent {
     std::vector<uint8_t> data;
 };
 
-using midi_track_event = std::variant<NullEvent, TimeSignatureEvent, TempoChangeEvent, EndOfTrackEvent, ProgramChangeEvent, PanEvent,
-    ReverbEvent, ChorusEvent, ModulationEvent, RPNParameterMSBEvent, RPNParameterLSBEvent, DataEntryMSBEvent, DataEntryLSBEvent,
-    PitchBendEvent, NoteOffEvent, NoteOnEvent, TrackNameEvent, BankSelectMSBEvent, BankSelectLSBEvent,
+using midi_track_event = std::variant<ProgramChangeEvent, PitchBendEvent, NoteOffEvent, NoteOnEvent,
     ControlChangeEvent, MetaEvent, PolyphonicKeyPressureEvent, ChannelPressureEvent, SysExEvent>;
 
 struct midi_file {
