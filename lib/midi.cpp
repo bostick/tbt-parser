@@ -26,6 +26,7 @@
 
 #include <algorithm> // for remove
 #include <set>
+#include <variant> // for get_if
 #include <cinttypes>
 #include <cmath> // for round, floor, fmod
 #include <cstring> // for memcmp
@@ -63,6 +64,29 @@ const std::array<uint8_t, 6> STRING_MIDI_NOTE_LE6A = {
 
 const uint8_t MUTED = 0x11; // 17
 const uint8_t STOPPED = 0x12; // 18
+
+
+//
+// meta events
+//
+const uint8_t M_TRACKNAME = 0x03;
+const uint8_t M_ENDOFTRACK = 0x2f;
+const uint8_t M_SETTEMPO = 0x51;
+const uint8_t M_TIMESIGNATURE = 0x58;
+
+
+//
+// controller messages
+//
+const uint8_t C_BANKSELECT_MSB = 0x00;
+const uint8_t C_MODULATION = 0x01;
+const uint8_t C_DATAENTRY_MSB = 0x06;
+const uint8_t C_PAN = 0x0a;
+const uint8_t C_DATAENTRY_LSB = 0x26;
+const uint8_t C_REVERB = 0x5b;
+const uint8_t C_CHORUS = 0x5d;
+const uint8_t C_RPNPARAM_LSB = 0x64;
+const uint8_t C_RPNPARAM_MSB = 0x65;
 
 
 //
@@ -633,21 +657,31 @@ TconvertToMidi(
 
         auto diff = (roundedTick - lastEventTick);
 
-        tmp.push_back(TrackNameEvent{
+        auto str = std::string("tbt-parser MIDI - Track 0");
+
+        std::vector<uint8_t> trackNameData{str.cbegin(), str.cend()};
+
+        tmp.push_back(MetaEvent{
             diff.to_int32(), // delta time
-            "tbt-parser MIDI - Track 0"
+            M_TRACKNAME,
+            trackNameData
         });
 
         lastEventTick = roundedTick;
 
         diff = (roundedTick - lastEventTick);
 
-        tmp.push_back(TimeSignatureEvent{
-            diff.to_int32(), // delta time
+        std::vector<uint8_t> timeSignatureData {
             4, // numerator
             2, // denominator (as 2^d)
             24, // ticks per metronome click
             8 // notated 32-notes in MIDI quarter notes
+        };
+
+        tmp.push_back(MetaEvent{
+            diff.to_int32(), // delta time
+            M_TIMESIGNATURE,
+            timeSignatureData
         });
 
         lastEventTick = roundedTick;
@@ -673,9 +707,14 @@ TconvertToMidi(
 
             diff = (roundedTick - lastEventTick);
 
-            tmp.push_back(TempoChangeEvent{
+            std::vector<uint8_t> tempoChangeData;
+
+            toDigitsBEOnly3(microsPerBeat, tempoChangeData); // only last 3 bytes of microsPerBeatBytes
+
+            tmp.push_back(MetaEvent{
                 diff.to_int32(), // delta time
-                microsPerBeat
+                M_SETTEMPO,
+                tempoChangeData
             });
 
             lastEventTick = roundedTick;
@@ -758,9 +797,14 @@ TconvertToMidi(
 
                     diff = (roundedTick - lastEventTick);
 
-                    tmp.push_back(TempoChangeEvent{
+                    std::vector<uint8_t> tempoChangeData;
+
+                    toDigitsBEOnly3(microsPerBeat, tempoChangeData); // only last 3 bytes of microsPerBeatBytes
+
+                    tmp.push_back(MetaEvent{
                         diff.to_int32(), // delta time
-                        microsPerBeat
+                        M_SETTEMPO,
+                        tempoChangeData
                     });
 
                     lastEventTick = roundedTick;
@@ -799,8 +843,12 @@ TconvertToMidi(
 
         diff = (roundedTick - lastEventTick);
 
-        tmp.push_back(EndOfTrackEvent{
-            diff.to_int32() // delta time
+        std::vector<uint8_t> endOfTrackData;
+
+        tmp.push_back(MetaEvent{
+            diff.to_int32(), // delta time
+            M_ENDOFTRACK,
+            endOfTrackData
         });
 
         lastEventTick = roundedTick;
@@ -894,9 +942,14 @@ TconvertToMidi(
 
         auto diff = (roundedTick - lastEventTick);
 
-        tmp.push_back(TrackNameEvent{
+        auto str = std::string("tbt-parser MIDI - Track ") + std::to_string(track + 1);
+
+        std::vector<uint8_t> data{str.cbegin(), str.cend()};
+
+        tmp.push_back(MetaEvent{
             diff.to_int32(), // delta time
-            std::string("tbt-parser MIDI - Track ") + std::to_string(track + 1)
+            M_TRACKNAME,
+            data
         });
 
         lastEventTick = roundedTick;
@@ -911,9 +964,10 @@ TconvertToMidi(
 
             diff = (roundedTick - lastEventTick);
 
-            tmp.push_back(BankSelectMSBEvent{
+            tmp.push_back(ControlChangeEvent{
                 diff.to_int32(), // delta time
                 channel,
+                C_BANKSELECT_MSB,
                 midiBankMSB
             });
 
@@ -932,9 +986,10 @@ TconvertToMidi(
 
         diff = (roundedTick - lastEventTick);
 
-        tmp.push_back(PanEvent{
+        tmp.push_back(ControlChangeEvent{
             diff.to_int32(), // delta time
             channel,
+            C_PAN,
             pan
         });
 
@@ -942,9 +997,10 @@ TconvertToMidi(
 
         diff = (roundedTick - lastEventTick);
 
-        tmp.push_back(ReverbEvent{
+        tmp.push_back(ControlChangeEvent{
             diff.to_int32(), // delta time
             channel,
+            C_REVERB,
             reverb
         });
 
@@ -952,9 +1008,10 @@ TconvertToMidi(
 
         diff = (roundedTick - lastEventTick);
 
-        tmp.push_back(ChorusEvent{
+        tmp.push_back(ControlChangeEvent{
             diff.to_int32(), // delta time
             channel,
+            C_CHORUS,
             chorus
         });
 
@@ -962,9 +1019,10 @@ TconvertToMidi(
 
         diff = (roundedTick - lastEventTick);
 
-        tmp.push_back(ModulationEvent{
+        tmp.push_back(ControlChangeEvent{
             diff.to_int32(), // delta time
             channel,
+            C_MODULATION,
             modulation
         });
 
@@ -977,9 +1035,10 @@ TconvertToMidi(
 
         diff = (roundedTick - lastEventTick);
 
-        tmp.push_back(RPNParameterMSBEvent{
+        tmp.push_back(ControlChangeEvent{
             diff.to_int32(), // delta time
             channel,
+            C_RPNPARAM_MSB,
             0
         });
 
@@ -987,9 +1046,10 @@ TconvertToMidi(
 
         diff = (roundedTick - lastEventTick);
 
-        tmp.push_back(RPNParameterLSBEvent{
+        tmp.push_back(ControlChangeEvent{
             diff.to_int32(), // delta time
             channel,
+            C_RPNPARAM_LSB,
             0
         });
 
@@ -997,9 +1057,10 @@ TconvertToMidi(
 
         diff = (roundedTick - lastEventTick);
 
-        tmp.push_back(DataEntryMSBEvent{
+        tmp.push_back(ControlChangeEvent{
             diff.to_int32(), // delta time
             channel,
+            C_DATAENTRY_MSB,
             24 // semi-tones
         });
 
@@ -1007,9 +1068,10 @@ TconvertToMidi(
 
         diff = (roundedTick - lastEventTick);
 
-        tmp.push_back(DataEntryLSBEvent{
+        tmp.push_back(ControlChangeEvent{
             diff.to_int32(), // delta time
             channel,
+            C_DATAENTRY_LSB,
             0 // cents
         });
 
@@ -1320,9 +1382,10 @@ TconvertToMidi(
                                     
                                     diff = (roundedTick - lastEventTick);
 
-                                    tmp.push_back(BankSelectMSBEvent{
+                                    tmp.push_back(ControlChangeEvent{
                                         diff.to_int32(), // delta time
                                         channel,
+                                        C_BANKSELECT_MSB,
                                         midiBankMSB
                                     });
 
@@ -1364,9 +1427,10 @@ TconvertToMidi(
 
                                 diff = (roundedTick - lastEventTick);
 
-                                tmp.push_back(PanEvent{
+                                tmp.push_back(ControlChangeEvent{
                                     diff.to_int32(), // delta time
                                     channel,
+                                    C_PAN,
                                     newPan
                                 });
 
@@ -1380,9 +1444,10 @@ TconvertToMidi(
 
                                 diff = (roundedTick - lastEventTick);
 
-                                tmp.push_back(ChorusEvent{
+                                tmp.push_back(ControlChangeEvent{
                                     diff.to_int32(), // delta time
                                     channel,
+                                    C_CHORUS,
                                     newChorus
                                 });
 
@@ -1396,9 +1461,10 @@ TconvertToMidi(
 
                                 diff = (roundedTick - lastEventTick);
 
-                                tmp.push_back(ReverbEvent{
+                                tmp.push_back(ControlChangeEvent{
                                     diff.to_int32(), // delta time
                                     channel,
+                                    C_REVERB,
                                     newReverb
                                 });
 
@@ -1412,9 +1478,10 @@ TconvertToMidi(
 
                                 diff = (roundedTick - lastEventTick);
 
-                                tmp.push_back(ModulationEvent{
+                                tmp.push_back(ControlChangeEvent{
                                     diff.to_int32(), // delta time
                                     channel,
+                                    C_MODULATION,
                                     newModulation
                                 });
 
@@ -1507,9 +1574,10 @@ TconvertToMidi(
 
                             diff = (roundedTick - lastEventTick);
 
-                            tmp.push_back(ChorusEvent{
+                            tmp.push_back(ControlChangeEvent{
                                 diff.to_int32(), // delta time
                                 channel,
+                                C_CHORUS,
                                 newChorus
                             });
 
@@ -1523,9 +1591,10 @@ TconvertToMidi(
 
                             diff = (roundedTick - lastEventTick);
 
-                            tmp.push_back(PanEvent{
+                            tmp.push_back(ControlChangeEvent{
                                 diff.to_int32(), // delta time
                                 channel,
+                                C_PAN,
                                 newPan
                             });
 
@@ -1539,9 +1608,10 @@ TconvertToMidi(
 
                             diff = (roundedTick - lastEventTick);
 
-                            tmp.push_back(ReverbEvent{
+                            tmp.push_back(ControlChangeEvent{
                                 diff.to_int32(), // delta time
                                 channel,
+                                C_REVERB,
                                 newReverb
                             });
 
@@ -1705,8 +1775,12 @@ TconvertToMidi(
 
         diff = (roundedTick - lastEventTick);
 
-        tmp.push_back(EndOfTrackEvent{
-            diff.to_int32() // delta time
+        std::vector<uint8_t> endOfTrackData;
+
+        tmp.push_back(MetaEvent{
+            diff.to_int32(), // delta time
+            M_ENDOFTRACK,
+            endOfTrackData
         });
 
         lastEventTick = roundedTick;
@@ -2039,6 +2113,56 @@ struct EventExportVisitor {
             e.bankSelectLSB
         });
     }
+
+    void operator()(const ControlChangeEvent &e) {
+
+        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
+
+        tmp.insert(tmp.end(), {
+            static_cast<uint8_t>(0xb0 | e.channel),
+            e.controller,
+            e.value
+        });
+    }
+
+    void operator()(const MetaEvent &e) {
+
+        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
+
+        tmp.insert(tmp.end(), {
+            0xff, // Meta
+            e.type
+        });
+
+        toVLQ(static_cast<uint32_t>(e.data.size()), tmp); // len
+
+        tmp.insert(tmp.end(), e.data.cbegin(), e.data.cend());
+    }
+
+    void operator()(const PolyphonicKeyPressureEvent &e) {
+
+        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
+
+        tmp.insert(tmp.end(), {
+            static_cast<uint8_t>(0xa0 | e.channel),
+            e.midiNote,
+            e.pressure
+        });
+    }
+
+    void operator()(const ChannelPressureEvent &e) {
+
+        toVLQ(static_cast<uint32_t>(e.deltaTime), tmp); // delta time
+
+        tmp.insert(tmp.end(), {
+            static_cast<uint8_t>(0xd0 | e.channel),
+            e.pressure
+        });
+    }
+
+    void operator()(const SysExEvent &e) {
+        (void)e;
+    }
 };
 
 
@@ -2323,23 +2447,21 @@ parseTrackEvent(
     }
     case 0xa0: {
 
-        //
-        // Polyphonic Key Pressure (Aftertouch)
-        //
+        auto channel = lo;
 
-        it++;
+        uint8_t midiNote = (b & 0b01111111);
+        
+        CHECK(it + 1 <= end, "out of data");
 
-        ASSERT(deltaTime == 0 && "deltaTime for NullEvent must be 0");
+        b = *it++;
 
-        out = NullEvent{};
+        uint8_t pressure = (b & 0b01111111);
+
+        out = PolyphonicKeyPressureEvent{deltaTime, channel, midiNote, pressure};
 
         return OK;
     }
     case 0xb0: {
-
-        //
-        // control change
-        //
 
         auto channel = lo;
 
@@ -2349,42 +2471,11 @@ parseTrackEvent(
 
         b = *it++;
 
-        switch (controller) {
-        case 0x00:
-            out = BankSelectMSBEvent{deltaTime, channel, b};
-            return OK;
-        case 0x01:
-            out = ModulationEvent{deltaTime, channel, b};
-            return OK;
-        case 0x06:
-            out = DataEntryMSBEvent{deltaTime, channel, b};
-            return OK;
-        case 0x0a:
-            out = PanEvent{deltaTime, channel, b};
-            return OK;
-        case 0x20:
-            out = BankSelectLSBEvent{deltaTime, channel, b};
-            return OK;
-        case 0x26:
-            out = DataEntryLSBEvent{deltaTime, channel, b};
-            return OK;
-        case 0x5b:
-            out = ReverbEvent{deltaTime, channel, b};
-            return OK;
-        case 0x5d:
-            out = ChorusEvent{deltaTime, channel, b};
-            return OK;
-        case 0x64:
-            out = RPNParameterLSBEvent{deltaTime, channel, b};
-            return OK;
-        case 0x65:
-            out = RPNParameterMSBEvent{deltaTime, channel, b};
-            return OK;
-        default:
-            ASSERT(deltaTime == 0 && "deltaTime for NullEvent must be 0");
-            out = NullEvent{};
-            return OK;
-        }
+        uint8_t value = (b & 0b01111111);
+
+        out = ControlChangeEvent{deltaTime, channel, controller, value};
+
+        return OK;
     }
     case 0xc0: {
 
@@ -2398,13 +2489,11 @@ parseTrackEvent(
     }
     case 0xd0: {
 
-        //
-        // Channel Pressure (After-touch)
-        //
+        auto channel = lo;
 
-        ASSERT(deltaTime == 0 && "deltaTime for NullEvent must be 0");
+        uint8_t pressure = (b & 0b01111111);
 
-        out = NullEvent{};
+        out = ChannelPressureEvent{deltaTime, channel, pressure};
 
         return OK;
     }
@@ -2430,10 +2519,6 @@ parseTrackEvent(
 
         if (lo == 0x00) {
 
-            //
-            // SysEx
-            //
-
             std::vector<uint8_t> tmp;
 
             tmp.push_back(b);
@@ -2451,17 +2536,13 @@ parseTrackEvent(
                 tmp.push_back(b);
             }
 
-            ASSERT(deltaTime == 0 && "deltaTime for NullEvent must be 0");
-
-            out = NullEvent{};
+            out = SysExEvent{deltaTime, tmp};
 
             return OK;
 
         } else if (lo == 0x0f) {
 
-            //
-            // meta event
-            //
+            auto type = b;
 
             uint32_t len;
 
@@ -2471,98 +2552,17 @@ parseTrackEvent(
                 return ret;
             }
 
-            switch (b) {
-            case 0x2f: {
+            auto begin = it;
 
-                CHECK(len == 0, "len != 0");
+            it += len;
 
-                out = EndOfTrackEvent{deltaTime};
+            CHECK(it <= end, "out of data");
 
-                return OK;
-            }
-            case 0x51: {
+            std::vector<uint8_t> data(begin, it);
 
-                CHECK(len == 3, "len != 3");
+            out = MetaEvent{deltaTime, type, data};
 
-                CHECK(it + 3 <= end, "out of data");
-
-                auto microsPerBeat = parseBE3(it);
-
-                out = TempoChangeEvent{deltaTime, microsPerBeat};
-
-                return OK;
-            }
-            case 0x58: {
-
-                CHECK(len == 4, "len != 4");
-
-                CHECK(it + 4 <= end, "out of data");
-
-                auto numerator = *it++;
-
-                auto denominator = *it++;
-
-                auto ticksPerMetronomeClick = *it++;
-
-                auto notated32notesInMIDIQuarterNotes = *it++;
-
-                out = TimeSignatureEvent{deltaTime, numerator, denominator, ticksPerMetronomeClick, notated32notesInMIDIQuarterNotes};
-
-                return OK;
-            }
-            case 0x00: // Sequence Number
-            case 0x01: // Text
-            case 0x02: { // Copyright
-                
-                it += len;
-
-                ASSERT(deltaTime == 0 && "deltaTime for NullEvent must be 0");
-
-                out = NullEvent{};
-
-                return OK;
-            }
-            case 0x03: { // Sequence/Track Name
-                
-                auto begin = it;
-
-                it += len;
-
-                CHECK(it <= end, "out of data");
-
-                std::string str(begin, it);
-
-                out = TrackNameEvent{deltaTime, str};
-
-                return OK;
-            }
-            case 0x04: // Instrument Name
-            case 0x05: // Lyric
-            case 0x06: // Marker
-            case 0x07: // Cue Point
-            case 0x08: // Program Name
-            case 0x09: // Device Name
-            case 0x20: // MIDI Channel
-            case 0x21: // MIDI Port
-            case 0x54: // SMPTE Offset
-            case 0x59: // Key Signature
-            case 0x7f: { // Sequencer Specific Meta-Event
-
-                it += len;
-
-                ASSERT(deltaTime == 0 && "deltaTime for NullEvent must be 0");
-
-                out = NullEvent{};
-
-                return OK;
-            }
-            default: {
-
-                LOGE("unrecognized meta event byte: %d (0x%02x)", b, b);
-
-                return ERR;
-            }
-            }
+            return OK;
 
         } else {
 
@@ -2620,18 +2620,21 @@ parseTrack(
             track.push_back(e);
         }
 
-        if (std::holds_alternative<EndOfTrackEvent>(e)) {
+        if (auto metaEvent = std::get_if<MetaEvent>(&e)) {
 
-            //
-            // FluidSynth ignores bytes after EndOfTrack
-            //
-            // so just warn here
-            //
-            if (it2 != end2) {
-                LOGW("bytes after EndOfTrack: %zu", (end2 - it2));
+            if (metaEvent->type == M_ENDOFTRACK) {
+
+                //
+                // FluidSynth ignores bytes after EndOfTrack
+                //
+                // so just warn here
+                //
+                if (it2 != end2) {
+                    LOGW("bytes after EndOfTrack: %zu", (end2 - it2));
+                }
+
+                break;
             }
-
-            break;
         }
     }
 
@@ -2789,6 +2792,64 @@ struct EventFileTimesTempoMapVisitor {
     void operator()(const BankSelectLSBEvent &e) {
         runningTick += e.deltaTime;
     }
+
+    void operator()(const ControlChangeEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const MetaEvent &e) {
+
+        if (e.type == M_SETTEMPO) {
+
+            runningTick += e.deltaTime;
+
+            auto it = e.data.cbegin();
+
+            auto microsPerBeat = parseBE3(it);
+
+            //
+            // convert MicrosPerBeat -> MicrosPerTick
+            //
+            auto newMicrosPerTick = rational(microsPerBeat) / division;
+
+            const auto &tempoMapIt = tempoMap.find(runningTick);
+            if (tempoMapIt != tempoMap.end()) {
+
+                auto microsPerTick = tempoMapIt->second;
+
+                if (microsPerTick != newMicrosPerTick) {
+
+                    //
+                    // convert MicrosPerTick -> BeatsPerMinute
+                    //
+
+                    auto aBPM = (MICROS_PER_MINUTE / (microsPerTick * division));
+
+                    auto bBPM = (MICROS_PER_MINUTE / (newMicrosPerTick * division));
+
+                    LOGW("track: %d tick %f has conflicting tempo changes: %f, %f", track, runningTick.to_double(), aBPM.to_double(), bBPM.to_double());
+                }
+            }
+
+            tempoMap[runningTick] = newMicrosPerTick;
+
+        } else {
+
+            runningTick += e.deltaTime;
+        }
+    }
+
+    void operator()(const PolyphonicKeyPressureEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const ChannelPressureEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const SysExEvent &e) {
+        runningTick += e.deltaTime;
+    }
 };
 
 
@@ -2905,6 +2966,64 @@ struct EventFileTimesLastTicksVisitor {
     }
 
     void operator()(const BankSelectLSBEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const ControlChangeEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const MetaEvent &e) {
+
+        switch (e.type) {
+        case M_SETTEMPO: {
+
+            runningTick += e.deltaTime;
+
+            if (runningTick > lastTempoChangeTick) {
+
+                lastTempoChangeTick = runningTick;
+
+                auto it = e.data.cbegin();
+
+                auto microsPerBeat = parseBE3(it);
+
+                //
+                // convert MicrosPerBeat -> MicrosPerTick
+                //
+                lastMicrosPerTick = rational(microsPerBeat) / division;
+            }
+
+            break;
+        }
+        case M_ENDOFTRACK: {
+
+            runningTick += e.deltaTime;
+
+            if (runningTick > lastEndOfTrackTick) {
+                lastEndOfTrackTick = runningTick;
+            }
+
+            break;
+        }
+        default: {
+
+            runningTick += e.deltaTime;
+            
+            break;
+        }
+        }
+    }
+
+    void operator()(const PolyphonicKeyPressureEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const ChannelPressureEvent &e) {
+        runningTick += e.deltaTime;
+    }
+
+    void operator()(const SysExEvent &e) {
         runningTick += e.deltaTime;
     }
 };
@@ -3096,6 +3215,32 @@ struct EventInfoVisitor {
     }
 
     void operator()(const BankSelectLSBEvent &e) {
+        (void)e;
+    }
+
+    void operator()(const ControlChangeEvent &e) {
+        (void)e;
+    }
+
+    void operator()(const MetaEvent &e) {
+        
+        if (e.type == M_TRACKNAME) {
+
+            std::string str{e.data.cbegin(), e.data.cend()};
+
+            LOGI("Track Name: %s", str.c_str());
+        }
+    }
+
+    void operator()(const PolyphonicKeyPressureEvent &e) {
+        (void)e;
+    }
+
+    void operator()(const ChannelPressureEvent &e) {
+        (void)e;
+    }
+
+    void operator()(const SysExEvent &e) {
         (void)e;
     }
 };

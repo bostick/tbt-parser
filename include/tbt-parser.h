@@ -691,9 +691,41 @@ struct BankSelectLSBEvent {
     uint8_t bankSelectLSB;
 };
 
+struct ControlChangeEvent {
+    int32_t deltaTime;
+    uint8_t channel;
+    uint8_t controller;
+    uint8_t value;
+};
+
+struct MetaEvent {
+    int32_t deltaTime;
+    uint8_t type;
+    std::vector<uint8_t> data;
+};
+
+struct PolyphonicKeyPressureEvent {
+    int32_t deltaTime;
+    uint8_t channel;
+    uint8_t midiNote;
+    uint8_t pressure;
+};
+
+struct ChannelPressureEvent {
+    int32_t deltaTime;
+    uint8_t channel;
+    uint8_t pressure;
+};
+
+struct SysExEvent {
+    int32_t deltaTime;
+    std::vector<uint8_t> data;
+};
+
 using midi_track_event = std::variant<NullEvent, TimeSignatureEvent, TempoChangeEvent, EndOfTrackEvent, ProgramChangeEvent, PanEvent,
     ReverbEvent, ChorusEvent, ModulationEvent, RPNParameterMSBEvent, RPNParameterLSBEvent, DataEntryMSBEvent, DataEntryLSBEvent,
-    PitchBendEvent, NoteOffEvent, NoteOnEvent, TrackNameEvent, BankSelectMSBEvent, BankSelectLSBEvent>;
+    PitchBendEvent, NoteOffEvent, NoteOnEvent, TrackNameEvent, BankSelectMSBEvent, BankSelectLSBEvent,
+    ControlChangeEvent, MetaEvent, PolyphonicKeyPressureEvent, ChannelPressureEvent, SysExEvent>;
 
 struct midi_file {
     midi_header header;
