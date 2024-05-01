@@ -1260,29 +1260,29 @@ TconvertToMidi(
                     //
                     // Emit note offs
                     //
-                    for (uint8_t string = 0; string < trackMetadata.stringCount; string++) {
+                        for (uint8_t string = 0; string < trackMetadata.stringCount; string++) {
 
-                        auto off = offVsqs[string];
+                            auto off = offVsqs[string];
 
-                        if (off == 0) {
-                            continue;
+                            if (off == 0) {
+                                continue;
+                            }
+
+                            ASSERT(off >= 0x80);
+
+                            auto midiNote = static_cast<uint8_t>(off + midiNoteOffsetArray[string]);
+
+                            diff = (roundedTick - lastEventTick);
+
+                            tmp.push_back(NoteOffEvent{
+                                diff.to_int32(), // delta time
+                                channel,
+                                midiNote,
+                                0 // velocity
+                            });
+
+                            lastEventTick = roundedTick;
                         }
-
-                        ASSERT(off >= 0x80);
-
-                        auto midiNote = static_cast<uint8_t>(off + midiNoteOffsetArray[string]);
-
-                        diff = (roundedTick - lastEventTick);
-
-                        tmp.push_back(NoteOffEvent{
-                            diff.to_int32(), // delta time
-                            channel,
-                            midiNote,
-                            0 // velocity
-                        });
-
-                        lastEventTick = roundedTick;
-                    }
                 }
             }
 
