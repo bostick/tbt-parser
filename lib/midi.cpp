@@ -1185,18 +1185,13 @@ TconvertToMidi(
 
                                 uint8_t on = onVsqs[string];
 
-                                if (on == 0) {
+                                if (on < 0x80) {
 
-                                    currentlyPlayingStrings[string] = 0;
-
-                                } else if (on == MUTED ||
-                                        on == STOPPED) {
+                                    ASSERT(on == 0 || on == MUTED || on == STOPPED);
 
                                     currentlyPlayingStrings[string] = 0;
 
                                 } else {
-
-                                    ASSERT(on >= 0x80);
 
                                     currentlyPlayingStrings[string] = on;
                                 }
@@ -1209,48 +1204,38 @@ TconvertToMidi(
 
                             uint8_t current = currentlyPlayingStrings[string];
 
-                            if (current == 0) {
+                            uint8_t on = onVsqs[string];
 
-                                uint8_t on = onVsqs[string];
+                            if (current < 0x80) {
 
-                                if (on == 0) {
+                                ASSERT(current == 0);
 
-                                    offVsqs[string] = 0;
+                                if (on < 0x80) {
 
-                                } else if (on == MUTED ||
-                                        on == STOPPED) {
-
-                                    offVsqs[string] = 0;
+                                    ASSERT(on == 0 || on == MUTED || on == STOPPED);
 
                                 } else {
 
-                                    ASSERT(on >= 0x80);
-
-                                    offVsqs[string] = 0;
                                     currentlyPlayingStrings[string] = on;
                                 }
 
                             } else {
 
-                                ASSERT(current >= 0x80);
+                                if (on < 0x80) {
 
-                                uint8_t on = onVsqs[string];
+                                    if (on != 0) {
 
-                                if (on == 0) {
+                                        ASSERT(on == MUTED || on == STOPPED);
 
-                                    offVsqs[string] = 0;
+                                        offVsqs[string] = current;
 
-                                } else if (on == MUTED ||
-                                        on == STOPPED) {
-
-                                    offVsqs[string] = current;
-                                    currentlyPlayingStrings[string] = 0;
+                                        currentlyPlayingStrings[string] = 0;
+                                    }
 
                                 } else {
 
-                                    ASSERT(on >= 0x80);
-
                                     offVsqs[string] = current;
+
                                     currentlyPlayingStrings[string] = on;
                                 }
                             }
