@@ -18,7 +18,7 @@
 
 #include "tbt-parser.h"
 
-#include "tbt-parser/midi.h"
+#include "tbt-parser/rational.h"
 #include "tbt-parser/tbt-parser-util.h"
 
 #include "common/assert.h"

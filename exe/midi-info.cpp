@@ -18,8 +18,6 @@
 
 #include "tbt-parser.h"
 
-#include "tbt-parser/midi.h"
-
 #include "common/assert.h"
 #include "common/check.h"
 #include "common/logging.h"

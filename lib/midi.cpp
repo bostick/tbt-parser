@@ -16,8 +16,6 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#include "tbt-parser/midi.h"
-
 #include "tbt-parser/rational.h"
 #include "tbt-parser/tbt-parser-util.h"
 
@@ -34,6 +32,13 @@
 
 
 #define TAG "midi"
+
+
+const rational TICKS_PER_BEAT = 0xc0; // 192
+const rational TICKS_PER_SPACE = (TICKS_PER_BEAT / 4); // 48
+
+const rational MICROS_PER_MINUTE = 60 * 1000000;
+
 
 
 const std::array<uint8_t, 8> STRING_MIDI_NOTE = {
