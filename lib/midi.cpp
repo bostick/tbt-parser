@@ -34,8 +34,8 @@
 #define TAG "midi"
 
 
-const rational TICKS_PER_BEAT = 0xc0; // 192
-const rational TICKS_PER_SPACE = (TICKS_PER_BEAT / 4); // 48
+const rational TBT_TICKS_PER_BEAT = 0xc0; // 192
+const rational TBT_TICKS_PER_SPACE = (TBT_TICKS_PER_BEAT / 4); // 48
 
 const rational MICROS_PER_MINUTE = 60 * 1000000;
 
@@ -561,7 +561,7 @@ TconvertToMidi(
     out.header = {
         1, // format
         static_cast<uint16_t>(t.header.trackCount + 1), // track count, + 1 for tempo track
-        TICKS_PER_BEAT.to_uint16() // division
+        TBT_TICKS_PER_BEAT.to_uint16() // division
     };
 
 
@@ -708,7 +708,7 @@ TconvertToMidi(
 
                     auto oldRoundedTick = roundedTick;
 
-                    tick += spaceDiff * TICKS_PER_SPACE;
+                    tick += spaceDiff * TBT_TICKS_PER_SPACE;
 
                     roundedTick = tick.round();
 
@@ -730,7 +730,7 @@ TconvertToMidi(
                 }
             }
 
-            tick += TICKS_PER_SPACE;
+            tick += TBT_TICKS_PER_SPACE;
 
             roundedTick = tick.round();
 
@@ -742,7 +742,7 @@ TconvertToMidi(
         // now backup 1 space
         //
 
-        tick -= TICKS_PER_SPACE;
+        tick -= TBT_TICKS_PER_SPACE;
 
         roundedTick = tick.round();
 
@@ -1034,7 +1034,7 @@ TconvertToMidi(
                             //
                             // now backup by the difference between flooredActualSpace and actualSpace
                             //
-                            tick -= spaceDiff * TICKS_PER_SPACE;
+                            tick -= spaceDiff * TBT_TICKS_PER_SPACE;
 
                             roundedTick = tick.round();
                         }
@@ -1068,7 +1068,7 @@ TconvertToMidi(
                             //
                             // now scoot up by the difference between actualSpace and r.open
                             //
-                            tick += spaceDiff * TICKS_PER_SPACE;
+                            tick += spaceDiff * TBT_TICKS_PER_SPACE;
 
                             roundedTick = tick.round();
                         }
@@ -1590,7 +1590,7 @@ TconvertToMidi(
 
                         auto atr = rational{ alternateTimeRegion[0], alternateTimeRegion[1] };
 
-                        tick += (atr * TICKS_PER_SPACE);
+                        tick += (atr * TBT_TICKS_PER_SPACE);
 
                         roundedTick = tick.round();
 
@@ -1604,7 +1604,7 @@ TconvertToMidi(
 
                     } else {
 
-                        tick += TICKS_PER_SPACE;
+                        tick += TBT_TICKS_PER_SPACE;
 
                         roundedTick = tick.round();
 
@@ -1619,7 +1619,7 @@ TconvertToMidi(
 
                 } else {
 
-                    tick += TICKS_PER_SPACE;
+                    tick += TBT_TICKS_PER_SPACE;
 
                     roundedTick = tick.round();
 
@@ -1639,7 +1639,7 @@ TconvertToMidi(
         // now backup 1 space
         //
 
-        tick -= TICKS_PER_SPACE;
+        tick -= TBT_TICKS_PER_SPACE;
         
         roundedTick = tick.round();
         
@@ -2673,6 +2673,8 @@ parseMidiBytes(
 
 struct EventFileTimesTempoMapVisitor {
     
+    const uint16_t division;
+
     //
     // tick -> microsPerTick
     //
@@ -2681,11 +2683,6 @@ struct EventFileTimesTempoMapVisitor {
     uint16_t track;
 
     rational runningTick;
-
-    EventFileTimesTempoMapVisitor(std::map<rational, rational> &tempoMapIn) :
-        tempoMap(tempoMapIn),
-        runningTick(0)
-        {}
 
     void operator()(const TimeSignatureEvent &e) {
         runningTick += e.deltaTime;
@@ -2698,7 +2695,7 @@ struct EventFileTimesTempoMapVisitor {
         //
         // convert MicrosPerBeat -> MicrosPerTick
         //
-        auto newMicrosPerTick = rational(e.microsPerBeat) / TICKS_PER_BEAT;
+        auto newMicrosPerTick = rational(e.microsPerBeat) / division;
 
         const auto &tempoMapIt = tempoMap.find(runningTick);
         if (tempoMapIt != tempoMap.end()) {
@@ -2711,9 +2708,9 @@ struct EventFileTimesTempoMapVisitor {
                 // convert MicrosPerTick -> BeatsPerMinute
                 //
 
-                auto aBPM = (MICROS_PER_MINUTE / (microsPerTick * TICKS_PER_BEAT));
+                auto aBPM = (MICROS_PER_MINUTE / (microsPerTick * division));
 
-                auto bBPM = (MICROS_PER_MINUTE / (newMicrosPerTick * TICKS_PER_BEAT));
+                auto bBPM = (MICROS_PER_MINUTE / (newMicrosPerTick * division));
 
                 LOGW("track: %d tick %f has conflicting tempo changes: %f, %f", track, runningTick.to_double(), aBPM.to_double(), bBPM.to_double());
             }
@@ -2794,6 +2791,8 @@ struct EventFileTimesTempoMapVisitor {
 
 struct EventFileTimesLastTicksVisitor {
     
+    const uint16_t division;
+
     rational runningTick;
 
     //
@@ -2819,7 +2818,7 @@ struct EventFileTimesLastTicksVisitor {
             //
             // convert MicrosPerBeat -> MicrosPerTick
             //
-            lastMicrosPerTick = rational(e.microsPerBeat) / TICKS_PER_BEAT;
+            lastMicrosPerTick = rational(e.microsPerBeat) / division;
         }
     }
 
@@ -2920,7 +2919,7 @@ midiFileTimes(const midi_file &m) {
     //
     std::map<rational, rational> tempoMap;
 
-    EventFileTimesTempoMapVisitor eventFileTimesTempoMapVisitor{ tempoMap };
+    EventFileTimesTempoMapVisitor eventFileTimesTempoMapVisitor{ m.header.division, tempoMap, 0, 0 };
 
     for (uint16_t track = 0; track < m.tracks.size(); track++) {
 
@@ -2935,7 +2934,7 @@ midiFileTimes(const midi_file &m) {
     }
 
 
-    EventFileTimesLastTicksVisitor v{};
+    EventFileTimesLastTicksVisitor v{ m.header.division, 0 };
 
     for (const auto &track : m.tracks) {
 
