@@ -2111,6 +2111,10 @@ parseChunk(
 
     uint32_t len = parseBE4(it);
     
+    if (len == 0) {
+        LOGW("chunk length is 0");
+    }
+
     auto begin = it;
     
     it += len;
@@ -2150,6 +2154,13 @@ parseHeader(
     out.header.trackCount = parseBE2(it2);
 
     out.header.division = parseBE2(it2);
+
+    if (out.header.format == 0) {
+
+        if (out.header.trackCount != 1) {
+            LOGW("format 0 but trackCount != 1: %d", out.header.trackCount);
+        }
+    }
 
     if (it2 != end2) {
         LOGW("bytes after header: %zu", (end2 - it2));
@@ -2364,6 +2375,25 @@ parseTrackEvent(
                 b = *it++;
 
                 tmp.push_back(b);
+            }
+
+            auto it2 = tmp.cbegin();
+            
+            auto end2 = tmp.cend();
+
+            uint32_t len;
+
+            ret = parseVLQ(it2, end2, len);
+
+            if (ret != OK) {
+                return ret;
+            }
+
+            if (it2 + len != end2) {
+
+                LOGW("SysEx event len is not correct");
+
+                return ERR;
             }
 
             out = SysExEvent{deltaTime, tmp};
