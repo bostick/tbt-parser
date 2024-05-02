@@ -575,6 +575,10 @@ using tbt_file = std::variant<tbt_file65, tbt_file68, tbt_file6a, tbt_file6b, tb
 
 struct midi_convert_opts {
 
+    //
+    // Custom Lyric events may be used to trigger callbacks in FluidSynth
+    //
+    bool emit_custom_lyric_events = false;
 };
 
 

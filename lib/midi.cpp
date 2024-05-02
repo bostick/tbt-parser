@@ -70,6 +70,7 @@ const uint8_t STOPPED = 0x12; // 18
 // meta events
 //
 const uint8_t M_TRACKNAME = 0x03;
+const uint8_t M_LYRIC = 0x05;
 const uint8_t M_ENDOFTRACK = 0x2f;
 const uint8_t M_SETTEMPO = 0x51;
 const uint8_t M_TIMESIGNATURE = 0x58;
@@ -719,6 +720,23 @@ TconvertToMidi(
             });
 
             lastEventTick = roundedTick;
+
+            if (opts.emit_custom_lyric_events) {
+
+                diff = (roundedTick - lastEventTick);
+
+                auto lyricStr = std::string("space 0 tempo ") + std::to_string(tempoBPM);
+
+                auto lyricData = std::vector<uint8_t>{lyricStr.cbegin(), lyricStr.cend()};
+
+                tmp.push_back(MetaEvent{
+                    diff.to_int32(), // delta time
+                    M_LYRIC,
+                    lyricData
+                });
+
+                lastEventTick = roundedTick;
+            }
         }
 
         auto &repeatCloseMap = repeatCloseMaps[0];
@@ -809,6 +827,23 @@ TconvertToMidi(
                     });
 
                     lastEventTick = roundedTick;
+                    
+                    if (opts.emit_custom_lyric_events) {
+
+                        diff = (roundedTick - lastEventTick);
+
+                        auto lyricStr = std::string("space ") + std::to_string(actualSpace.floor().to_uint32()) + " tempo " + std::to_string(tempoBPM);
+
+                        auto lyricData = std::vector<uint8_t>{lyricStr.cbegin(), lyricStr.cend()};
+
+                        tmp.push_back(MetaEvent{
+                            diff.to_int32(), // delta time
+                            M_LYRIC,
+                            lyricData
+                        });
+
+                        lastEventTick = roundedTick;
+                    }
 
                     //
                     // restore tick
