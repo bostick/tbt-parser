@@ -24,7 +24,10 @@
 #include <utility>
 #include <cmath>
 
-	
+
+#define TAG "rational"
+
+
 rational::rational() : n(0), d(1) {}
 
 rational::rational(int a) : n(a), d(1) {}

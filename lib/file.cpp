@@ -26,6 +26,9 @@
 #include <cstdio>
 
 
+#define TAG "file"
+
+
 Status
 openFile(
     const char *path,
