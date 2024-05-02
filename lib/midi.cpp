@@ -2830,11 +2830,29 @@ struct EventInfoVisitor {
 
     void operator()(const MetaEvent &e) {
         
-        if (e.type == M_TRACKNAME) {
+        switch (e.type) {
+        case M_TRACKNAME: {
 
             std::string str{e.data.cbegin(), e.data.cend()};
 
             LOGI("Track Name: %s", str.c_str());
+
+            break;
+        }
+        case M_TIMESIGNATURE: {
+
+            auto numerator = e.data[0];
+            auto denominator = e.data[1];
+            auto ticksPerBeat = e.data[2];
+            auto notated32notesPerBeat = e.data[3];
+
+            LOGI("Time Signature Numerator: %d", numerator);
+            LOGI("Time Signature Denominator: %d", denominator);
+            LOGI("Time Signature Ticks Per Beat: %d", ticksPerBeat);
+            LOGI("Time Signature 32nd notes Per Beat: %d", notated32notesPerBeat);
+
+            break;
+        }
         }
     }
 
