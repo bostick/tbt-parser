@@ -86,9 +86,11 @@ int main(int argc, const char *argv[]) {
 
     LOGI("exporting...");
 
+    midi_convert_opts opts;
+
     midi_file m;
 
-    ret = convertToMidi(t, m);
+    ret = convertToMidi(t, opts, m);
 
     if (ret != OK) {
         return ret;

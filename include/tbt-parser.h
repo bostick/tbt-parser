@@ -573,6 +573,11 @@ struct tbt_file65 {
 using tbt_file = std::variant<tbt_file65, tbt_file68, tbt_file6a, tbt_file6b, tbt_file6e, tbt_file6f, tbt_file70, tbt_file71>;
 
 
+struct midi_convert_opts {
+
+};
+
+
 struct midi_header {
     uint16_t format;
     uint16_t trackCount;
@@ -659,7 +664,7 @@ std::string tbtFileVersionString(const tbt_file &t);
 
 void tbtFileInfo(const tbt_file &t);
 
-Status convertToMidi(const tbt_file &t, midi_file &m);
+Status convertToMidi(const tbt_file &t, const midi_convert_opts &opts, midi_file &m);
 
 Status exportMidiFile(const midi_file &m, const char *path);
 

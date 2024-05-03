@@ -573,6 +573,7 @@ template <uint8_t VERSION, bool HASALTERNATETIMEREGIONS, typename tbt_file_t, si
 Status
 TconvertToMidi(
     const tbt_file_t &t,
+    const midi_convert_opts &opts,
     midi_file &out) {
 
     uint32_t barsSpaceCount;
@@ -1796,6 +1797,7 @@ TconvertToMidi(
 Status
 convertToMidi(
     const tbt_file &t,
+    const midi_convert_opts &opts,
     midi_file &out) {
 
     auto versionNumber = tbtFileVersionNumber(t);
@@ -1806,9 +1808,9 @@ convertToMidi(
         auto t71 = std::get<tbt_file71>(t);
         
         if ((t71.header.featureBitfield & HASALTERNATETIMEREGIONS_MASK) == HASALTERNATETIMEREGIONS_MASK) {
-            return TconvertToMidi<0x72, true, tbt_file71, 8>(t71, out);
+            return TconvertToMidi<0x72, true, tbt_file71, 8>(t71, opts, out);
         } else {
-            return TconvertToMidi<0x72, false, tbt_file71, 8>(t71, out);
+            return TconvertToMidi<0x72, false, tbt_file71, 8>(t71, opts, out);
         }
     }
     case 0x71: {
@@ -1816,9 +1818,9 @@ convertToMidi(
         auto t71 = std::get<tbt_file71>(t);
         
         if ((t71.header.featureBitfield & HASALTERNATETIMEREGIONS_MASK) == HASALTERNATETIMEREGIONS_MASK) {
-            return TconvertToMidi<0x71, true, tbt_file71, 8>(t71, out);
+            return TconvertToMidi<0x71, true, tbt_file71, 8>(t71, opts, out);
         } else {
-            return TconvertToMidi<0x71, false, tbt_file71, 8>(t71, out);
+            return TconvertToMidi<0x71, false, tbt_file71, 8>(t71, opts, out);
         }
     }
     case 0x70: {
@@ -1826,64 +1828,64 @@ convertToMidi(
         auto t70 = std::get<tbt_file70>(t);
         
         if ((t70.header.featureBitfield & HASALTERNATETIMEREGIONS_MASK) == HASALTERNATETIMEREGIONS_MASK) {
-            return TconvertToMidi<0x70, true, tbt_file70, 8>(t70, out);
+            return TconvertToMidi<0x70, true, tbt_file70, 8>(t70, opts, out);
         } else {
-            return TconvertToMidi<0x70, false, tbt_file70, 8>(t70, out);
+            return TconvertToMidi<0x70, false, tbt_file70, 8>(t70, opts, out);
         }
     }
     case 0x6f: {
         
         auto t6f = std::get<tbt_file6f>(t);
         
-        return TconvertToMidi<0x6f, false, tbt_file6f, 8>(t6f, out);
+        return TconvertToMidi<0x6f, false, tbt_file6f, 8>(t6f, opts, out);
     }
     case 0x6e: {
         
         auto t6e = std::get<tbt_file6e>(t);
         
-        return TconvertToMidi<0x6e, false, tbt_file6e, 8>(t6e, out);
+        return TconvertToMidi<0x6e, false, tbt_file6e, 8>(t6e, opts, out);
     }
     case 0x6b: {
         
         auto t6b = std::get<tbt_file6b>(t);
         
-        return TconvertToMidi<0x6b, false, tbt_file6b, 8>(t6b, out);
+        return TconvertToMidi<0x6b, false, tbt_file6b, 8>(t6b, opts, out);
     }
     case 0x6a: {
         
         auto t6a = std::get<tbt_file6a>(t);
         
-        return TconvertToMidi<0x6a, false, tbt_file6a, 6>(t6a, out);
+        return TconvertToMidi<0x6a, false, tbt_file6a, 6>(t6a, opts, out);
     }
     case 0x69: {
         
         auto t68 = std::get<tbt_file68>(t);
         
-        return TconvertToMidi<0x69, false, tbt_file68, 6>(t68, out);
+        return TconvertToMidi<0x69, false, tbt_file68, 6>(t68, opts, out);
     }
     case 0x68: {
         
         auto t68 = std::get<tbt_file68>(t);
         
-        return TconvertToMidi<0x68, false, tbt_file68, 6>(t68, out);
+        return TconvertToMidi<0x68, false, tbt_file68, 6>(t68, opts, out);
     }
     case 0x67: {
         
         auto t65 = std::get<tbt_file65>(t);
         
-        return TconvertToMidi<0x67, false, tbt_file65, 6>(t65, out);
+        return TconvertToMidi<0x67, false, tbt_file65, 6>(t65, opts, out);
     }
     case 0x66: {
         
         auto t65 = std::get<tbt_file65>(t);
         
-        return TconvertToMidi<0x66, false, tbt_file65, 6>(t65, out);
+        return TconvertToMidi<0x66, false, tbt_file65, 6>(t65, opts, out);
     }
     case 0x65: {
         
         auto t65 = std::get<tbt_file65>(t);
         
-        return TconvertToMidi<0x65, false, tbt_file65, 6>(t65, out);
+        return TconvertToMidi<0x65, false, tbt_file65, 6>(t65, opts, out);
     }
     default:
 
