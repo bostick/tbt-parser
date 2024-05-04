@@ -747,112 +747,112 @@ TconvertToMidi(
             // handle any repeat closes first
             //
 
-            const auto &repeatCloseMapIt = repeatCloseMap.find(space);
-            if (repeatCloseMapIt != repeatCloseMap.end()) {
-
-                //
-                // there is a repeat close at this space
-                //
-
-                auto &r = repeatCloseMapIt->second;
-
-                //
-                // how many repeats are left?
-                //
-
-                if (r.repeats > 0) {
+                const auto &repeatCloseMapIt = repeatCloseMap.find(space);
+                if (repeatCloseMapIt != repeatCloseMap.end()) {
 
                     //
-                    // jump to the repeat open
+                    // there is a repeat close at this space
                     //
 
-                    space = r.open;
+                    auto &r = repeatCloseMapIt->second;
 
-                    r.repeats--;
+                    //
+                    // how many repeats are left?
+                    //
 
-                    continue;
+                    if (r.repeats > 0) {
+
+                        //
+                        // jump to the repeat open
+                        //
+
+                        space = r.open;
+
+                        r.repeats--;
+
+                        continue;
+                    }
                 }
-            }
             
             //
             // Emit tempo changes
             //
 
-            const auto &tempoMapIt = tempoMap.find(space);
-            if (tempoMapIt != tempoMap.end()) {
-
-                //
-                // map of tempo changes at this floored space
-                //
-                auto &m = tempoMapIt->second;
-
-                for (const auto &mIt : m) {
-
-                    auto actualSpace = mIt.first;
-                    auto tempoBPM = mIt.second;
-
-                    auto spaceDiff = (actualSpace - space);
-
-                    ASSERT(spaceDiff.is_nonnegative());
+                const auto &tempoMapIt = tempoMap.find(space);
+                if (tempoMapIt != tempoMap.end()) {
 
                     //
-                    // convert BeatsPerMinute -> MicrosPerBeat
+                    // map of tempo changes at this floored space
                     //
-                    // TabIt uses floor(), but using round() is more accurate
-                    //
-                    // auto microsPerBeat = (MICROS_PER_MINUTE / tempoBPM).round();
-                    auto microsPerBeat = (MICROS_PER_MINUTE.to_uint32() / tempoBPM);
+                    auto &m = tempoMapIt->second;
 
-                    //
-                    // increment by spaceDiff
-                    //
-                    auto oldTick = tick;
+                    for (const auto &mIt : m) {
 
-                    auto oldRoundedTick = roundedTick;
+                        auto actualSpace = mIt.first;
+                        auto tempoBPM = mIt.second;
 
-                    tick += spaceDiff * TBT_TICKS_PER_SPACE;
+                        auto spaceDiff = (actualSpace - space);
 
-                    roundedTick = tick.round();
+                        ASSERT(spaceDiff.is_nonnegative());
 
-                    diff = (roundedTick - lastEventTick);
+                        //
+                        // convert BeatsPerMinute -> MicrosPerBeat
+                        //
+                        // TabIt uses floor(), but using round() is more accurate
+                        //
+                        // auto microsPerBeat = (MICROS_PER_MINUTE / tempoBPM).round();
+                        auto microsPerBeat = (MICROS_PER_MINUTE.to_uint32() / tempoBPM);
 
-                    std::vector<uint8_t> tempoChangeData;
+                            //
+                            // increment by spaceDiff
+                            //
+                            auto oldTick = tick;
 
-                    toDigitsBEOnly3(microsPerBeat, tempoChangeData); // only last 3 bytes of microsPerBeatBytes
+                            auto oldRoundedTick = roundedTick;
 
-                    tmp.push_back(MetaEvent{
-                        diff.to_int32(), // delta time
-                        M_SETTEMPO,
-                        tempoChangeData
-                    });
+                            tick += spaceDiff * TBT_TICKS_PER_SPACE;
 
-                    lastEventTick = roundedTick;
-                    
-                    if (opts.emit_custom_lyric_events) {
+                            roundedTick = tick.round();
 
-                        diff = (roundedTick - lastEventTick);
+                            diff = (roundedTick - lastEventTick);
 
-                        auto lyricStr = std::string("space ") + std::to_string(actualSpace.floor().to_uint32()) + " tempo " + std::to_string(tempoBPM);
+                            std::vector<uint8_t> tempoChangeData;
 
-                        auto lyricData = std::vector<uint8_t>{lyricStr.cbegin(), lyricStr.cend()};
+                            toDigitsBEOnly3(microsPerBeat, tempoChangeData); // only last 3 bytes of microsPerBeatBytes
 
-                        tmp.push_back(MetaEvent{
-                            diff.to_int32(), // delta time
-                            M_LYRIC,
-                            lyricData
-                        });
+                            tmp.push_back(MetaEvent{
+                                diff.to_int32(), // delta time
+                                M_SETTEMPO,
+                                tempoChangeData
+                            });
 
-                        lastEventTick = roundedTick;
+                            lastEventTick = roundedTick;
+                            
+                            if (opts.emit_custom_lyric_events) {
+
+                                diff = (roundedTick - lastEventTick);
+
+                                auto lyricStr = std::string("space ") + std::to_string(actualSpace.floor().to_uint32()) + " tempo " + std::to_string(tempoBPM);
+
+                                auto lyricData = std::vector<uint8_t>{lyricStr.cbegin(), lyricStr.cend()};
+
+                                tmp.push_back(MetaEvent{
+                                    diff.to_int32(), // delta time
+                                    M_LYRIC,
+                                    lyricData
+                                });
+
+                                lastEventTick = roundedTick;
+                            }
+
+                            //
+                            // restore tick
+                            //
+                            tick = oldTick;
+
+                            roundedTick = oldRoundedTick;
                     }
-
-                    //
-                    // restore tick
-                    //
-                    tick = oldTick;
-
-                    roundedTick = oldRoundedTick;
                 }
-            }
 
             tick += TBT_TICKS_PER_SPACE;
 
@@ -1225,21 +1225,21 @@ TconvertToMidi(
             }
 
             {
+            //
+            // if there is an open repeat at this actual space, then store the track space for later
+            //
+
+            if (openSpaceSet.find(flooredActualSpaceI) != openSpaceSet.end()) {
+
+                ASSERT(!repeatOpenMap.contains(flooredActualSpaceI));
+
+                repeatOpenMap[flooredActualSpaceI] = { actualSpace, space };
+
                 //
-                // if there is an open repeat at this actual space, then store the track space for later
+                // after adding to repeatOpenMap, can be removed from openSpaceSet
                 //
-
-                if (openSpaceSet.find(flooredActualSpaceI) != openSpaceSet.end()) {
-
-                    ASSERT(!repeatOpenMap.contains(flooredActualSpaceI));
-
-                    repeatOpenMap[flooredActualSpaceI] = { actualSpace, space };
-
-                    //
-                    // after adding to repeatOpenMap, can be removed from openSpaceSet
-                    //
-                    openSpaceSet.erase(flooredActualSpaceI);
-                }
+                openSpaceSet.erase(flooredActualSpaceI);
+            }
             }
 
             bool anyStringsTurningOff = false;
@@ -1250,327 +1250,183 @@ TconvertToMidi(
             // Compute note offs and note ons and emit note offs
             //
             {
-                if (notesMapIt != maps.notesMap.end()) {
+            if (notesMapIt != maps.notesMap.end()) {
 
-                    const auto &onVsqs = notesMapIt->second;
+                const auto &onVsqs = notesMapIt->second;
 
-                    std::array<uint8_t, STRINGS_PER_TRACK> offVsqs{};
+                std::array<uint8_t, STRINGS_PER_TRACK> offVsqs{};
+
+                //
+                // Compute note offs
+                //
+                if (dontLetRing) {
 
                     //
-                    // Compute note offs
+                    // There may be string effects, but no note events
+                    // This will still be in the notesMap, but should not affect notes because of dontLetRing
+                    // i.e., simply checking for something in notesMap is not sufficient
                     //
-                    if (dontLetRing) {
+                    bool anyEvents = false;
+                    for (uint8_t string = 0; string < trackMetadata.stringCount; string++) {
 
-                        //
-                        // There may be string effects, but no note events
-                        // This will still be in the notesMap, but should not affect notes because of dontLetRing
-                        // i.e., simply checking for something in notesMap is not sufficient
-                        //
-                        bool anyEvents = false;
-                        for (uint8_t string = 0; string < trackMetadata.stringCount; string++) {
+                        uint8_t event = onVsqs[string];
 
-                            uint8_t event = onVsqs[string];
-
-                            if (event != 0) {
-                                anyEvents = true;
-                                break;
-                            }
+                        if (event != 0) {
+                            anyEvents = true;
+                            break;
                         }
+                    }
+                    
+                    if (anyEvents) {
                         
-                        if (anyEvents) {
-                            
-                            offVsqs = currentlyPlayingStrings;
+                        offVsqs = currentlyPlayingStrings;
 
-                            anyStringsTurningOff = true;
-
-                            for (uint8_t string = 0; string < trackMetadata.stringCount; string++) {
-
-                                uint8_t on = onVsqs[string];
-
-                                if (on < 0x80) {
-
-                                    ASSERT(on == 0 || on == MUTED || on == STOPPED);
-
-                                    currentlyPlayingStrings[string] = 0;
-
-                                } else {
-
-                                    currentlyPlayingStrings[string] = on;
-                                }
-                            }
-                        }
-
-                    } else {
+                        anyStringsTurningOff = true;
 
                         for (uint8_t string = 0; string < trackMetadata.stringCount; string++) {
-
-                            uint8_t current = currentlyPlayingStrings[string];
 
                             uint8_t on = onVsqs[string];
 
-                            if (current < 0x80) {
+                            if (on < 0x80) {
 
-                                ASSERT(current == 0);
+                                ASSERT(on == 0 || on == MUTED || on == STOPPED);
 
-                                if (on < 0x80) {
-
-                                    ASSERT(on == 0 || on == MUTED || on == STOPPED);
-
-                                } else {
-
-                                    currentlyPlayingStrings[string] = on;
-                                }
+                                currentlyPlayingStrings[string] = 0;
 
                             } else {
 
-                                if (on < 0x80) {
-
-                                    if (on != 0) {
-
-                                        ASSERT(on == MUTED || on == STOPPED);
-
-                                        offVsqs[string] = current;
-
-                                        anyStringsTurningOff = true;
-
-                                        currentlyPlayingStrings[string] = 0;
-                                    }
-
-                                } else {
-
-                                    offVsqs[string] = current;
-
-                                    anyStringsTurningOff = true;
-
-                                    currentlyPlayingStrings[string] = on;
-                                }
-                            }
-                        }
-                    }
-
-                    //
-                    // Emit note offs
-                    //
-                    if (anyStringsTurningOff) {
-
-                        for (uint8_t string = 0; string < trackMetadata.stringCount; string++) {
-
-                            auto off = offVsqs[string];
-
-                            if (off == 0) {
-                                continue;
-                            }
-
-                            ASSERT(off >= 0x80);
-
-                            auto midiNote = static_cast<uint8_t>(off + midiNoteOffsetArray[string]);
-
-                            diff = (roundedTick - lastEventTick);
-
-                            tmp.push_back(NoteOffEvent{
-                                diff.to_int32(), // delta time
-                                channel,
-                                midiNote,
-                                0 // velocity
-                            });
-
-                            lastEventTick = roundedTick;
-                        }
-                    }
-                }
-            }
-
-            //
-            // Emit track effects
-            //
-            {
-                if constexpr (VERSION == 0x72) {
-
-                    const auto &trackEffectChangesIt = maps.trackEffectChangesMap.find(space);
-                    if (trackEffectChangesIt != maps.trackEffectChangesMap.end()) {
-
-                        const auto &changes = trackEffectChangesIt->second;
-
-                        for (const auto &p : changes) {
-
-                            auto effect = p.first;
-                            auto value = p.second;
-
-                            switch(effect) {
-                            case INSTRUMENT: {
-
-                                auto newInstrument = value;
-
-                                bool midiBankFlag;
-
-                                midiBankFlag = ((newInstrument & 0b1000000000000000) == 0b1000000000000000);
-                                midiBank     = ((newInstrument & 0b0111111100000000) >> 8);
-                                dontLetRing  = ((newInstrument & 0b0000000010000000) == 0b0000000010000000);
-                                midiProgram  =  (newInstrument & 0b0000000001111111);
-                                
-                                if (midiBankFlag) {
-
-                                    //
-                                    // Bank Select MSB and Bank Select LSB are special and do not really mean MSB/LSB
-                                    // TabIt only sends MSB
-                                    //
-                                    uint8_t midiBankMSB = midiBank;
-                                    
-                                    diff = (roundedTick - lastEventTick);
-
-                                    tmp.push_back(ControlChangeEvent{
-                                        diff.to_int32(), // delta time
-                                        channel,
-                                        C_BANKSELECT_MSB,
-                                        midiBankMSB
-                                    });
-
-                                    lastEventTick = roundedTick;
-                                }
-
-                                diff = (roundedTick - lastEventTick);
-
-                                tmp.push_back(ProgramChangeEvent{
-                                    diff.to_int32(), // delta time
-                                    channel,
-                                    midiProgram
-                                });
-
-                                lastEventTick = roundedTick;
-
-                                break;
-                            }
-                            case VOLUME: {
-
-                                volume = static_cast<uint8_t>(value);
-
-                                break;
-                            }
-                            case TEMPO:
-                                //
-                                // already handled
-                                //
-                                break;
-                            case STROKE_DOWN:
-                            case STROKE_UP:
-                                //
-                                // nothing to do
-                                //
-                                break;
-                            case PAN: {
-                                
-                                auto newPan = static_cast<uint8_t>(value);
-
-                                diff = (roundedTick - lastEventTick);
-
-                                tmp.push_back(ControlChangeEvent{
-                                    diff.to_int32(), // delta time
-                                    channel,
-                                    C_PAN,
-                                    newPan
-                                });
-
-                                lastEventTick = roundedTick;
-
-                                break;
-                            }
-                            case CHORUS: {
-                                
-                                auto newChorus = static_cast<uint8_t>(value);
-
-                                diff = (roundedTick - lastEventTick);
-
-                                tmp.push_back(ControlChangeEvent{
-                                    diff.to_int32(), // delta time
-                                    channel,
-                                    C_CHORUS,
-                                    newChorus
-                                });
-
-                                lastEventTick = roundedTick;
-
-                                break;
-                            }
-                            case REVERB: {
-                                
-                                auto newReverb = static_cast<uint8_t>(value);
-
-                                diff = (roundedTick - lastEventTick);
-
-                                tmp.push_back(ControlChangeEvent{
-                                    diff.to_int32(), // delta time
-                                    channel,
-                                    C_REVERB,
-                                    newReverb
-                                });
-
-                                lastEventTick = roundedTick;
-
-                                break;
-                            }
-                            case MODULATION: {
-                                
-                                auto newModulation = static_cast<uint8_t>(value);
-
-                                diff = (roundedTick - lastEventTick);
-
-                                tmp.push_back(ControlChangeEvent{
-                                    diff.to_int32(), // delta time
-                                    channel,
-                                    C_MODULATION,
-                                    newModulation
-                                });
-
-                                lastEventTick = roundedTick;
-
-                                break;
-                            }
-                            case PITCH_BEND: {
-
-                                //
-                                // convert from (-2400, 2400) to (0b0000000000000000 to 0b0011111111111111) i.e. (0 to 16383)
-                                //
-                                auto newPitchBend = (((rational(static_cast<int16_t>(value)) + 2400) * 0b0011111111111111) / (2 * 2400)).round().to_int16();
-
-                                diff = (roundedTick - lastEventTick);
-
-                                tmp.push_back(PitchBendEvent{
-                                    diff.to_int32(), // delta time
-                                    channel,
-                                    newPitchBend
-                                });
-
-                                lastEventTick = roundedTick;
-
-                                break;
-                            }
-                            default:
-                                ASSERT(false);
-                                break;
+                                currentlyPlayingStrings[string] = on;
                             }
                         }
                     }
 
                 } else {
 
-                    if (notesMapIt != maps.notesMap.end()) {
+                    for (uint8_t string = 0; string < trackMetadata.stringCount; string++) {
 
-                        const auto &vsqs = notesMapIt->second;
+                        uint8_t current = currentlyPlayingStrings[string];
 
-                        auto trackEffect = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 0];
+                        uint8_t on = onVsqs[string];
 
-                        switch (trackEffect) {
-                        case 0x00:
-                            //
-                            // skip
-                            //
-                            break;
-                        case 'I': { // Instrument change
+                        if (current < 0x80) {
 
-                            auto newInstrument = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
+                            ASSERT(current == 0);
 
-                            dontLetRing = ((newInstrument & 0b10000000) == 0b10000000);
-                            midiProgram =  (newInstrument & 0b01111111);
+                            if (on < 0x80) {
+
+                                ASSERT(on == 0 || on == MUTED || on == STOPPED);
+
+                            } else {
+
+                                currentlyPlayingStrings[string] = on;
+                            }
+
+                        } else {
+
+                            if (on < 0x80) {
+
+                                if (on != 0) {
+
+                                    ASSERT(on == MUTED || on == STOPPED);
+
+                                    offVsqs[string] = current;
+
+                                    anyStringsTurningOff = true;
+
+                                    currentlyPlayingStrings[string] = 0;
+                                }
+
+                            } else {
+
+                                offVsqs[string] = current;
+
+                                anyStringsTurningOff = true;
+
+                                currentlyPlayingStrings[string] = on;
+                            }
+                        }
+                    }
+                }
+
+                //
+                // Emit note offs
+                //
+                if (anyStringsTurningOff) {
+
+                    for (uint8_t string = 0; string < trackMetadata.stringCount; string++) {
+
+                        auto off = offVsqs[string];
+
+                        if (off == 0) {
+                            continue;
+                        }
+
+                        ASSERT(off >= 0x80);
+
+                        auto midiNote = static_cast<uint8_t>(off + midiNoteOffsetArray[string]);
+
+                        diff = (roundedTick - lastEventTick);
+
+                        tmp.push_back(NoteOffEvent{
+                            diff.to_int32(), // delta time
+                            channel,
+                            midiNote,
+                            0 // velocity
+                        });
+
+                        lastEventTick = roundedTick;
+                    }
+                }
+            }
+            }
+
+            //
+            // Emit track effects
+            //
+            {
+            if constexpr (VERSION == 0x72) {
+
+                const auto &trackEffectChangesIt = maps.trackEffectChangesMap.find(space);
+                if (trackEffectChangesIt != maps.trackEffectChangesMap.end()) {
+
+                    const auto &changes = trackEffectChangesIt->second;
+
+                    for (const auto &p : changes) {
+
+                        auto effect = p.first;
+                        auto value = p.second;
+
+                        switch(effect) {
+                        case INSTRUMENT: {
+
+                            auto newInstrument = value;
+
+                            bool midiBankFlag;
+
+                            midiBankFlag = ((newInstrument & 0b1000000000000000) == 0b1000000000000000);
+                            midiBank     = ((newInstrument & 0b0111111100000000) >> 8);
+                            dontLetRing  = ((newInstrument & 0b0000000010000000) == 0b0000000010000000);
+                            midiProgram  =  (newInstrument & 0b0000000001111111);
+                            
+                            if (midiBankFlag) {
+
+                                //
+                                // Bank Select MSB and Bank Select LSB are special and do not really mean MSB/LSB
+                                // TabIt only sends MSB
+                                //
+                                uint8_t midiBankMSB = midiBank;
+                                
+                                diff = (roundedTick - lastEventTick);
+
+                                tmp.push_back(ControlChangeEvent{
+                                    diff.to_int32(), // delta time
+                                    channel,
+                                    C_BANKSELECT_MSB,
+                                    midiBankMSB
+                                });
+
+                                lastEventTick = roundedTick;
+                            }
 
                             diff = (roundedTick - lastEventTick);
 
@@ -1584,46 +1440,26 @@ TconvertToMidi(
 
                             break;
                         }
-                        case 'V': { // Volume change
+                        case VOLUME: {
 
-                            auto newVolume = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
-
-                            volume = newVolume;
+                            volume = static_cast<uint8_t>(value);
 
                             break;
                         }
-                        case 'T': // Tempo change
-                        case 't': // Tempo change + 250
+                        case TEMPO:
                             //
                             // already handled
                             //
                             break;
-                        case 'D': // Stroke down
-                        case 'U': // Stroke up
+                        case STROKE_DOWN:
+                        case STROKE_UP:
                             //
                             // nothing to do
                             //
                             break;
-                        case 'C': { // Chorus change
-
-                            auto newChorus = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
-
-                            diff = (roundedTick - lastEventTick);
-
-                            tmp.push_back(ControlChangeEvent{
-                                diff.to_int32(), // delta time
-                                channel,
-                                C_CHORUS,
-                                newChorus
-                            });
-
-                            lastEventTick = roundedTick;
-
-                            break;
-                        }
-                        case 'P': { // Pan change
-
-                            auto newPan = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
+                        case PAN: {
+                            
+                            auto newPan = static_cast<uint8_t>(value);
 
                             diff = (roundedTick - lastEventTick);
 
@@ -1638,9 +1474,26 @@ TconvertToMidi(
 
                             break;
                         }
-                        case 'R': { // Reverb change
+                        case CHORUS: {
+                            
+                            auto newChorus = static_cast<uint8_t>(value);
 
-                            auto newReverb = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
+                            diff = (roundedTick - lastEventTick);
+
+                            tmp.push_back(ControlChangeEvent{
+                                diff.to_int32(), // delta time
+                                channel,
+                                C_CHORUS,
+                                newChorus
+                            });
+
+                            lastEventTick = roundedTick;
+
+                            break;
+                        }
+                        case REVERB: {
+                            
+                            auto newReverb = static_cast<uint8_t>(value);
 
                             diff = (roundedTick - lastEventTick);
 
@@ -1655,89 +1508,221 @@ TconvertToMidi(
 
                             break;
                         }
+                        case MODULATION: {
+                            
+                            auto newModulation = static_cast<uint8_t>(value);
+
+                            diff = (roundedTick - lastEventTick);
+
+                            tmp.push_back(ControlChangeEvent{
+                                diff.to_int32(), // delta time
+                                channel,
+                                C_MODULATION,
+                                newModulation
+                            });
+
+                            lastEventTick = roundedTick;
+
+                            break;
+                        }
+                        case PITCH_BEND: {
+
+                            //
+                            // convert from (-2400, 2400) to (0b0000000000000000 to 0b0011111111111111) i.e. (0 to 16383)
+                            //
+                            auto newPitchBend = (((rational(static_cast<int16_t>(value)) + 2400) * 0b0011111111111111) / (2 * 2400)).round().to_int16();
+
+                            diff = (roundedTick - lastEventTick);
+
+                            tmp.push_back(PitchBendEvent{
+                                diff.to_int32(), // delta time
+                                channel,
+                                newPitchBend
+                            });
+
+                            lastEventTick = roundedTick;
+
+                            break;
+                        }
                         default:
                             ASSERT(false);
                             break;
                         }
                     }
                 }
+
+            } else {
+
+                if (notesMapIt != maps.notesMap.end()) {
+
+                    const auto &vsqs = notesMapIt->second;
+
+                    auto trackEffect = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 0];
+
+                    switch (trackEffect) {
+                    case 0x00:
+                        //
+                        // skip
+                        //
+                        break;
+                    case 'I': { // Instrument change
+
+                        auto newInstrument = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
+
+                        dontLetRing = ((newInstrument & 0b10000000) == 0b10000000);
+                        midiProgram =  (newInstrument & 0b01111111);
+
+                        diff = (roundedTick - lastEventTick);
+
+                        tmp.push_back(ProgramChangeEvent{
+                            diff.to_int32(), // delta time
+                            channel,
+                            midiProgram
+                        });
+
+                        lastEventTick = roundedTick;
+
+                        break;
+                    }
+                    case 'V': { // Volume change
+
+                        auto newVolume = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
+
+                        volume = newVolume;
+
+                        break;
+                    }
+                    case 'T': // Tempo change
+                    case 't': // Tempo change + 250
+                        //
+                        // already handled
+                        //
+                        break;
+                    case 'D': // Stroke down
+                    case 'U': // Stroke up
+                        //
+                        // nothing to do
+                        //
+                        break;
+                    case 'C': { // Chorus change
+
+                        auto newChorus = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
+
+                        diff = (roundedTick - lastEventTick);
+
+                        tmp.push_back(ControlChangeEvent{
+                            diff.to_int32(), // delta time
+                            channel,
+                            C_CHORUS,
+                            newChorus
+                        });
+
+                        lastEventTick = roundedTick;
+
+                        break;
+                    }
+                    case 'P': { // Pan change
+
+                        auto newPan = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
+
+                        diff = (roundedTick - lastEventTick);
+
+                        tmp.push_back(ControlChangeEvent{
+                            diff.to_int32(), // delta time
+                            channel,
+                            C_PAN,
+                            newPan
+                        });
+
+                        lastEventTick = roundedTick;
+
+                        break;
+                    }
+                    case 'R': { // Reverb change
+
+                        auto newReverb = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
+
+                        diff = (roundedTick - lastEventTick);
+
+                        tmp.push_back(ControlChangeEvent{
+                            diff.to_int32(), // delta time
+                            channel,
+                            C_REVERB,
+                            newReverb
+                        });
+
+                        lastEventTick = roundedTick;
+
+                        break;
+                    }
+                    default:
+                        ASSERT(false);
+                        break;
+                    }
+                }
+            }
             }
 
             //
             // Emit note ons
             //
             {
-                if (notesMapIt != maps.notesMap.end()) {
+            if (notesMapIt != maps.notesMap.end()) {
 
-                    const auto &onVsqs = notesMapIt->second;
-                    
-                    for (uint8_t string = 0; string < trackMetadata.stringCount; string++) {
+                const auto &onVsqs = notesMapIt->second;
+                
+                for (uint8_t string = 0; string < trackMetadata.stringCount; string++) {
 
-                        auto on = onVsqs[string];
+                    auto on = onVsqs[string];
 
-                        if (on == 0 ||
-                            on == MUTED ||
-                            on == STOPPED) {
-                            continue;
-                        }
-
-                        ASSERT(on >= 0x80);
-
-                        auto midiNote = static_cast<uint8_t>(on + midiNoteOffsetArray[string]);
-
-                        diff = (roundedTick - lastEventTick);
-
-                        tmp.push_back(NoteOnEvent{
-                            diff.to_int32(), // delta time
-                            channel,
-                            midiNote,
-                            volume // velocity
-                        });
-
-                        lastEventTick = roundedTick;
+                    if (on == 0 ||
+                        on == MUTED ||
+                        on == STOPPED) {
+                        continue;
                     }
+
+                    ASSERT(on >= 0x80);
+
+                    auto midiNote = static_cast<uint8_t>(on + midiNoteOffsetArray[string]);
+
+                    diff = (roundedTick - lastEventTick);
+
+                    tmp.push_back(NoteOnEvent{
+                        diff.to_int32(), // delta time
+                        channel,
+                        midiNote,
+                        volume // velocity
+                    });
+
+                    lastEventTick = roundedTick;
                 }
+            }
             }
 
             //
             // Compute actual space
             //
             {
-                if constexpr (HASALTERNATETIMEREGIONS) {
+            if constexpr (HASALTERNATETIMEREGIONS) {
 
-                    const auto &alternateTimeRegionsIt = maps.alternateTimeRegionsMap.find(space);
-                    if (alternateTimeRegionsIt != maps.alternateTimeRegionsMap.end()) {
+                const auto &alternateTimeRegionsIt = maps.alternateTimeRegionsMap.find(space);
+                if (alternateTimeRegionsIt != maps.alternateTimeRegionsMap.end()) {
 
-                        const auto &alternateTimeRegion = alternateTimeRegionsIt->second;
+                    const auto &alternateTimeRegion = alternateTimeRegionsIt->second;
 
-                        auto atr = rational{ alternateTimeRegion[0], alternateTimeRegion[1] };
+                    auto atr = rational{ alternateTimeRegion[0], alternateTimeRegion[1] };
 
-                        tick += (atr * TBT_TICKS_PER_SPACE);
+                    tick += (atr * TBT_TICKS_PER_SPACE);
 
-                        roundedTick = tick.round();
+                    roundedTick = tick.round();
 
-                        space++;
+                    space++;
 
-                        actualSpace += atr;
+                    actualSpace += atr;
 
-                        flooredActualSpace = actualSpace.floor();
+                    flooredActualSpace = actualSpace.floor();
 
-                        flooredActualSpaceI = flooredActualSpace.to_uint16();
-
-                    } else {
-
-                        tick += TBT_TICKS_PER_SPACE;
-
-                        roundedTick = tick.round();
-
-                        space++;
-
-                        ++actualSpace;
-
-                        flooredActualSpace = actualSpace.floor();
-
-                        flooredActualSpaceI = flooredActualSpace.to_uint16();
-                    }
+                    flooredActualSpaceI = flooredActualSpace.to_uint16();
 
                 } else {
 
@@ -1747,12 +1732,27 @@ TconvertToMidi(
 
                     space++;
 
-                    actualSpace = space;
+                    ++actualSpace;
 
-                    flooredActualSpace = space;
+                    flooredActualSpace = actualSpace.floor();
 
-                    flooredActualSpaceI = space;
+                    flooredActualSpaceI = flooredActualSpace.to_uint16();
                 }
+
+            } else {
+
+                tick += TBT_TICKS_PER_SPACE;
+
+                roundedTick = tick.round();
+
+                space++;
+
+                actualSpace = space;
+
+                flooredActualSpace = space;
+
+                flooredActualSpaceI = space;
+            }
             }
 
         } // for space
