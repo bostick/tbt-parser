@@ -25,28 +25,27 @@ find_package(GTest REQUIRED)
 
 
 set(CPP_TEST_SOURCES
-	TestMidi.cpp
-	TestRational.cpp
+    TestMidi.cpp
+    TestRational.cpp
     TestTbt.cpp
     TestUtil.cpp
 )
 
 add_executable(tbt-test-exe
-	${CPP_TEST_SOURCES}
+    ${CPP_TEST_SOURCES}
 )
 
 target_link_libraries(tbt-test-exe
-	PRIVATE
-		tbt-parser-static-lib
-		${GTEST_BOTH_LIBRARIES}
+    PRIVATE
+        tbt-parser-static-lib
+        GTest::gmock_main
 )
 
 target_include_directories(tbt-test-exe
-	PRIVATE
-		${GTEST_INCLUDE_DIRS}
-		../include/
-		../lib/
-		${COMMON_DIR}/include
+    PRIVATE
+        ../include/
+        ../lib/
+        ${COMMON_DIR}/include
 )
 
 target_compile_options(tbt-test-exe PRIVATE
@@ -54,10 +53,10 @@ target_compile_options(tbt-test-exe PRIVATE
 )
 
 set_target_properties(tbt-test-exe
-	PROPERTIES
-		OUTPUT_NAME tbt-test
-		CXX_STANDARD 20
-		CXX_STANDARD_REQUIRED ON
+    PROPERTIES
+        OUTPUT_NAME tbt-test
+        CXX_STANDARD 20
+        CXX_STANDARD_REQUIRED ON
 )
 
 
