@@ -1561,9 +1561,9 @@ TconvertToMidi(
 
                 if (notesMapIt != maps.notesMap.end()) {
 
-                    const auto &vsqs = notesMapIt->second;
+                    const auto &effectVsqs = notesMapIt->second;
 
-                    auto trackEffect = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 0];
+                    auto trackEffect = effectVsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 0];
 
                     switch (trackEffect) {
                     case 0x00:
@@ -1573,7 +1573,7 @@ TconvertToMidi(
                         break;
                     case 'I': { // Instrument change
 
-                        auto newInstrument = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
+                        auto newInstrument = effectVsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
                         dontLetRing = ((newInstrument & 0b10000000) == 0b10000000);
                         midiProgram =  (newInstrument & 0b01111111);
@@ -1592,7 +1592,7 @@ TconvertToMidi(
                     }
                     case 'V': { // Volume change
 
-                        auto newVolume = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
+                        auto newVolume = effectVsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
                         volume = newVolume;
 
@@ -1612,7 +1612,7 @@ TconvertToMidi(
                         break;
                     case 'C': { // Chorus change
 
-                        auto newChorus = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
+                        auto newChorus = effectVsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
                         diff = (roundedTick - lastEventTick);
 
@@ -1629,7 +1629,7 @@ TconvertToMidi(
                     }
                     case 'P': { // Pan change
 
-                        auto newPan = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
+                        auto newPan = effectVsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
                         diff = (roundedTick - lastEventTick);
 
@@ -1646,7 +1646,7 @@ TconvertToMidi(
                     }
                     case 'R': { // Reverb change
 
-                        auto newReverb = vsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
+                        auto newReverb = effectVsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
                         diff = (roundedTick - lastEventTick);
 
