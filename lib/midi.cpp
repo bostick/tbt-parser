@@ -157,7 +157,7 @@ computeChannelMap(
 
         ASSERT(!availableChannels.empty());
         
-        uint8_t firstAvailableChannel = availableChannels[0];
+        auto firstAvailableChannel = availableChannels[0];
         availableChannels.erase(availableChannels.cbegin() + 0);
 
         channelMap[track] = firstAvailableChannel;
@@ -504,9 +504,7 @@ computeRepeats(
                     //
                     break;
                 default:
-
                     ASSERT(false);
-                    
                     break;
                 }
             }
@@ -673,14 +671,12 @@ TconvertToMidi(
         rational roundedTick = 0;
 
         rational lastEventTick = 0;
-        
-        tmp.clear();
 
         auto diff = (roundedTick - lastEventTick);
 
         auto str = std::string("tbt-parser MIDI - Track 0");
 
-        std::vector<uint8_t> trackNameData{str.cbegin(), str.cend()};
+        std::vector<uint8_t> trackNameData{ str.cbegin(), str.cend() };
 
         tmp.push_back(MetaEvent{
             diff.to_int32(), // delta time
@@ -804,7 +800,7 @@ TconvertToMidi(
                     //
                     // map of tempo changes at this floored space
                     //
-                    auto &m = tempoMapIt->second;
+                    const auto &m = tempoMapIt->second;
 
                     for (const auto &mIt : m) {
 
@@ -928,7 +924,7 @@ TconvertToMidi(
     //
     for (uint8_t track = 0; track < t.header.trackCount; track++) {
 
-        uint8_t channel = channelMap[track];
+        const uint8_t channel = channelMap[track];
 
         const auto &midiNoteOffsetArray = midiNoteOffsetArrays[track];
 
@@ -945,7 +941,6 @@ TconvertToMidi(
 
         bool dontLetRing;
         uint8_t midiProgram;
-
         dontLetRing = ((trackMetadata.cleanGuitar & 0b10000000) == 0b10000000);
         midiProgram =  (trackMetadata.cleanGuitar & 0b01111111);
 
@@ -986,6 +981,9 @@ TconvertToMidi(
             pitchBend = 0b0010000000000000; // 8192
         }
 
+        //
+        // various ticks and spaces
+        //
         rational tick = 0;
 
         rational roundedTick = 0;
@@ -999,6 +997,12 @@ TconvertToMidi(
         rational lastEventTick = 0;
 
         std::array<uint8_t, STRINGS_PER_TRACK> currentlyPlayingStrings{};
+
+
+        //
+        // start processing
+        //
+
 
         tmp.clear();
 
@@ -1022,7 +1026,7 @@ TconvertToMidi(
             // Bank Select MSB and Bank Select LSB are special and do not really mean MSB/LSB
             // TabIt only sends MSB
             //
-            uint8_t midiBankMSB = midiBank;
+            auto midiBankMSB = midiBank;
 
             diff = (roundedTick - lastEventTick);
 
@@ -1267,14 +1271,14 @@ TconvertToMidi(
                 openSpaceSet.erase(flooredActualSpaceI);
             }
 
-            bool anyStringsTurningOff = false;
-
             const auto &notesMapIt = maps.notesMap.find(space);
 
             //
             // Compute note offs and note ons, and emit note offs
             //
             if (notesMapIt != maps.notesMap.end()) {
+
+                bool anyStringsTurningOff = false;
 
                 const auto &onVsqs = notesMapIt->second;
 
@@ -1301,7 +1305,7 @@ TconvertToMidi(
                     bool anyEvents = false;
                     for (uint8_t string = 0; string < trackMetadata.stringCount; string++) {
 
-                        uint8_t event = onVsqs[string];
+                        auto event = onVsqs[string];
 
                         if (event != 0) {
                             anyEvents = true;
@@ -1317,17 +1321,21 @@ TconvertToMidi(
 
                         for (uint8_t string = 0; string < trackMetadata.stringCount; string++) {
 
-                            uint8_t on = onVsqs[string];
+                            auto on = onVsqs[string];
 
-                            if (on < 0x80) {
-
-                                ASSERT(on == 0 || on == MUTED || on == STOPPED);
+                            if (on == 0) {
 
                                 currentlyPlayingStrings[string] = 0;
 
-                            } else {
+                            } else if (0x80 <= on) {
 
                                 currentlyPlayingStrings[string] = on;
+
+                            } else {
+
+                                ASSERT(on == MUTED || on == STOPPED);
+
+                                currentlyPlayingStrings[string] = 0;
                             }
                         }
                     }
@@ -1342,45 +1350,48 @@ TconvertToMidi(
 
                     for (uint8_t string = 0; string < trackMetadata.stringCount; string++) {
 
-                        uint8_t current = currentlyPlayingStrings[string];
+                        auto on = onVsqs[string];
 
-                        uint8_t on = onVsqs[string];
+                        if (on == 0) {
 
-                        if (current < 0x80) {
+                            //
+                            // nothing to do
+                            //
+                            continue;
+                        }
 
-                            ASSERT(current == 0);
+                        auto current = currentlyPlayingStrings[string];
 
-                            if (on < 0x80) {
+                        if (current == 0) {
 
-                                ASSERT(on == 0 || on == MUTED || on == STOPPED);
+                            if (0x80 <= on) {
+
+                                currentlyPlayingStrings[string] = on;
 
                             } else {
 
-                                currentlyPlayingStrings[string] = on;
+                                ASSERT(on == MUTED || on == STOPPED);
+
+                                //
+                                // current is already 0
+                                //
                             }
 
                         } else {
 
-                            if (on < 0x80) {
+                            offVsqs[string] = current;
 
-                                if (on != 0) {
+                            anyStringsTurningOff = true;
 
-                                    ASSERT(on == MUTED || on == STOPPED);
+                            if (0x80 <= on) {
 
-                                    offVsqs[string] = current;
-
-                                    anyStringsTurningOff = true;
-
-                                    currentlyPlayingStrings[string] = 0;
-                                }
+                                currentlyPlayingStrings[string] = on;
 
                             } else {
 
-                                offVsqs[string] = current;
+                                ASSERT(on == MUTED || on == STOPPED);
 
-                                anyStringsTurningOff = true;
-
-                                currentlyPlayingStrings[string] = on;
+                                currentlyPlayingStrings[string] = 0;
                             }
                         }
                     }
@@ -1596,7 +1607,7 @@ TconvertToMidi(
                     auto trackEffect = effectVsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 0];
 
                     switch (trackEffect) {
-                    case 0x00:
+                    case '\0':
                         //
                         // skip
                         //
@@ -1954,9 +1965,7 @@ convertToMidi(
         return TconvertToMidi<0x65, false, tbt_file65, 6>(t65, opts, out);
     }
     default:
-
         ASSERT(false);
-        
         return ERR;
     }
 }
@@ -2079,11 +2088,11 @@ exportMidiBytes(
 
         toDigitsBE(static_cast<uint32_t>(2 + 2 + 2), out); // length
 
-        toDigitsBE(static_cast<uint16_t>(m.header.format), out); // format
+        toDigitsBE(m.header.format, out); // format
 
-        toDigitsBE(static_cast<uint16_t>(m.header.trackCount), out); // track count
+        toDigitsBE(m.header.trackCount, out); // track count
 
-        toDigitsBE(static_cast<uint16_t>(m.header.division), out); // division
+        toDigitsBE(m.header.division, out); // division
     }
 
     //

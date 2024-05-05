@@ -42,7 +42,7 @@
 #include "body.inl"
 
 
-#define TAG "tbt-file"
+#define TAG "tbt"
 
 
 template <uint8_t VERSION, bool HASALTERNATETIMEREGIONS, typename tbt_file_t>
@@ -114,7 +114,6 @@ TparseTbtBytes(
         //
         // Nothing to assert: lastNonEmptySpace may be 0
         //
-        ;
 
     } else {
 
