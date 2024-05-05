@@ -91,6 +91,13 @@ const uint8_t C_RPNPARAM_MSB = 0x65;
 
 
 //
+// strings
+//
+const std::string S_MTHD = "MThd";
+const std::string S_MTRK = "MTrk";
+
+
+//
 // resolve all of the Automatically Assign -1 values to actual channels
 //
 template <uint8_t VERSION, typename tbt_file_t>
@@ -2038,7 +2045,7 @@ exportMidiBytes(
     // header
     //
     {
-        out.insert(out.end(), { 'M', 'T', 'h', 'd' }); // type
+        out.insert(out.end(), S_MTHD.cbegin(), S_MTHD.cend()); // type
 
         toDigitsBE(static_cast<uint32_t>(2 + 2 + 2), out); // length
 
@@ -2062,7 +2069,7 @@ exportMidiBytes(
             std::visit(eventExportVisitor, event);
         }
 
-        out.insert(out.end(), { 'M', 'T', 'r', 'k' }); // type
+        out.insert(out.end(), S_MTRK.cbegin(), S_MTRK.cend()); // type
 
         toDigitsBE(static_cast<uint32_t>(tmp.size()), out); // length
 
@@ -2172,7 +2179,7 @@ parseHeader(
         return ret;
     }
 
-    CHECK(std::memcmp(c.type.data(), "MThd", 4) == 0, "expected MThd type");
+    CHECK(std::memcmp(c.type.data(), S_MTHD.c_str(), 4) == 0, "expected MThd type");
 
     auto it2 = c.data.cbegin();
 
@@ -2489,7 +2496,7 @@ parseTrack(
         return ret;
     }
 
-    CHECK(std::memcmp(c.type.data(), "MTrk", 4) == 0, "expected MTrk type");
+    CHECK(std::memcmp(c.type.data(), S_MTRK.c_str(), 4) == 0, "expected MTrk type");
 
     std::vector<midi_track_event> track;
 
