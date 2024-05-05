@@ -41,7 +41,9 @@
 const rational TBT_TICKS_PER_BEAT = 0xc0; // 192
 const rational TBT_TICKS_PER_SPACE = (TBT_TICKS_PER_BEAT / 4); // 48
 
-const rational MICROS_PER_MINUTE = 60 * 1000000;
+const rational MICROS_PER_SECOND = 1000000;
+const rational MICROS_PER_MINUTE = (MICROS_PER_SECOND * 60);
+const rational MICROS_PER_64TH = (MICROS_PER_SECOND / 64);
 
 
 
@@ -989,6 +991,8 @@ TconvertToMidi(
         //
         rational tick = 0;
 
+        rational previousRoundedTick = 0;
+
         rational roundedTick = 0;
 
         rational actualSpace = 0;
@@ -1274,6 +1278,59 @@ TconvertToMidi(
                 openSpaceSet.erase(flooredActualSpaceI);
             }
 
+            //
+            // Emit Note Offs for any previous Muteds
+            //
+            for (uint8_t string = 0; string < trackMetadata.stringCount; string++) {
+
+                uint8_t current = currentlyPlayingStrings[string];
+
+                if (current != MUTED) {
+                    continue;
+                }
+
+                currentlyPlayingStrings[string] = 0;
+
+                auto off = 0x80; // open string
+
+                auto midiNote = static_cast<uint8_t>(off + midiNoteOffsetArray[string]);
+
+                //
+                // assume tempo of 120 bpm
+                //
+                // keeping track of correct tempo is too costly
+                //
+                static const auto microsPerBeat = (MICROS_PER_MINUTE.to_uint32() / 120);
+
+                //
+                // convert MicrosPerBeat -> MicrosPerTick
+                //
+                static const auto microsPerTick = rational(microsPerBeat) / TBT_TICKS_PER_BEAT;
+
+                //
+                // a muted note lasts for 1/64 second, or until the next event
+                //
+                static const auto mutedTickDiff = (MICROS_PER_64TH / microsPerTick).round();
+
+                auto mutedTick = previousRoundedTick + mutedTickDiff;
+
+                if (roundedTick < mutedTick) {
+                    mutedTick = roundedTick;
+                }
+
+                diff = (mutedTick - lastEventTick);
+
+                tmp.push_back(NoteOffEvent{
+                    diff.to_int32(), // delta time
+                    channel,
+                    midiNote,
+                    0 // velocity
+                });
+
+                lastEventTick = mutedTick;
+            }
+
+
             const auto &notesMapIt = maps.notesMap.find(space);
 
             //
@@ -1330,13 +1387,13 @@ TconvertToMidi(
 
                                 currentlyPlayingStrings[string] = 0;
 
-                            } else if (0x80 <= on) {
+                            } else if (0x80 <= on || on == MUTED) {
 
                                 currentlyPlayingStrings[string] = on;
 
                             } else {
 
-                                ASSERT(on == MUTED || on == STOPPED);
+                                ASSERT(on == STOPPED);
 
                                 currentlyPlayingStrings[string] = 0;
                             }
@@ -1367,13 +1424,13 @@ TconvertToMidi(
 
                         if (current == 0) {
 
-                            if (0x80 <= on) {
+                            if (0x80 <= on || on == MUTED) {
 
                                 currentlyPlayingStrings[string] = on;
 
                             } else {
 
-                                ASSERT(on == MUTED || on == STOPPED);
+                                ASSERT(on == STOPPED);
 
                                 //
                                 // current is already 0
@@ -1386,13 +1443,13 @@ TconvertToMidi(
 
                             anyStringsTurningOff = true;
 
-                            if (0x80 <= on) {
+                            if (0x80 <= on || on == MUTED) {
 
                                 currentlyPlayingStrings[string] = on;
 
                             } else {
 
-                                ASSERT(on == MUTED || on == STOPPED);
+                                ASSERT(on == STOPPED);
 
                                 currentlyPlayingStrings[string] = 0;
                             }
@@ -1724,9 +1781,12 @@ TconvertToMidi(
                     auto on = onVsqs[string];
 
                     if (on == 0 ||
-                        on == MUTED ||
                         on == STOPPED) {
                         continue;
+                    }
+
+                    if (on == MUTED) {
+                        on = 0x80; // open string
                     }
 
                     ASSERT(on >= 0x80);
@@ -1760,6 +1820,8 @@ TconvertToMidi(
 
                     tick += (atr * TBT_TICKS_PER_SPACE);
 
+                    previousRoundedTick = roundedTick;
+
                     roundedTick = tick.round();
 
                     space++;
@@ -1773,6 +1835,8 @@ TconvertToMidi(
                 } else {
 
                     tick += TBT_TICKS_PER_SPACE;
+
+                    previousRoundedTick = roundedTick;
 
                     roundedTick = tick.round();
 
@@ -1788,6 +1852,8 @@ TconvertToMidi(
             } else {
 
                 tick += TBT_TICKS_PER_SPACE;
+
+                previousRoundedTick = roundedTick;
 
                 roundedTick = tick.round();
 
