@@ -601,12 +601,16 @@ TconvertToMidi(
     // there can be more than one tempo change mapped to the same flooredActualSpace
     // so this needs to be a map of actualSpace -> tempo
     //
+    // pre-computed
+    //
     std::map<uint32_t, std::map<rational, uint16_t> > tempoMap;
 
     computeTempoMap<VERSION, HASALTERNATETIMEREGIONS, tbt_file_t, STRINGS_PER_TRACK>(t, tempoMap);
 
     //
     // compute channel map
+    //
+    // pre-computed
     //
     std::map<uint8_t, uint8_t> channelMap;
 
@@ -616,11 +620,15 @@ TconvertToMidi(
     // for each track:
     //   set of spaces that repeat opens occur
     //
+    // pre-computed
+    //
     std::vector<std::set<uint32_t> > openSpaceSets;
 
     //
     // for each track, including tempo track:
     //   actual space of close -> repeat_close_struct
+    //
+    // pre-computed
     //
     std::vector<std::map<uint32_t, repeat_close_struct> > repeatCloseMaps;
 
@@ -629,6 +637,8 @@ TconvertToMidi(
     //
     // for each track:
     //   string -> offset needed to obtain midi note
+    //
+    // pre-computed
     //
     std::vector<std::array<uint8_t, STRINGS_PER_TRACK> > midiNoteOffsetArrays;
 
@@ -650,6 +660,8 @@ TconvertToMidi(
 
     //
     // Track 0
+    //
+    // will be used for tempo changes exclusively
     //
     {
         //
@@ -813,12 +825,15 @@ TconvertToMidi(
 
                         {
                             //
-                            // increment by spaceDiff
+                            // save tick
                             //
                             auto oldTick = tick;
 
                             auto oldRoundedTick = roundedTick;
 
+                            //
+                            // increment by spaceDiff
+                            //
                             tick += spaceDiff * TBT_TICKS_PER_SPACE;
 
                             roundedTick = tick.round();
@@ -1146,6 +1161,8 @@ TconvertToMidi(
         //
         // flooredActualSpace -> repeat_open_struct
         //
+        // computed when rendering track
+        //
         std::map<uint32_t, repeat_open_struct> repeatOpenMap;
 
         auto &openSpaceSet = openSpaceSets[track + 1];
@@ -1156,11 +1173,10 @@ TconvertToMidi(
 
         for (uint32_t space = 0; space < trackSpaceCount + 1;) { // space count, + 1 for handling repeats at end
 
+            //
+            // handle any repeat closes first
+            //
             {
-                //
-                // handle any repeat closes first
-                //
-
                 const auto &repeatCloseMapIt = repeatCloseMap.find(flooredActualSpaceI);
                 if (repeatCloseMapIt != repeatCloseMap.end()) {
 
@@ -1256,7 +1272,7 @@ TconvertToMidi(
             const auto &notesMapIt = maps.notesMap.find(space);
 
             //
-            // Compute note offs and note ons and emit note offs
+            // Compute note offs and note ons, and emit note offs
             //
             if (notesMapIt != maps.notesMap.end()) {
 
@@ -1265,14 +1281,22 @@ TconvertToMidi(
                 std::array<uint8_t, STRINGS_PER_TRACK> offVsqs{};
 
                 //
-                // Compute note offs
+                // Compute note offs and note ons
                 //
                 if (dontLetRing) {
+
+                    //
+                    // Don't Let Ring
+                    //
+                    // An event on any string stops all strings
+                    //
 
                     //
                     // There may be string effects, but no note events
                     // This will still be in the notesMap, but should not affect notes because of dontLetRing
                     // i.e., simply checking for something in notesMap is not sufficient
+                    //
+                    // so check all the strings for note events
                     //
                     bool anyEvents = false;
                     for (uint8_t string = 0; string < trackMetadata.stringCount; string++) {
@@ -1309,6 +1333,12 @@ TconvertToMidi(
                     }
 
                 } else {
+
+                    //
+                    // Let Ring
+                    //
+                    // All strings are independent
+                    //
 
                     for (uint8_t string = 0; string < trackMetadata.stringCount; string++) {
 
@@ -2073,7 +2103,7 @@ exportMidiBytes(
 
         toDigitsBE(static_cast<uint32_t>(tmp.size()), out); // length
 
-        out.insert(out.end(), tmp.cbegin(), tmp.cend());
+        out.insert(out.end(), tmp.cbegin(), tmp.cend()); // data
     }
 
     return OK;
