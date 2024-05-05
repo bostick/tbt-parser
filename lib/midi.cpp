@@ -746,7 +746,7 @@ TconvertToMidi(
             //
             // handle any repeat closes first
             //
-
+            {
                 const auto &repeatCloseMapIt = repeatCloseMap.find(space);
                 if (repeatCloseMapIt != repeatCloseMap.end()) {
 
@@ -773,11 +773,12 @@ TconvertToMidi(
                         continue;
                     }
                 }
+            }
             
             //
             // Emit tempo changes
             //
-
+            {
                 const auto &tempoMapIt = tempoMap.find(space);
                 if (tempoMapIt != tempoMap.end()) {
 
@@ -803,6 +804,7 @@ TconvertToMidi(
                         // auto microsPerBeat = (MICROS_PER_MINUTE / tempoBPM).round();
                         auto microsPerBeat = (MICROS_PER_MINUTE.to_uint32() / tempoBPM);
 
+                        {
                             //
                             // increment by spaceDiff
                             //
@@ -851,8 +853,10 @@ TconvertToMidi(
                             tick = oldTick;
 
                             roundedTick = oldRoundedTick;
+                        }
                     }
                 }
+            }
 
             tick += TBT_TICKS_PER_SPACE;
 
@@ -1224,7 +1228,6 @@ TconvertToMidi(
                 }
             }
 
-            {
             //
             // if there is an open repeat at this actual space, then store the track space for later
             //
@@ -1240,7 +1243,6 @@ TconvertToMidi(
                 //
                 openSpaceSet.erase(flooredActualSpaceI);
             }
-            }
 
             bool anyStringsTurningOff = false;
 
@@ -1249,7 +1251,6 @@ TconvertToMidi(
             //
             // Compute note offs and note ons and emit note offs
             //
-            {
             if (notesMapIt != maps.notesMap.end()) {
 
                 const auto &onVsqs = notesMapIt->second;
@@ -1378,12 +1379,10 @@ TconvertToMidi(
                     }
                 }
             }
-            }
 
             //
             // Emit track effects
             //
-            {
             if constexpr (VERSION == 0x72) {
 
                 const auto &trackEffectChangesIt = maps.trackEffectChangesMap.find(space);
@@ -1661,12 +1660,10 @@ TconvertToMidi(
                     }
                 }
             }
-            }
 
             //
             // Emit note ons
             //
-            {
             if (notesMapIt != maps.notesMap.end()) {
 
                 const auto &onVsqs = notesMapIt->second;
@@ -1697,12 +1694,10 @@ TconvertToMidi(
                     lastEventTick = roundedTick;
                 }
             }
-            }
 
             //
             // Compute actual space
             //
-            {
             if constexpr (HASALTERNATETIMEREGIONS) {
 
                 const auto &alternateTimeRegionsIt = maps.alternateTimeRegionsMap.find(space);
@@ -1752,7 +1747,6 @@ TconvertToMidi(
                 flooredActualSpace = space;
 
                 flooredActualSpaceI = space;
-            }
             }
 
         } // for space
