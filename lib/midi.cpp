@@ -32,6 +32,9 @@
 #include <cstring> // for memcmp
 
 
+#include "last-found.inl"
+
+
 #define TAG "midi"
 
 
@@ -2846,30 +2849,18 @@ midiFileTimes(const midi_file &m) {
     //
 
     if (v.lastNoteOnTick != -1) {
-        auto it = tempoMap.lower_bound(v.lastNoteOnTick);
-        if (it != tempoMap.end()) {
-            tempoMap[v.lastNoteOnTick] = it->second;
-        } else {
-            tempoMap[v.lastNoteOnTick] = v.lastMicrosPerTick;
-        }
+        auto it = last_found(tempoMap, v.lastNoteOnTick);
+        tempoMap[v.lastNoteOnTick] = it->second;
     }
 
     if (v.lastNoteOffTick != -1) {
-        auto it = tempoMap.lower_bound(v.lastNoteOffTick);
-        if (it != tempoMap.end()) {
-            tempoMap[v.lastNoteOffTick] = it->second;
-        } else {
-            tempoMap[v.lastNoteOffTick] = v.lastMicrosPerTick;
-        }
+        auto it = last_found(tempoMap, v.lastNoteOffTick);
+        tempoMap[v.lastNoteOffTick] = it->second;
     }
 
     if (v.lastEndOfTrackTick != -1) {
-        auto it = tempoMap.lower_bound(v.lastEndOfTrackTick);
-        if (it != tempoMap.end()) {
-            tempoMap[v.lastEndOfTrackTick] = it->second;
-        } else {
-            tempoMap[v.lastEndOfTrackTick] = v.lastMicrosPerTick;
-        }
+        auto it = last_found(tempoMap, v.lastEndOfTrackTick);
+        tempoMap[v.lastEndOfTrackTick] = it->second;
     }
 
     //
