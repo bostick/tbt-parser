@@ -108,7 +108,7 @@ add_test(
     NAME
         tbt-converter-exe-black-test
     COMMAND
-        $<TARGET_FILE:tbt-converter-exe> --input-file ../../test/black.tbt
+        $<TARGET_FILE:tbt-converter-exe> --input-file ../../test/data/black.tbt
 )
 
 
@@ -116,7 +116,7 @@ add_test(
     NAME
         midi-info-exe-black-test
     COMMAND
-        $<TARGET_FILE:midi-info-exe> --input-file ../../test/black.mid
+        $<TARGET_FILE:midi-info-exe> --input-file ../../test/data/black.mid
 )
 
 
