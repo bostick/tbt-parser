@@ -25,6 +25,7 @@ find_package(GTest REQUIRED)
 
 
 set(CPP_TEST_SOURCES
+    TestLastFound.cpp
     TestMidi.cpp
     TestRational.cpp
     TestTbt.cpp
