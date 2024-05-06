@@ -18,10 +18,18 @@
 
 cmake_minimum_required(VERSION 3.14)
 
-cmake_policy(SET CMP0144 NEW)
 
-
-find_package(GTest REQUIRED)
+include(FetchContent)
+FetchContent_Declare(googletest
+  GIT_REPOSITORY
+    https://github.com/google/googletest.git
+  GIT_TAG
+    v1.14.0
+)
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+include(GoogleTest)
 
 
 set(CPP_TEST_SOURCES
@@ -49,9 +57,27 @@ target_include_directories(tbt-test-exe
         ${COMMON_DIR}/include
 )
 
+#
+# Setup warnings
+#
+# https://www.foonathan.net/2018/10/cmake-warnings/
+#
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 target_compile_options(tbt-test-exe PRIVATE
-    -Wall -Wextra -pedantic -Werror
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas
 )
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+target_compile_options(tbt-test-exe PRIVATE
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas
+)
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+target_compile_options(tbt-test-exe PRIVATE
+    #
+    # Zc:preprocessor is needed for handling __VA_OPT__(,)
+    #
+    /Zc:preprocessor /WX /W4
+)
+endif()
 
 set_target_properties(tbt-test-exe
     PROPERTIES
@@ -59,6 +85,51 @@ set_target_properties(tbt-test-exe
         CXX_STANDARD 20
         CXX_STANDARD_REQUIRED ON
 )
+
+
+gtest_discover_tests(tbt-test-exe)
+
+
+file(
+    GLOB
+        MIDI_TEST_FILES
+        ${PROJECT_SOURCE_DIR}/test/data/*.mid
+)
+
+file(
+    COPY
+        ${MIDI_TEST_FILES}
+    DESTINATION
+        ${PROJECT_BINARY_DIR}/test/data
+)
+
+file(
+    GLOB
+        TBT_TEST_FILES
+        ${PROJECT_SOURCE_DIR}/test/data/*.tbt
+)
+
+file(
+    COPY
+        ${TBT_TEST_FILES}
+    DESTINATION
+        ${PROJECT_BINARY_DIR}/test/data
+)
+
+
+add_test(
+    NAME
+        tbt-test-exe-test
+    COMMAND
+        $<TARGET_FILE:tbt-test-exe>
+    WORKING_DIRECTORY
+        ${PROJECT_BINARY_DIR}/test
+)
+
+
+
+
+
 
 
 

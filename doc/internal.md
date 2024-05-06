@@ -1,12 +1,12 @@
 # tbt-parser internal docs
 
 
-With GTest for testing:
+For testing:
 ```
 cd cpp
 mkdir build-test
 cd build-test
-cmake -DBUILD_TESTS=ON -DGTEST_ROOT=/Users/brenton/development/github/googletest/build/install ..
+cmake -DBUILD_TESTS=ON ..
 cmake --build . --target tbt-test-exe
 
 test/tbt-test

@@ -47,7 +47,7 @@ TEST_F(MidiTest, Twinkle) {
 
     midi_file m1;
 
-    Status ret = parseMidiFile("/Users/brenton/development/github/tbt-examples/exported-from-tabit/twinkle.mid", m1);
+    Status ret = parseMidiFile("data/twinkle.mid", m1);
     ASSERT_EQ(ret, OK);
 
     midi_file_times times1 = midiFileTimes(m1);
@@ -62,7 +62,7 @@ TEST_F(MidiTest, Twinkle) {
 
     tbt_file t;
 
-    ret = parseTbtFile("/Users/brenton/development/github/tbt-examples/twinkle.tbt", t);
+    ret = parseTbtFile("data/twinkle.tbt", t);
     ASSERT_EQ(ret, OK);
 
     midi_convert_opts opts;
@@ -87,7 +87,7 @@ TEST_F(MidiTest, Back) {
 
     midi_file m1;
 
-    Status ret = parseMidiFile("/Users/brenton/development/github/tbt-examples/exported-from-tabit/back.mid", m1);
+    Status ret = parseMidiFile("data/back.mid", m1);
     ASSERT_EQ(ret, OK);
 
     midi_file_times times1 = midiFileTimes(m1);
@@ -102,7 +102,7 @@ TEST_F(MidiTest, Back) {
 
     tbt_file t;
 
-    ret = parseTbtFile("/Users/brenton/development/github/tbt-examples/back.tbt", t);
+    ret = parseTbtFile("data/back.tbt", t);
     ASSERT_EQ(ret, OK);
 
     midi_convert_opts opts;
@@ -127,7 +127,7 @@ TEST_F(MidiTest, ClosingTime) {
 
     midi_file m1;
 
-    Status ret = parseMidiFile("/Users/brenton/development/github/tbt-examples/exported-from-tabit/Closing Time.mid", m1);
+    Status ret = parseMidiFile("data/Closing Time.mid", m1);
     ASSERT_EQ(ret, OK);
 
     midi_file_times times1 = midiFileTimes(m1);
@@ -142,7 +142,7 @@ TEST_F(MidiTest, ClosingTime) {
 
     tbt_file t;
 
-    ret = parseTbtFile("/Users/brenton/development/github/tbt-examples/Closing Time.tbt", t);
+    ret = parseTbtFile("data/Closing Time.tbt", t);
     ASSERT_EQ(ret, OK);
 
     midi_convert_opts opts;
@@ -167,7 +167,7 @@ TEST_F(MidiTest, JusticeNoTempoChanges) {
 
     midi_file m1;
 
-    Status ret = parseMidiFile("/Users/brenton/development/github/tbt-examples/exported-from-tabit/justice-no-tempo-changes.mid", m1);
+    Status ret = parseMidiFile("data/justice-no-tempo-changes.mid", m1);
     ASSERT_EQ(ret, OK);
 
     midi_file_times times1 = midiFileTimes(m1);
@@ -182,7 +182,7 @@ TEST_F(MidiTest, JusticeNoTempoChanges) {
 
     tbt_file t;
 
-    ret = parseTbtFile("/Users/brenton/development/github/tbt-examples/justice-no-tempo-changes.tbt", t);
+    ret = parseTbtFile("data/justice-no-tempo-changes.tbt", t);
     ASSERT_EQ(ret, OK);
 
     midi_convert_opts opts;
@@ -207,7 +207,7 @@ TEST_F(MidiTest, Justice) {
 
     midi_file m1;
 
-    Status ret = parseMidiFile("/Users/brenton/development/github/tbt-examples/exported-from-tabit/justice.mid", m1);
+    Status ret = parseMidiFile("data/justice.mid", m1);
     ASSERT_EQ(ret, OK);
 
     midi_file_times times1 = midiFileTimes(m1);
@@ -222,7 +222,7 @@ TEST_F(MidiTest, Justice) {
 
     tbt_file t;
 
-    ret = parseTbtFile("/Users/brenton/development/github/tbt-examples/justice.tbt", t);
+    ret = parseTbtFile("data/justice.tbt", t);
     ASSERT_EQ(ret, OK);
 
     midi_convert_opts opts;
@@ -247,7 +247,7 @@ TEST_F(MidiTest, TheArcane) {
 
     midi_file m1;
 
-    Status ret = parseMidiFile("/Users/brenton/development/github/tbt-examples/exported-from-tabit/The Arcane.mid", m1);
+    Status ret = parseMidiFile("data/The Arcane.mid", m1);
     ASSERT_EQ(ret, OK);
 
     midi_file_times times1 = midiFileTimes(m1);
@@ -262,7 +262,7 @@ TEST_F(MidiTest, TheArcane) {
 
     tbt_file t;
 
-    ret = parseTbtFile("/Users/brenton/development/github/tbt-examples/The Arcane.tbt", t);
+    ret = parseTbtFile("data/The Arcane.tbt", t);
     ASSERT_EQ(ret, OK);
 
     midi_convert_opts opts;
@@ -287,7 +287,7 @@ TEST_F(MidiTest, ClassicalMadness) {
 
     midi_file m1;
 
-    Status ret = parseMidiFile("/Users/brenton/development/github/tbt-examples/exported-from-tabit/Classical Madness!.mid", m1);
+    Status ret = parseMidiFile("data/Classical Madness!.mid", m1);
     ASSERT_EQ(ret, OK);
 
     midi_file_times times1 = midiFileTimes(m1);
@@ -302,7 +302,7 @@ TEST_F(MidiTest, ClassicalMadness) {
 
     tbt_file t;
 
-    ret = parseTbtFile("/Users/brenton/development/github/tbt-examples/Classical Madness!.tbt", t);
+    ret = parseTbtFile("data/Classical Madness!.tbt", t);
     ASSERT_EQ(ret, OK);
 
     midi_convert_opts opts;
@@ -327,7 +327,7 @@ TEST_F(MidiTest, DecomposingTruth) {
 
     midi_file m1;
 
-    Status ret = parseMidiFile("/Users/brenton/development/github/tbt-examples/exported-from-tabit/[With Intent of Butchery] Decomposing Truth.mid", m1);
+    Status ret = parseMidiFile("data/[With Intent of Butchery] Decomposing Truth.mid", m1);
     ASSERT_EQ(ret, OK);
 
     midi_file_times times1 = midiFileTimes(m1);
@@ -342,7 +342,7 @@ TEST_F(MidiTest, DecomposingTruth) {
 
     tbt_file t;
 
-    ret = parseTbtFile("/Users/brenton/development/github/tbt-examples/[With Intent of Butchery] Decomposing Truth.tbt", t);
+    ret = parseTbtFile("data/[With Intent of Butchery] Decomposing Truth.tbt", t);
     ASSERT_EQ(ret, OK);
 
     midi_convert_opts opts;
@@ -367,7 +367,7 @@ TEST_F(MidiTest, SongIdea) {
 
     midi_file m1;
 
-    Status ret = parseMidiFile("/Users/brenton/development/github/tbt-examples/exported-from-tabit/Song Idea.mid", m1);
+    Status ret = parseMidiFile("data/Song Idea.mid", m1);
     ASSERT_EQ(ret, OK);
 
     midi_file_times times1 = midiFileTimes(m1);
@@ -382,7 +382,7 @@ TEST_F(MidiTest, SongIdea) {
 
     tbt_file t;
 
-    ret = parseTbtFile("/Users/brenton/development/github/tbt-examples/Song Idea.tbt", t);
+    ret = parseTbtFile("data/Song Idea.tbt", t);
     ASSERT_EQ(ret, OK);
 
     midi_convert_opts opts;
