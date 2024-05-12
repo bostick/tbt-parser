@@ -20,7 +20,7 @@ tbt-parser requires a C++17 compiler because of features such as `if constexpr`.
 cd cpp
 mkdir build
 cd build
-cmake -DZLIB_ROOT=/opt/homebrew/Cellar/zlib/1.3/ ..
+cmake ..
 cmake --build .
 ```
 

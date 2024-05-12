@@ -18,8 +18,16 @@
 
 cmake_minimum_required(VERSION 3.24)
 
+include(FetchContent)
+FetchContent_Declare(zlib
+    GIT_REPOSITORY
+        https://github.com/madler/zlib.git
+    GIT_TAG
+        v1.3.1
+)
 set(ZLIB_USE_STATIC_LIBS ON)
-find_package(ZLIB REQUIRED)
+set(ZLIB_BUILD_EXAMPLES OFF)
+FetchContent_MakeAvailable(zlib)
 
 set(CPP_LIB_SOURCES
     
@@ -43,7 +51,7 @@ target_include_directories(tbt-parser-static-lib PRIVATE
 )
 
 target_link_libraries(tbt-parser-static-lib PRIVATE
-    ZLIB::ZLIB
+    zlibstatic
 )
 
 set_target_properties(tbt-parser-static-lib
