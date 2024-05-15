@@ -27,6 +27,7 @@
 #include <algorithm> // for remove
 #include <set>
 #include <variant> // for get_if
+#include <iterator>
 #include <cinttypes>
 #include <cmath> // for round, floor, fmod
 #include <cstring> // for memcmp
@@ -343,6 +344,9 @@ computeTempoMap(
 struct repeat_close_struct {
     uint32_t open;
     size_t repeats;
+    size_t dataStart;
+    size_t dataEnd;
+    int jump;
 };
 
 
@@ -404,7 +408,7 @@ computeRepeats(
                             openSpaceSets[track].insert(lastOpenSpace);
                         }
 
-                        repeatCloseMaps[track][space] = { lastOpenSpace, savedRepeats };
+                        repeatCloseMaps[track][space] = { lastOpenSpace, savedRepeats, 0, 0, 0 };
                     }
 
                     savedClose = false;
@@ -470,7 +474,7 @@ computeRepeats(
                             openSpaceSets[track].insert(lastOpenSpace);
                         }
                         
-                        repeatCloseMaps[track][space + 1] = { lastOpenSpace, repeats };
+                        repeatCloseMaps[track][space + 1] = { lastOpenSpace, repeats, 0, 0, 0 };
                     }
 
                     lastOpenSpace = space + 1;
@@ -537,7 +541,7 @@ computeRepeats(
                     openSpaceSets[track].insert(lastOpenSpace);
                 }
 
-                repeatCloseMaps[track][barsSpaceCount] = { lastOpenSpace, savedRepeats };
+                repeatCloseMaps[track][barsSpaceCount] = { lastOpenSpace, savedRepeats, 0, 0, 0 };
             }
 
             savedClose = false;
@@ -821,15 +825,70 @@ TconvertToMidi(
 
                     if (r.repeats > 0) {
 
+                        if (r.jump < 3) {
+                            
                             //
-                            // jump to the repeat open
+                            // jump to the repeat open and continue processing
                             //
 
                             space = r.open;
 
+                            if (r.jump == 0) {
+
+                            } else if (r.jump == 1) {
+
+                                r.dataStart = tmp.size();
+
+                            } else {
+
+                                ASSERT(r.jump == 2);
+
+                                r.dataEnd = tmp.size();
+                            }
+
                             r.repeats--;
 
+                            r.jump++;
+
                             continue;
+                        }
+
+                        //
+                        // make copies of the events instead of jumping to the repeat open
+                        //
+                        // have now reached a fix-point, so this is correct
+                        //
+
+                        using tmp_diff_t = std::iterator_traits<std::vector<midi_track_event>::iterator>::difference_type;
+
+                        auto sectionSize = r.dataEnd - r.dataStart;
+                        auto sectionStart = tmp.cbegin() + static_cast<tmp_diff_t>(r.dataStart);
+
+#ifndef NDEBUG
+                        //
+                        // verify all events are correct
+                        //
+
+                        auto lastJumpStart = tmp.cend() - static_cast<tmp_diff_t>(sectionSize);
+
+                        for (size_t i = 0; i < sectionSize; i++) {
+                            midi_track_event a = *(lastJumpStart + static_cast<tmp_diff_t>(i));
+                            midi_track_event b = *(sectionStart + static_cast<tmp_diff_t>(i));
+                            ASSERT(a == b);
+                        }
+#endif // NDEBUG
+
+                        auto sectionEnd = tmp.cbegin() + static_cast<tmp_diff_t>(r.dataEnd);
+
+                        auto section = std::vector<midi_track_event>(sectionStart, sectionEnd);
+
+                        tmp.reserve(tmp.size() + r.repeats * sectionSize);
+
+                        for (size_t i = 0; i < r.repeats; i++) {
+                            tmp.insert(tmp.end(), section.cbegin(), section.cend());
+                        }
+
+                        r.repeats = 0;
                     }
                 }
             }
@@ -1242,6 +1301,12 @@ TconvertToMidi(
 
                     if (r.repeats > 0) {
 
+                        if (r.jump < 3) {
+
+                            //
+                            // jump to the repeat open and continue processing
+                            //
+
                             auto spaceDiff = (actualSpace - flooredActualSpace);
 
                             ASSERT(spaceDiff.is_nonnegative());
@@ -1259,10 +1324,6 @@ TconvertToMidi(
 
                                 roundedTick = tick.round();
                             }
-
-                            //
-                            // jump to the repeat open
-                            //
 
                             ASSERT(repeatOpenMap.contains(r.open));
 
@@ -1294,9 +1355,63 @@ TconvertToMidi(
                                 roundedTick = tick.round();
                             }
 
+                            if (r.jump == 0) {
+
+
+                            } else if (r.jump == 1) {
+
+                                r.dataStart = tmp.size();
+
+                            } else {
+
+                                ASSERT(r.jump == 2);
+
+                                r.dataEnd = tmp.size();
+                            }
+
                             r.repeats--;
 
+                            r.jump++;
+
                             continue;
+                        }
+
+                        //
+                        // make copies of the events instead of jumping to the repeat open
+                        //
+                        // have now reached a fix-point, so this is correct
+                        //
+
+                        using tmp_diff_t = std::iterator_traits<std::vector<midi_track_event>::iterator>::difference_type;
+
+                        auto sectionSize = r.dataEnd - r.dataStart;
+                        auto sectionStart = tmp.cbegin() + static_cast<tmp_diff_t>(r.dataStart);
+
+#ifndef NDEBUG
+                        //
+                        // verify all events are correct
+                        //
+
+                        auto lastJumpStart = tmp.cend() - static_cast<tmp_diff_t>(sectionSize);
+                        
+                        for (size_t i = 0; i < sectionSize; i++) {
+                            midi_track_event a = *(lastJumpStart + static_cast<tmp_diff_t>(i));
+                            midi_track_event b = *(sectionStart + static_cast<tmp_diff_t>(i));
+                            ASSERT(a == b);
+                        }
+#endif // NDEBUG
+
+                        auto sectionEnd = tmp.cbegin() + static_cast<tmp_diff_t>(r.dataEnd);
+
+                        auto section = std::vector<midi_track_event>(sectionStart, sectionEnd);
+
+                        tmp.reserve(tmp.size() + r.repeats * sectionSize);
+
+                        for (size_t i = 0; i < r.repeats; i++) {
+                            tmp.insert(tmp.end(), section.cbegin(), section.cend());
+                        }
+
+                        r.repeats = 0;
                     }
                 }
             }
