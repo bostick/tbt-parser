@@ -819,15 +819,15 @@ TconvertToMidi(
 
                     if (r.repeats > 0) {
 
-                        //
-                        // jump to the repeat open
-                        //
+                            //
+                            // jump to the repeat open
+                            //
 
-                        space = r.open;
+                            space = r.open;
 
-                        r.repeats--;
+                            r.repeats--;
 
-                        continue;
+                            continue;
                     }
                 }
             }
@@ -1240,61 +1240,61 @@ TconvertToMidi(
 
                     if (r.repeats > 0) {
 
-                        auto spaceDiff = (actualSpace - flooredActualSpace);
+                            auto spaceDiff = (actualSpace - flooredActualSpace);
 
-                        ASSERT(spaceDiff.is_nonnegative());
+                            ASSERT(spaceDiff.is_nonnegative());
 
-                        if (spaceDiff.is_positive()) {
+                            if (spaceDiff.is_positive()) {
 
-                            LOGW("repeat CLOSE at non-integral space: %f", actualSpace.to_double());
+                                LOGW("repeat CLOSE at non-integral space: %f", actualSpace.to_double());
 
-                            //
-                            // overshot the repeat close
-                            //
-                            // now backup by the difference between flooredActualSpace and actualSpace
-                            //
-                            tick -= spaceDiff * TBT_TICKS_PER_SPACE;
+                                //
+                                // overshot the repeat close
+                                //
+                                // now backup by the difference between flooredActualSpace and actualSpace
+                                //
+                                tick -= spaceDiff * TBT_TICKS_PER_SPACE;
 
-                            roundedTick = tick.round();
-                        }
-
-                        //
-                        // jump to the repeat open
-                        //
-
-                        ASSERT(repeatOpenMap.contains(r.open));
-
-                        const auto &openStruct = repeatOpenMap[r.open];
-
-                        space = openStruct.space;
-
-                        actualSpace = openStruct.actualSpace;
-
-                        flooredActualSpace = actualSpace.floor();
-
-                        flooredActualSpaceI = flooredActualSpace.to_uint16();
-
-                        spaceDiff = (actualSpace - r.open);
-
-                        ASSERT(spaceDiff.is_nonnegative());
-
-                        if (spaceDiff.is_positive()) {
-
-                            LOGW("repeat OPEN at non-integral space: %f", actualSpace.to_double());
+                                roundedTick = tick.round();
+                            }
 
                             //
-                            // undershot the repeat open
+                            // jump to the repeat open
                             //
-                            // now scoot up by the difference between actualSpace and r.open
-                            //
-                            tick += spaceDiff * TBT_TICKS_PER_SPACE;
 
-                            roundedTick = tick.round();
-                        }
+                            ASSERT(repeatOpenMap.contains(r.open));
 
-                        r.repeats--;
+                            const auto &openStruct = repeatOpenMap[r.open];
 
-                        continue;
+                            space = openStruct.space;
+
+                            actualSpace = openStruct.actualSpace;
+
+                            flooredActualSpace = actualSpace.floor();
+
+                            flooredActualSpaceI = flooredActualSpace.to_uint16();
+
+                            spaceDiff = (actualSpace - r.open);
+
+                            ASSERT(spaceDiff.is_nonnegative());
+
+                            if (spaceDiff.is_positive()) {
+
+                                LOGW("repeat OPEN at non-integral space: %f", actualSpace.to_double());
+
+                                //
+                                // undershot the repeat open
+                                //
+                                // now scoot up by the difference between actualSpace and r.open
+                                //
+                                tick += spaceDiff * TBT_TICKS_PER_SPACE;
+
+                                roundedTick = tick.round();
+                            }
+
+                            r.repeats--;
+
+                            continue;
                     }
                 }
             }
