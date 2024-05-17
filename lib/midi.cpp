@@ -342,7 +342,7 @@ computeTempoMap(
 
 struct repeat_close_struct {
     uint32_t open;
-    int repeats;
+    size_t repeats;
 };
 
 
@@ -459,7 +459,7 @@ computeRepeats(
                 switch (change) {
                 case CLOSE: {
                     
-                    auto value = (bar[0] & 0b11110000) >> 4;
+                    auto repeats = static_cast<size_t>((bar[0] & 0b11110000) >> 4);
 
                     for (uint8_t track = 0; track < t.header.trackCount + 1; track++) { // track count, + 1 for tempo track
                         
@@ -470,7 +470,7 @@ computeRepeats(
                             openSpaceSets[track].insert(lastOpenSpace);
                         }
                         
-                        repeatCloseMaps[track][space + 1] = { lastOpenSpace, value };
+                        repeatCloseMaps[track][space + 1] = { lastOpenSpace, repeats };
                     }
 
                     lastOpenSpace = space + 1;
