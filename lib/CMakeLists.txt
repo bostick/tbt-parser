@@ -29,6 +29,22 @@ set(ZLIB_USE_STATIC_LIBS ON)
 set(ZLIB_BUILD_EXAMPLES OFF)
 FetchContent_MakeAvailable(zlib)
 
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+target_compile_options(zlib PRIVATE
+    #
+    # disable warnings when building zlib in e.g. Xcode
+    #
+    -Wno-shorten-64-to-32
+)
+target_compile_options(zlibstatic PRIVATE
+    #
+    # disable warnings when building zlibstatic in e.g. Xcode
+    #
+    -Wno-shorten-64-to-32
+)
+endif()
+
+
 set(CPP_LIB_SOURCES
     
     #
@@ -70,6 +86,10 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 target_compile_options(tbt-parser-static-lib PRIVATE
     -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas
 )
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+target_compile_options(tbt-parser-static-lib PRIVATE
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas
+)
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 target_compile_options(tbt-parser-static-lib PRIVATE
     -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas
@@ -81,6 +101,8 @@ target_compile_options(tbt-parser-static-lib PRIVATE
     #
     /Zc:preprocessor /WX /W4
 )
+else ()
+message(FATAL_ERROR "Unrecognized compiler: ${CMAKE_CXX_COMPILER_ID}")
 endif()
 
 

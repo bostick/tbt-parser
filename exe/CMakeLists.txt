@@ -80,6 +80,13 @@ target_compile_options(tbt-converter-exe PRIVATE
 target_compile_options(midi-info-exe PRIVATE
     -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas
 )
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+target_compile_options(tbt-converter-exe PRIVATE
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas
+)
+target_compile_options(midi-info-exe PRIVATE
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas
+)
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 target_compile_options(tbt-converter-exe PRIVATE
     -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas
@@ -100,6 +107,8 @@ target_compile_options(midi-info-exe PRIVATE
     #
     /Zc:preprocessor /WX /W4
 )
+else ()
+message(FATAL_ERROR "Unrecognized compiler: ${CMAKE_CXX_COMPILER_ID}")
 endif()
 
 

@@ -66,6 +66,10 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 target_compile_options(tbt-test-exe PRIVATE
     -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas
 )
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+target_compile_options(tbt-test-exe PRIVATE
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas
+)
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 target_compile_options(tbt-test-exe PRIVATE
     -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas
@@ -77,6 +81,8 @@ target_compile_options(tbt-test-exe PRIVATE
     #
     /Zc:preprocessor /WX /W4
 )
+else ()
+message(FATAL_ERROR "Unrecognized compiler: ${CMAKE_CXX_COMPILER_ID}")
 endif()
 
 set_target_properties(tbt-test-exe
