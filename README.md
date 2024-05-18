@@ -27,6 +27,19 @@ cmake --build .
 
 ## How to use
 
+Print out tablature from a .tbt TabIt file:
+```
+% ./tbt-printer --input-file black.tbt                                                                     
+tbt printer v1.1.0
+Copyright (C) 2024 by Brenton Bostick
+input file: black.tbt
+output file: out.txt
+parsing...
+printing...
+finished!
+% 
+```
+
 Generate a MIDI file from a .tbt TabIt file:
 ```
 % ./tbt-converter --input-file black.tbt 
