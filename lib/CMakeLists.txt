@@ -56,6 +56,7 @@ set(CPP_LIB_SOURCES
     rational.cpp
     tbt.cpp
     tbt-parser-util.cpp
+    tablature.cpp
 )
 
 add_library(tbt-parser-static-lib STATIC
