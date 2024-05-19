@@ -450,16 +450,16 @@ struct tbt_metadata65 {
 };
 
 enum tbt_track_effect : uint8_t {
-    STROKE_DOWN = 1,
-    STROKE_UP = 2,
-    TEMPO = 3,
-    INSTRUMENT = 4,
-    VOLUME = 5,
-    PAN = 6,
-    CHORUS = 7,
-    REVERB = 8,
-    MODULATION = 9,
-    PITCH_BEND = 10,
+    TE_STROKE_DOWN = 1,
+    TE_STROKE_UP = 2,
+    TE_TEMPO = 3,
+    TE_INSTRUMENT = 4,
+    TE_VOLUME = 5,
+    TE_PAN = 6,
+    TE_CHORUS = 7,
+    TE_REVERB = 8,
+    TE_MODULATION = 9,
+    TE_PITCH_BEND = 10,
 };
 
 struct maps71 {
