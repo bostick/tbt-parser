@@ -86,6 +86,7 @@ const uint8_t M_TIMESIGNATURE = 0x58;
 const uint8_t C_BANKSELECT_MSB = 0x00;
 const uint8_t C_MODULATION = 0x01;
 const uint8_t C_DATAENTRY_MSB = 0x06;
+const uint8_t C_VOLUME = 0x07;
 const uint8_t C_PAN = 0x0a;
 const uint8_t C_DATAENTRY_LSB = 0x26;
 const uint8_t C_REVERB = 0x5b;
@@ -1029,8 +1030,6 @@ TconvertToMidi(
 
         const auto &trackMetadata = t.metadata.tracks[track];
 
-        uint8_t volume = trackMetadata.volume;
-
         uint8_t midiBank;
         if constexpr (0x6e <= VERSION) {
             midiBank = trackMetadata.midiBank;
@@ -1042,6 +1041,8 @@ TconvertToMidi(
         uint8_t midiProgram;
         dontLetRing = ((trackMetadata.cleanGuitar & 0b10000000) == 0b10000000);
         midiProgram =  (trackMetadata.cleanGuitar & 0b01111111);
+
+        uint8_t volume = trackMetadata.volume;
 
         uint8_t pan;
         if constexpr (0x6b <= VERSION) {
@@ -1147,6 +1148,17 @@ TconvertToMidi(
             diff.to_int32(), // delta time
             channel,
             midiProgram
+        });
+
+        lastEventTick = roundedTick;
+
+        diff = (roundedTick - lastEventTick);
+
+        tmp.push_back(ControlChangeEvent{
+            diff.to_int32(), // delta time
+            channel,
+            C_VOLUME,
+            volume
         });
 
         lastEventTick = roundedTick;
@@ -1699,7 +1711,18 @@ TconvertToMidi(
                         }
                         case VOLUME: {
 
-                            volume = static_cast<uint8_t>(value);
+                            auto newVolume = static_cast<uint8_t>(value);
+
+                            diff = (roundedTick - lastEventTick);
+
+                            tmp.push_back(ControlChangeEvent{
+                                diff.to_int32(), // delta time
+                                channel,
+                                C_VOLUME,
+                                newVolume
+                            });
+
+                            lastEventTick = roundedTick;
 
                             break;
                         }
@@ -1845,7 +1868,16 @@ TconvertToMidi(
 
                         auto newVolume = effectVsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
-                        volume = newVolume;
+                        diff = (roundedTick - lastEventTick);
+
+                        tmp.push_back(ControlChangeEvent{
+                            diff.to_int32(), // delta time
+                            channel,
+                            C_VOLUME,
+                            newVolume
+                        });
+
+                        lastEventTick = roundedTick;
 
                         break;
                     }
@@ -1945,11 +1977,19 @@ TconvertToMidi(
 
                     diff = (roundedTick - lastEventTick);
 
+                    //
+                    // This is actually a departure from how TabIt exports to MIDI
+                    // TabIt uses the track volume for the velocity of each note
+                    // But it is better to separate note velocity and track volume
+                    //
+                    // Complaint about this on Reddit:
+                    // https://old.reddit.com/r/tabit/comments/z6e9yo/community_version_of_tabit/j07cfhw/
+                    //
                     tmp.push_back(NoteOnEvent{
                         diff.to_int32(), // delta time
                         channel,
                         midiNote,
-                        volume // velocity
+                        0x40 // velocity
                     });
 
                     lastEventTick = roundedTick;
