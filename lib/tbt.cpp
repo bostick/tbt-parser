@@ -20,6 +20,7 @@
 
 #include "tbt-parser/rational.h"
 #include "tbt-parser/tbt-parser-util.h"
+#include "tbt-parser/tbt.h"
 
 #include "common/assert.h"
 #include "common/check.h"

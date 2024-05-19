@@ -18,6 +18,7 @@
 
 #include "tbt-parser/rational.h"
 #include "tbt-parser/tbt-parser-util.h"
+#include "tbt-parser/tbt.h"
 
 #include "common/assert.h"
 #include "common/check.h"
@@ -67,9 +68,6 @@ const std::array<uint8_t, 6> STRING_MIDI_NOTE_LE6A = {
     0x2d, // MIDI note for open A string
     0x28, // MIDI note for open E string
 };
-
-const uint8_t MUTED = 0x11; // 17
-const uint8_t STOPPED = 0x12; // 18
 
 
 //
