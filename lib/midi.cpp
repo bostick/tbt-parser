@@ -262,7 +262,7 @@ computeTempoMap(
 
                         auto effect = p.first;
 
-                        if (effect == TEMPO) {
+                        if (effect == TE_TEMPO) {
 
                             auto newTempo = p.second;
 
@@ -1666,7 +1666,7 @@ TconvertToMidi(
                         auto value = p.second;
 
                         switch(effect) {
-                        case INSTRUMENT: {
+                        case TE_INSTRUMENT: {
 
                             auto newInstrument = value;
 
@@ -1709,7 +1709,7 @@ TconvertToMidi(
 
                             break;
                         }
-                        case VOLUME: {
+                        case TE_VOLUME: {
 
                             auto newVolume = static_cast<uint8_t>(value);
 
@@ -1726,18 +1726,18 @@ TconvertToMidi(
 
                             break;
                         }
-                        case TEMPO:
+                        case TE_TEMPO:
                             //
                             // already handled
                             //
                             break;
-                        case STROKE_DOWN:
-                        case STROKE_UP:
+                        case TE_STROKE_DOWN:
+                        case TE_STROKE_UP:
                             //
                             // nothing to do
                             //
                             break;
-                        case PAN: {
+                        case TE_PAN: {
                             
                             auto newPan = static_cast<uint8_t>(value);
 
@@ -1754,7 +1754,7 @@ TconvertToMidi(
 
                             break;
                         }
-                        case CHORUS: {
+                        case TE_CHORUS: {
                             
                             auto newChorus = static_cast<uint8_t>(value);
 
@@ -1771,7 +1771,7 @@ TconvertToMidi(
 
                             break;
                         }
-                        case REVERB: {
+                        case TE_REVERB: {
                             
                             auto newReverb = static_cast<uint8_t>(value);
 
@@ -1788,7 +1788,7 @@ TconvertToMidi(
 
                             break;
                         }
-                        case MODULATION: {
+                        case TE_MODULATION: {
                             
                             auto newModulation = static_cast<uint8_t>(value);
 
@@ -1805,7 +1805,7 @@ TconvertToMidi(
 
                             break;
                         }
-                        case PITCH_BEND: {
+                        case TE_PITCH_BEND: {
 
                             //
                             // convert from (-2400, 2400) to (0b0000000000000000 to 0b0011111111111111) i.e. (0 to 16383)
