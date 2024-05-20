@@ -598,43 +598,10 @@ parseTbtBytes(
 }
 
 
-struct TbtVersionNumberVisitor {
-    
-    uint8_t operator()(const tbt_file65 &t) {
-        return t.header.versionNumber;
-    }
-
-    uint8_t operator()(const tbt_file68 &t) {
-        return t.header.versionNumber;
-    }
-
-    uint8_t operator()(const tbt_file6a &t) {
-        return t.header.versionNumber;
-    }
-
-    uint8_t operator()(const tbt_file6b &t) {
-        return t.header.versionNumber;
-    }
-
-    uint8_t operator()(const tbt_file6e &t) {
-        return t.header.versionNumber;
-    }
-
-    uint8_t operator()(const tbt_file6f &t) {
-        return t.header.versionNumber;
-    }
-
-    uint8_t operator()(const tbt_file70 &t) {
-        return t.header.versionNumber;
-    }
-
-    uint8_t operator()(const tbt_file71 &t) {
-        return t.header.versionNumber;
-    }
-};
-
 uint8_t tbtFileVersionNumber(const tbt_file &t) {
-    return std::visit(TbtVersionNumberVisitor{}, t);
+    return std::visit([](auto&& t) -> uint8_t {
+        return t.header.versionNumber;
+    }, t);
 }
 
 
