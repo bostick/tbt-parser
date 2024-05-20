@@ -612,75 +612,17 @@ std::string tbtFileVersionString(const tbt_file &t) {
 }
 
 
-struct TbtInfoVisitor {
-    
-    void operator()(const tbt_file65 &t) {
+template <uint8_t VERSION, typename tbt_file_t>
+void
+TtbtFileInfo(const tbt_file_t &t) {
 
-        auto versionString = fromPascal1String(t.header.versionString.data());
+    auto versionString = fromPascal1String(t.header.versionString.data());
 
-        auto versionNumber = t.header.versionNumber;
+    auto versionNumber = t.header.versionNumber;
 
-        LOGI("tbt file version: %s (0x%02x)", versionString.c_str(), versionNumber);
+    LOGI("tbt file version: %s (0x%02x)", versionString.c_str(), versionNumber);
 
-        LOGI("title: %s", trim(fromPascal1String(t.metadata.title.data())).c_str());
-
-        LOGI("artist: %s", trim(fromPascal1String(t.metadata.artist.data())).c_str());
-
-        // LOGI("%s", trim(fromPascal1String(t.metadata.comment.data())).c_str());
-    }
-
-    void operator()(const tbt_file68 &t) {
-
-        auto versionString = fromPascal1String(t.header.versionString.data());
-
-        auto versionNumber = t.header.versionNumber;
-
-        LOGI("tbt file version: %s (0x%02x)", versionString.c_str(), versionNumber);
-
-        LOGI("title: %s", trim(fromPascal1String(t.metadata.title.data())).c_str());
-
-        LOGI("artist: %s", trim(fromPascal1String(t.metadata.artist.data())).c_str());
-
-        // LOGI("%s", trim(fromPascal1String(t.metadata.comment.data())).c_str());
-    }
-
-    void operator()(const tbt_file6a &t) {
-
-        auto versionString = fromPascal1String(t.header.versionString.data());
-
-        auto versionNumber = t.header.versionNumber;
-
-        LOGI("tbt file version: %s (0x%02x)", versionString.c_str(), versionNumber);
-
-        LOGI("title: %s", trim(fromPascal1String(t.metadata.title.data())).c_str());
-
-        LOGI("artist: %s", trim(fromPascal1String(t.metadata.artist.data())).c_str());
-
-        // LOGI("%s", trim(fromPascal1String(t.metadata.comment.data())).c_str());
-    }
-
-    void operator()(const tbt_file6b &t) {
-
-        auto versionString = fromPascal1String(t.header.versionString.data());
-
-        auto versionNumber = t.header.versionNumber;
-
-        LOGI("tbt file version: %s (0x%02x)", versionString.c_str(), versionNumber);
-
-        LOGI("title: %s", trim(fromPascal1String(t.metadata.title.data())).c_str());
-
-        LOGI("artist: %s", trim(fromPascal1String(t.metadata.artist.data())).c_str());
-
-        // LOGI("%s", trim(fromPascal1String(t.metadata.comment.data())).c_str());
-    }
-
-    void operator()(const tbt_file6e &t) {
-
-        auto versionString = fromPascal1String(t.header.versionString.data());
-
-        auto versionNumber = t.header.versionNumber;
-
-        LOGI("tbt file version: %s (0x%02x)", versionString.c_str(), versionNumber);
+    if constexpr (0x6e <= VERSION) {
 
         LOGI("title: %s", trim(fromPascal2String(t.metadata.title.data())).c_str());
 
@@ -691,68 +633,125 @@ struct TbtInfoVisitor {
         LOGI("transcribed by: %s", trim(fromPascal2String(t.metadata.transcribedBy.data())).c_str());
 
         // LOGI("%s", trim(fromPascal2String(t.metadata.comment.data())).c_str());
+
+    } else {
+
+        LOGI("title: %s", trim(fromPascal1String(t.metadata.title.data())).c_str());
+
+        LOGI("artist: %s", trim(fromPascal1String(t.metadata.artist.data())).c_str());
+
+        // LOGI("%s", trim(fromPascal1String(t.metadata.comment.data())).c_str());
     }
+}
 
-    void operator()(const tbt_file6f &t) {
-
-        auto versionString = fromPascal1String(t.header.versionString.data());
-
-        auto versionNumber = t.header.versionNumber;
-
-        LOGI("tbt file version: %s (0x%02x)", versionString.c_str(), versionNumber);
-
-        LOGI("title: %s", trim(fromPascal2String(t.metadata.title.data())).c_str());
-
-        LOGI("artist: %s", trim(fromPascal2String(t.metadata.artist.data())).c_str());
-
-        LOGI("album: %s", trim(fromPascal2String(t.metadata.album.data())).c_str());
-
-        LOGI("transcribed by: %s", trim(fromPascal2String(t.metadata.transcribedBy.data())).c_str());
-
-        // LOGI("%s", trim(fromPascal2String(t.metadata.comment.data())).c_str());
-    }
-
-    void operator()(const tbt_file70 &t) {
-
-        auto versionString = fromPascal1String(t.header.versionString.data());
-
-        auto versionNumber = t.header.versionNumber;
-
-        LOGI("tbt file version: %s (0x%02x)", versionString.c_str(), versionNumber);
-
-        LOGI("title: %s", trim(fromPascal2String(t.metadata.title.data())).c_str());
-
-        LOGI("artist: %s", trim(fromPascal2String(t.metadata.artist.data())).c_str());
-
-        LOGI("album: %s", trim(fromPascal2String(t.metadata.album.data())).c_str());
-
-        LOGI("transcribed by: %s", trim(fromPascal2String(t.metadata.transcribedBy.data())).c_str());
-
-        // LOGI("%s", trim(fromPascal2String(t.metadata.comment.data())).c_str());
-    }
-
-    void operator()(const tbt_file71 &t) {
-
-        auto versionString = fromPascal1String(t.header.versionString.data());
-
-        auto versionNumber = t.header.versionNumber;
-
-        LOGI("tbt file version: %s (0x%02x)", versionString.c_str(), versionNumber);
-
-        LOGI("title: %s", trim(fromPascal2String(t.metadata.title.data())).c_str());
-
-        LOGI("artist: %s", trim(fromPascal2String(t.metadata.artist.data())).c_str());
-
-        LOGI("album: %s", trim(fromPascal2String(t.metadata.album.data())).c_str());
-
-        LOGI("transcribed by: %s", trim(fromPascal2String(t.metadata.transcribedBy.data())).c_str());
-
-        // LOGI("%s", trim(fromPascal2String(t.metadata.comment.data())).c_str());
-    }
-};
 
 void tbtFileInfo(const tbt_file &t) {
-    std::visit(TbtInfoVisitor{}, t);
+
+    auto versionNumber = tbtFileVersionNumber(t);
+
+    switch (versionNumber) {
+    case 0x72: {
+
+        auto t71 = std::get<tbt_file71>(t);
+        
+        TtbtFileInfo<0x72>(t71);
+        
+        break;
+    }
+    case 0x71: {
+        
+        auto t71 = std::get<tbt_file71>(t);
+        
+        TtbtFileInfo<0x71>(t71);
+        
+        break;
+    }
+    case 0x70: {
+        
+        auto t70 = std::get<tbt_file70>(t);
+        
+        TtbtFileInfo<0x70>(t70);
+        
+        break;
+    }
+    case 0x6f: {
+        
+        auto t6f = std::get<tbt_file6f>(t);
+        
+        TtbtFileInfo<0x6f>(t6f);
+        
+        break;
+    }
+    case 0x6e: {
+        
+        auto t6e = std::get<tbt_file6e>(t);
+        
+        TtbtFileInfo<0x6e>(t6e);
+        
+        break;
+    }
+    case 0x6b: {
+        
+        auto t6b = std::get<tbt_file6b>(t);
+        
+        TtbtFileInfo<0x6b>(t6b);
+        
+        break;
+    }
+    case 0x6a: {
+        
+        auto t6a = std::get<tbt_file6a>(t);
+        
+        TtbtFileInfo<0x6a>(t6a);
+        
+        break;
+    }
+    case 0x69: {
+        
+        auto t68 = std::get<tbt_file68>(t);
+        
+        TtbtFileInfo<0x69>(t68);
+        
+        break;
+    }
+    case 0x68: {
+        
+        auto t68 = std::get<tbt_file68>(t);
+        
+        TtbtFileInfo<0x68>(t68);
+        
+        break;
+    }
+    case 0x67: {
+        
+        auto t65 = std::get<tbt_file65>(t);
+        
+        TtbtFileInfo<0x67>(t65);
+        
+        break;
+    }
+    case 0x66: {
+        
+        auto t65 = std::get<tbt_file65>(t);
+        
+        TtbtFileInfo<0x66>(t65);
+        
+        break;
+    }
+    case 0x65: {
+        
+        auto t65 = std::get<tbt_file65>(t);
+        
+        TtbtFileInfo<0x65>(t65);
+        
+        break;
+    }
+    default:
+
+        ASSERT(false);
+        
+        break;
+    }
 }
 
 
