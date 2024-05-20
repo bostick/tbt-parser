@@ -421,9 +421,9 @@ parseTbtBytes(
         tbt_file71 t;
         
         if ((featureBitfield & HASALTERNATETIMEREGIONS_MASK) == HASALTERNATETIMEREGIONS_MASK) {
-            ret = TparseTbtBytes<0x72, true, tbt_file71>(it, end, t);
+            ret = TparseTbtBytes<0x72, true>(it, end, t);
         } else {
-            ret = TparseTbtBytes<0x72, false, tbt_file71>(it, end, t);
+            ret = TparseTbtBytes<0x72, false>(it, end, t);
         }
 
         if (ret != OK) {
@@ -439,9 +439,9 @@ parseTbtBytes(
         tbt_file71 t;
 
         if ((featureBitfield & HASALTERNATETIMEREGIONS_MASK) == HASALTERNATETIMEREGIONS_MASK) {
-            ret = TparseTbtBytes<0x71, true, tbt_file71>(it, end, t);
+            ret = TparseTbtBytes<0x71, true>(it, end, t);
         } else {
-            ret = TparseTbtBytes<0x71, false, tbt_file71>(it, end, t);
+            ret = TparseTbtBytes<0x71, false>(it, end, t);
         }
 
         if (ret != OK) {
@@ -457,9 +457,9 @@ parseTbtBytes(
         tbt_file70 t;
         
         if ((featureBitfield & HASALTERNATETIMEREGIONS_MASK) == HASALTERNATETIMEREGIONS_MASK) {
-            ret = TparseTbtBytes<0x70, true, tbt_file70>(it, end, t);
+            ret = TparseTbtBytes<0x70, true>(it, end, t);
         } else {
-            ret = TparseTbtBytes<0x70, false, tbt_file70>(it, end, t);
+            ret = TparseTbtBytes<0x70, false>(it, end, t);
         }
 
         if (ret != OK) {
@@ -473,7 +473,7 @@ parseTbtBytes(
     case 0x6f: {
 
         tbt_file6f t;
-        ret = TparseTbtBytes<0x6f, false, tbt_file6f>(it, end, t);
+        ret = TparseTbtBytes<0x6f, false>(it, end, t);
 
         if (ret != OK) {
             return ret;
@@ -486,7 +486,7 @@ parseTbtBytes(
     case 0x6e: {
 
         tbt_file6e t;
-        ret = TparseTbtBytes<0x6e, false, tbt_file6e>(it, end, t);
+        ret = TparseTbtBytes<0x6e, false>(it, end, t);
 
         if (ret != OK) {
             return ret;
@@ -499,7 +499,7 @@ parseTbtBytes(
     case 0x6b: {
 
         tbt_file6b t;
-        ret = TparseTbtBytes<0x6b, false, tbt_file6b>(it, end, t);
+        ret = TparseTbtBytes<0x6b, false>(it, end, t);
 
         if (ret != OK) {
             return ret;
@@ -512,7 +512,7 @@ parseTbtBytes(
     case 0x6a: {
 
         tbt_file6a t;
-        ret = TparseTbtBytes<0x6a, false, tbt_file6a>(it, end, t);
+        ret = TparseTbtBytes<0x6a, false>(it, end, t);
 
         if (ret != OK) {
             return ret;
@@ -525,7 +525,7 @@ parseTbtBytes(
     case 0x69: {
 
         tbt_file68 t;
-        ret = TparseTbtBytes<0x69, false, tbt_file68>(it, end, t);
+        ret = TparseTbtBytes<0x69, false>(it, end, t);
 
         if (ret != OK) {
             return ret;
@@ -538,7 +538,7 @@ parseTbtBytes(
     case 0x68: {
 
         tbt_file68 t;
-        ret = TparseTbtBytes<0x68, false, tbt_file68>(it, end, t);
+        ret = TparseTbtBytes<0x68, false>(it, end, t);
 
         if (ret != OK) {
             return ret;
@@ -551,7 +551,7 @@ parseTbtBytes(
     case 0x67: {
 
         tbt_file65 t;
-        ret = TparseTbtBytes<0x67, false, tbt_file65>(it, end, t);
+        ret = TparseTbtBytes<0x67, false>(it, end, t);
 
         if (ret != OK) {
             return ret;
@@ -564,7 +564,7 @@ parseTbtBytes(
     case 0x66: {
 
         tbt_file65 t;
-        ret = TparseTbtBytes<0x66, false, tbt_file65>(it, end, t);
+        ret = TparseTbtBytes<0x66, false>(it, end, t);
 
         if (ret != OK) {
             return ret;
@@ -577,7 +577,7 @@ parseTbtBytes(
     case 0x65: {
 
         tbt_file65 t;
-        ret = TparseTbtBytes<0x65, false, tbt_file65>(it, end, t);
+        ret = TparseTbtBytes<0x65, false>(it, end, t);
 
         if (ret != OK) {
             return ret;
