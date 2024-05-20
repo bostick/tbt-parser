@@ -3122,69 +3122,6 @@ midiFileTimes(const midi_file &m) {
 }
 
 
-struct EventInfoVisitor {
-
-    void operator()(const ProgramChangeEvent &e) {
-        (void)e;
-    }
-
-    void operator()(const PitchBendEvent &e) {
-        (void)e;
-    }
-
-    void operator()(const NoteOffEvent &e) {
-        (void)e;
-    }
-
-    void operator()(const NoteOnEvent &e) {
-        (void)e;
-    }
-
-    void operator()(const ControlChangeEvent &e) {
-        (void)e;
-    }
-
-    void operator()(const MetaEvent &e) {
-        
-        switch (e.type) {
-        case M_TRACKNAME: {
-
-            std::string str{e.data.cbegin(), e.data.cend()};
-
-            LOGI("Track Name: %s", str.c_str());
-
-            break;
-        }
-        case M_TIMESIGNATURE: {
-
-            auto numerator = e.data[0];
-            auto denominator = e.data[1];
-            auto ticksPerBeat = e.data[2];
-            auto notated32notesPerBeat = e.data[3];
-
-            LOGI("Time Signature Numerator: %d", numerator);
-            LOGI("Time Signature Denominator: %d", denominator);
-            LOGI("Time Signature Ticks Per Beat: %d", ticksPerBeat);
-            LOGI("Time Signature 32nd notes Per Beat: %d", notated32notesPerBeat);
-
-            break;
-        }
-        }
-    }
-
-    void operator()(const PolyphonicKeyPressureEvent &e) {
-        (void)e;
-    }
-
-    void operator()(const ChannelPressureEvent &e) {
-        (void)e;
-    }
-
-    void operator()(const SysExEvent &e) {
-        (void)e;
-    }
-};
-
 void
 midiFileInfo(const midi_file &m) {
 
@@ -3195,12 +3132,38 @@ midiFileInfo(const midi_file &m) {
 
     LOGI("events:");
 
-    EventInfoVisitor eventInfoVisitor{};
-
     for (const auto &track : m.tracks) {
 
         for (const auto &e : track) {
-            std::visit(eventInfoVisitor, e);
+            std::visit([](auto&& e) {
+                using T = std::decay_t<decltype(e)>;
+                if constexpr (std::is_same_v<T, MetaEvent>) {
+                    switch (e.type) {
+                    case M_TRACKNAME: {
+
+                        std::string str{ e.data.cbegin(), e.data.cend() };
+
+                        LOGI("Track Name: %s", str.c_str());
+
+                        break;
+                    }
+                    case M_TIMESIGNATURE: {
+
+                        auto numerator = e.data[0];
+                        auto denominator = e.data[1];
+                        auto ticksPerBeat = e.data[2];
+                        auto notated32notesPerBeat = e.data[3];
+
+                        LOGI("Time Signature Numerator: %d", numerator);
+                        LOGI("Time Signature Denominator: %d", denominator);
+                        LOGI("Time Signature Ticks Per Beat: %d", ticksPerBeat);
+                        LOGI("Time Signature 32nd notes Per Beat: %d", notated32notesPerBeat);
+
+                        break;
+                    }
+                    }
+                }
+            }, e);
         }
     }
 
