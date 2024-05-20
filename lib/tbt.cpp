@@ -605,43 +605,10 @@ uint8_t tbtFileVersionNumber(const tbt_file &t) {
 }
 
 
-struct TbtVersionStringVisitor {
-
-    std::string operator()(const tbt_file65 &t) {
-        return fromPascal1String(t.header.versionString.data());
-    }
-
-    std::string operator()(const tbt_file68 &t) {
-        return fromPascal1String(t.header.versionString.data());
-    }
-
-    std::string operator()(const tbt_file6a &t) {
-        return fromPascal1String(t.header.versionString.data());
-    }
-
-    std::string operator()(const tbt_file6b &t) {
-        return fromPascal1String(t.header.versionString.data());
-    }
-
-    std::string operator()(const tbt_file6e &t) {
-        return fromPascal1String(t.header.versionString.data());
-    }
-
-    std::string operator()(const tbt_file6f &t) {
-        return fromPascal1String(t.header.versionString.data());
-    }
-
-    std::string operator()(const tbt_file70 &t) {
-        return fromPascal1String(t.header.versionString.data());
-    }
-
-    std::string operator()(const tbt_file71 &t) {
-        return fromPascal1String(t.header.versionString.data());
-    }
-};
-
 std::string tbtFileVersionString(const tbt_file &t) {
-    return std::visit(TbtVersionStringVisitor{}, t);
+    return std::visit([](auto&& t) -> std::string {
+        return fromPascal1String(t.header.versionString.data());
+    }, t);
 }
 
 
