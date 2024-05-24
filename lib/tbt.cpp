@@ -37,7 +37,7 @@
 #include "expanddeltalist.inl"
 #include "metadata.inl"
 #include "alternate-time-regions.inl"
-#include "bars.inl"
+#include "bar-lines.inl"
 #include "track-effect-changes.inl"
 #include "notes.inl"
 #include "body.inl"
