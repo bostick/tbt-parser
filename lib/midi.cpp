@@ -48,28 +48,6 @@ const rational MICROS_PER_MINUTE = (MICROS_PER_SECOND * 60);
 const rational MICROS_PER_64TH = (MICROS_PER_SECOND / 64);
 
 
-
-const std::array<uint8_t, 8> STRING_MIDI_NOTE = {
-    0x28, // MIDI note for open E string
-    0x2d, // MIDI note for open A string
-    0x32, // MIDI note for open D string
-    0x37, // MIDI note for open G string
-    0x3b, // MIDI note for open B string
-    0x40, // MIDI note for open e string
-    0x00,
-    0x00,
-};
-
-const std::array<uint8_t, 6> STRING_MIDI_NOTE_LE6A = {
-    0x40, // MIDI note for open e string
-    0x3b, // MIDI note for open B string
-    0x37, // MIDI note for open G string
-    0x32, // MIDI note for open D string
-    0x2d, // MIDI note for open A string
-    0x28, // MIDI note for open E string
-};
-
-
 //
 // meta events
 //
@@ -570,9 +548,9 @@ computeMidiNoteOffsetArrays(
             }
 
             if constexpr (0x6b <= VERSION) {
-                offset += STRING_MIDI_NOTE[string];
+                offset += OPEN_STRING_TO_MIDI_NOTE[string];
             } else {
-                offset += STRING_MIDI_NOTE_LE6A[string];
+                offset += OPEN_STRING_TO_MIDI_NOTE_LE6A[string];
             }
 
             midiNoteOffsetArray[string] = offset;
