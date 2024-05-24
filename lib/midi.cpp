@@ -539,12 +539,12 @@ computeMidiNoteOffsetArrays(
 
         for (uint8_t string = 0; string < trackMetadata.stringCount; string++) {
 
-            auto offset = static_cast<uint8_t>(-0x80);
+            auto offset = -0x80;
 
-            offset += static_cast<uint8_t>(trackMetadata.tuning[string]);
+            offset += trackMetadata.tuning[string];
 
             if constexpr (0x6e <= VERSION) {
-                offset += static_cast<uint8_t>(trackMetadata.transposeHalfSteps);
+                offset += trackMetadata.transposeHalfSteps;
             }
 
             if constexpr (0x6b <= VERSION) {
@@ -553,7 +553,7 @@ computeMidiNoteOffsetArrays(
                 offset += OPEN_STRING_TO_MIDI_NOTE_LE6A[string];
             }
 
-            midiNoteOffsetArray[string] = offset;
+            midiNoteOffsetArray[string] = static_cast<uint8_t>(offset);
         }
 
         midiNoteOffsetArrays.push_back(midiNoteOffsetArray);
