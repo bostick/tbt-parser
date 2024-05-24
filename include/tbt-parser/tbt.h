@@ -41,6 +41,30 @@ enum tbt_bar_line : uint8_t {
 };
 
 
+const std::array<int8_t, 8> OPEN_STRING_TO_MIDI_NOTE = {
+    0x28, // MIDI note for open E string
+    0x2d, // MIDI note for open A string
+    0x32, // MIDI note for open D string
+    0x37, // MIDI note for open G string
+    0x3b, // MIDI note for open B string
+    0x40, // MIDI note for open e string
+    0x00,
+    0x00,
+};
+
+const std::array<int8_t, 6> OPEN_STRING_TO_MIDI_NOTE_LE6A = {
+    0x40, // MIDI note for open e string
+    0x3b, // MIDI note for open B string
+    0x37, // MIDI note for open G string
+    0x32, // MIDI note for open D string
+    0x2d, // MIDI note for open A string
+    0x28, // MIDI note for open E string
+};
+
+
+
+
+
 
 
 
