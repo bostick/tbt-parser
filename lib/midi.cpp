@@ -359,7 +359,7 @@ template <uint8_t VERSION, typename tbt_file_t>
 void
 computeRepeats(
     const tbt_file_t &t,
-    uint32_t barsSpaceCount,
+    uint32_t barLinesSpaceCount,
     std::vector<std::set<uint32_t> > &openSpaceSets,
     std::vector<std::map<uint32_t, repeat_close_struct> > &repeatCloseMaps) {
 
@@ -380,7 +380,7 @@ computeRepeats(
     bool savedClose = false;
     uint8_t savedRepeats = 0;
 
-    for (uint32_t space = 0; space < barsSpaceCount;) {
+    for (uint32_t space = 0; space < barLinesSpaceCount;) {
 
         //
         // Setup repeats:
@@ -388,13 +388,13 @@ computeRepeats(
         //
         if constexpr (0x70 <= VERSION) {
 
-            const auto &barsMapIt = t.body.barsMap.find(space);
-            if (barsMapIt != t.body.barsMap.end()) {
+            const auto &barLinesMapIt = t.body.barLinesMap.find(space);
+            if (barLinesMapIt != t.body.barLinesMap.end()) {
 
                 //
-                // typical bar is at spaces: 0, 16, 32, etc.
+                // typical bar line is at spaces: 0, 16, 32, etc.
                 //
-                auto bar = barsMapIt->second;
+                auto barLine = barLinesMapIt->second;
 
                 if (savedClose) {
 
@@ -415,19 +415,19 @@ computeRepeats(
                     lastOpenSpace = space;
                 }
 
-                if ((bar[0] & CLOSEREPEAT_MASK_GE70) == CLOSEREPEAT_MASK_GE70) {
+                if ((barLine[0] & CLOSEREPEAT_MASK_GE70) == CLOSEREPEAT_MASK_GE70) {
 
                     //
                     // save for next bar line
                     //
 
                     savedClose = true;
-                    savedRepeats = bar[1];
+                    savedRepeats = barLine[1];
 
                     currentlyOpen = false;
                 }
 
-                if ((bar[0] & OPENREPEAT_MASK_GE70) == OPENREPEAT_MASK_GE70) {
+                if ((barLine[0] & OPENREPEAT_MASK_GE70) == OPENREPEAT_MASK_GE70) {
 
                     if (currentlyOpen) {
 
@@ -448,21 +448,21 @@ computeRepeats(
 
         } else {
 
-            const auto &barsMapIt = t.body.barsMap.find(space);
-            if (barsMapIt != t.body.barsMap.end()) {
+            const auto &barLinesMapIt = t.body.barLinesMap.find(space);
+            if (barLinesMapIt != t.body.barLinesMap.end()) {
 
                 //
                 // typical CLOSE, SINGLE, DOUBLE is at spaces: 15, 31, etc.
                 // typical OPEN is at spaces: 0, 16, 32, etc.
                 //
-                auto bar = barsMapIt->second;
+                auto barLine = barLinesMapIt->second;
 
-                auto change = static_cast<tbt_bar_line>(bar[0] & 0b00001111);
+                auto change = static_cast<tbt_bar_line>(barLine[0] & 0b00001111);
 
                 switch (change) {
                 case CLOSE: {
                     
-                    auto repeats = static_cast<size_t>((bar[0] & 0b11110000) >> 4);
+                    auto repeats = static_cast<size_t>((barLine[0] & 0b11110000) >> 4);
 
                     for (uint8_t track = 0; track < t.header.trackCount + 1; track++) { // track count, + 1 for tempo track
                         
@@ -538,7 +538,7 @@ computeRepeats(
                     openSpaceSets[track].insert(lastOpenSpace);
                 }
 
-                repeatCloseMaps[track][barsSpaceCount] = { lastOpenSpace, savedRepeats, 0, 0, 0 };
+                repeatCloseMaps[track][barLinesSpaceCount] = { lastOpenSpace, savedRepeats, 0, 0, 0 };
             }
 
             savedClose = false;
@@ -627,13 +627,13 @@ TconvertToMidi(
     const midi_convert_opts &opts,
     midi_file &out) {
 
-    uint32_t barsSpaceCount;
+    uint32_t barLinesSpaceCount;
     if constexpr (0x70 <= VERSION) {
-        barsSpaceCount = t.body.barsSpaceCount;
+        barLinesSpaceCount = t.body.barLinesSpaceCount;
     } else if constexpr (VERSION == 0x6f) {
-        barsSpaceCount = t.header.spaceCount;
+        barLinesSpaceCount = t.header.spaceCount;
     } else {
-        barsSpaceCount = 4000;
+        barLinesSpaceCount = 4000;
     }
 
     //
@@ -675,7 +675,7 @@ TconvertToMidi(
     //
     std::vector<std::map<uint32_t, repeat_close_struct> > repeatCloseMaps;
 
-    computeRepeats<VERSION, tbt_file_t>(t, barsSpaceCount, openSpaceSets, repeatCloseMaps);
+    computeRepeats<VERSION, tbt_file_t>(t, barLinesSpaceCount, openSpaceSets, repeatCloseMaps);
 
     //
     // for each track:
@@ -801,7 +801,7 @@ TconvertToMidi(
 
         auto &repeatCloseMap = repeatCloseMaps[0];
 
-        for (uint32_t space = 0; space < barsSpaceCount + 1;) { // space count, + 1 for handling repeats at end
+        for (uint32_t space = 0; space < barLinesSpaceCount + 1;) { // space count, + 1 for handling repeats at end
 
             //
             // handle any repeat closes first
@@ -2071,7 +2071,7 @@ TconvertToMidi(
 #ifndef NDEBUG
         ASSERT(tick == tickCount);
         ASSERT(roundedTick == tickCount);
-        ASSERT(actualSpace == barsSpaceCount);
+        ASSERT(actualSpace == barLinesSpaceCount);
         for (const auto &repeatCloseMapIt : repeatCloseMap) {
             const auto &r = repeatCloseMapIt.second;
             ASSERT(r.repeats == 0);

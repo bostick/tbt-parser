@@ -33,10 +33,10 @@ parseBody(
     tbt_file_t &out) {
 
     //
-    // parse bars
+    // parse bar lines
     //
 
-    Status ret = parseBarsMap<VERSION, tbt_file_t>(it, end, out);
+    Status ret = parseBarLinesMap<VERSION, tbt_file_t>(it, end, out);
 
     if (ret != OK) {
         return ret;

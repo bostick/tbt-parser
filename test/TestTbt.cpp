@@ -114,12 +114,12 @@ TEST_F(TbtTest, twinkle1) {
     EXPECT_THAT(t6f.metadata.comment, testing::ElementsAre(0, 0));
 
     // clang-format off
-    std::map<uint32_t, std::array<uint8_t, 1> > expectedBars{
+    std::map<uint32_t, std::array<uint8_t, 1> > expectedBarLines{
         { 15, {1} },  { 31, {1} },  { 47, {1} },  { 63,  {1} },
         { 79, {1} },  { 95, {1} },  { 111, {1} }, { 127, {1} },
         { 143, {1} }, { 159, {1} }, { 175, {1} }, { 191, {1} }
     };
-    EXPECT_EQ(t6f.body.barsMap, expectedBars);
+    EXPECT_EQ(t6f.body.barLinesMap, expectedBarLines);
     // clang-format on
 
     // clang-format off

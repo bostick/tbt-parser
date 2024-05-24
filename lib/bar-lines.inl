@@ -17,17 +17,17 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-#define TAG "bars"
+#define TAG "bar-lines"
 
 
 //
-// https://bostick.github.io/tabit-file-format/description/tabit-file-format-description.html#bars
+// https://bostick.github.io/tabit-file-format/description/tabit-file-format-description.html#bar-lines
 //
 
 
 template <uint8_t VERSION, typename tbt_file_t>
 Status
-parseBarsMap(
+parseBarLinesMap(
     std::vector<uint8_t>::const_iterator &it,
     const std::vector<uint8_t>::const_iterator end,
     tbt_file_t &out) {
@@ -50,31 +50,31 @@ parseBarsMap(
             return ret;
         }
 
-        out.body.barsSpaceCount = 0;
+        out.body.barLinesSpaceCount = 0;
 
-        out.body.barsMap.clear();
+        out.body.barLinesMap.clear();
 
         for (const std::array<uint8_t, 6> &part : parts) {
 
-            auto space = out.body.barsSpaceCount;
+            auto space = out.body.barLinesSpaceCount;
 
-            out.body.barsSpaceCount += parseLE4(part[0], part[1], part[2], part[3]);
+            out.body.barLinesSpaceCount += parseLE4(part[0], part[1], part[2], part[3]);
 
-            out.body.barsMap[space] = { part[4], part[5] };
+            out.body.barLinesMap[space] = { part[4], part[5] };
         }
 
         return OK;
 
     } else {
 
-        uint32_t barsSpaceCount;
+        uint32_t barLinesSpaceCount;
         if constexpr (VERSION == 0x6f) {
-            barsSpaceCount = out.header.spaceCount;
+            barLinesSpaceCount = out.header.spaceCount;
         } else {
-            barsSpaceCount = 4000;
+            barLinesSpaceCount = 4000;
         }
 
-        std::vector<uint8_t> barsDeltaListAcc;
+        std::vector<uint8_t> barLinesDeltaListAcc;
         uint32_t sqCount = 0;
 
         while (true) {
@@ -87,7 +87,7 @@ parseBarsMap(
                 return ret;
             }
 
-            barsDeltaListAcc.insert(barsDeltaListAcc.end(), deltaList.cbegin(), deltaList.cend());
+            barLinesDeltaListAcc.insert(barLinesDeltaListAcc.end(), deltaList.cbegin(), deltaList.cend());
 
             ret = computeDeltaListCount(deltaList, &sqCount);
 
@@ -95,14 +95,14 @@ parseBarsMap(
                 return ret;
             }
 
-            CHECK(sqCount <= barsSpaceCount, "unhandled");
+            CHECK(sqCount <= barLinesSpaceCount, "unhandled");
 
-            if (sqCount == barsSpaceCount) {
+            if (sqCount == barLinesSpaceCount) {
                 break;
             }
         }
 
-        Status ret = expandDeltaList<1>(barsDeltaListAcc, barsSpaceCount, 0, out.body.barsMap);
+        Status ret = expandDeltaList<1>(barLinesDeltaListAcc, barLinesSpaceCount, 0, out.body.barLinesMap);
 
         if (ret != OK) {
             return ret;

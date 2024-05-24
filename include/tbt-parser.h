@@ -482,24 +482,24 @@ struct maps65 {
 };
 
 struct tbt_body71 {
-    std::map<uint32_t, std::array<uint8_t, 2> > barsMap;
-    uint32_t barsSpaceCount;
+    std::map<uint32_t, std::array<uint8_t, 2> > barLinesMap;
+    uint32_t barLinesSpaceCount;
     std::vector<maps71> mapsList;
 };
 
 struct tbt_body70 {
-    std::map<uint32_t, std::array<uint8_t, 2> > barsMap;
-    uint32_t barsSpaceCount;
+    std::map<uint32_t, std::array<uint8_t, 2> > barLinesMap;
+    uint32_t barLinesSpaceCount;
     std::vector<maps70> mapsList;
 };
 
 struct tbt_body6b {
-    std::map<uint32_t, std::array<uint8_t, 1> > barsMap;
+    std::map<uint32_t, std::array<uint8_t, 1> > barLinesMap;
     std::vector<maps6b> mapsList;
 };
 
 struct tbt_body65 {
-    std::map<uint32_t, std::array<uint8_t, 1> > barsMap;
+    std::map<uint32_t, std::array<uint8_t, 1> > barLinesMap;
     std::vector<maps65> mapsList;
 };
 

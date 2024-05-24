@@ -27,7 +27,7 @@ const uint8_t MUTED = 0x11; // 17
 const uint8_t STOPPED = 0x12; // 18
 
 //
-// masks for barsMapGE70
+// masks for barLinesMap (70 <= VERSION)
 //
 const uint8_t DOUBLEBAR_MASK_GE70 =   0b00000001;
 const uint8_t OPENREPEAT_MASK_GE70 =  0b00000010;
