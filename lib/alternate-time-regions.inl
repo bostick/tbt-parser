@@ -94,7 +94,7 @@ parseAlternateTimeRegionsMapList(
             }
         }
 
-        ASSERT(rational(out.metadata.tracks[track].spaceCount) == rational(out.body.barsSpaceCount) + alternateTimeRegionsCorrection);
+        ASSERT(rational(out.metadata.tracks[track].spaceCount) == rational(out.body.barLinesSpaceCount) + alternateTimeRegionsCorrection);
 #endif // NDEBUG
     }
 
