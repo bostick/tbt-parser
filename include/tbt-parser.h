@@ -463,43 +463,43 @@ enum tbt_track_effect : uint8_t {
 };
 
 struct maps71 {
-    std::map<uint32_t, std::array<uint8_t, 20> > notesMap;
-    std::map<uint32_t, std::array<uint8_t, 2> > alternateTimeRegionsMap;
-    std::map<uint32_t, std::map<tbt_track_effect, uint16_t> > trackEffectChangesMap;
+    std::map<uint16_t, std::array<uint8_t, 20> > notesMap;
+    std::map<uint16_t, std::array<uint8_t, 2> > alternateTimeRegionsMap;
+    std::map<uint16_t, std::map<tbt_track_effect, uint16_t> > trackEffectChangesMap;
 };
 
 struct maps70 {
-    std::map<uint32_t, std::array<uint8_t, 20> > notesMap;
-    std::map<uint32_t, std::array<uint8_t, 2> > alternateTimeRegionsMap;
+    std::map<uint16_t, std::array<uint8_t, 20> > notesMap;
+    std::map<uint16_t, std::array<uint8_t, 2> > alternateTimeRegionsMap;
 };
 
 struct maps6b {
-    std::map<uint32_t, std::array<uint8_t, 20> > notesMap;
+    std::map<uint16_t, std::array<uint8_t, 20> > notesMap;
 };
 
 struct maps65 {
-    std::map<uint32_t, std::array<uint8_t, 16> > notesMap;
+    std::map<uint16_t, std::array<uint8_t, 16> > notesMap;
 };
 
 struct tbt_body71 {
-    std::map<uint32_t, std::array<uint8_t, 2> > barLinesMap;
-    uint32_t barLinesSpaceCount;
+    std::map<uint16_t, std::array<uint8_t, 2> > barLinesMap;
+    uint16_t barLinesSpaceCount;
     std::vector<maps71> mapsList;
 };
 
 struct tbt_body70 {
-    std::map<uint32_t, std::array<uint8_t, 2> > barLinesMap;
-    uint32_t barLinesSpaceCount;
+    std::map<uint16_t, std::array<uint8_t, 2> > barLinesMap;
+    uint16_t barLinesSpaceCount;
     std::vector<maps70> mapsList;
 };
 
 struct tbt_body6b {
-    std::map<uint32_t, std::array<uint8_t, 1> > barLinesMap;
+    std::map<uint16_t, std::array<uint8_t, 1> > barLinesMap;
     std::vector<maps6b> mapsList;
 };
 
 struct tbt_body65 {
-    std::map<uint32_t, std::array<uint8_t, 1> > barLinesMap;
+    std::map<uint16_t, std::array<uint8_t, 1> > barLinesMap;
     std::vector<maps65> mapsList;
 };
 

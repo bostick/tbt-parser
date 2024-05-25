@@ -58,7 +58,10 @@ parseBarLinesMap(
 
             auto space = out.body.barLinesSpaceCount;
 
-            out.body.barLinesSpaceCount += parseLE4(part[0], part[1], part[2], part[3]);
+            //
+            // stored as 32-bit int, so must be cast
+            //
+            out.body.barLinesSpaceCount += static_cast<uint16_t>(parseLE4(part[0], part[1], part[2], part[3]));
 
             out.body.barLinesMap[space] = { part[4], part[5] };
         }
@@ -67,7 +70,7 @@ parseBarLinesMap(
 
     } else {
 
-        uint32_t barLinesSpaceCount;
+        uint16_t barLinesSpaceCount;
         if constexpr (VERSION == 0x6f) {
             barLinesSpaceCount = out.header.spaceCount;
         } else {

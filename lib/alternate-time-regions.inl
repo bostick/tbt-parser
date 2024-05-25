@@ -81,7 +81,7 @@ parseAlternateTimeRegionsMapList(
 
 #ifndef NDEBUG
         rational alternateTimeRegionsCorrection = 0;
-        for (uint32_t space = 0; space < trackSpaceCount; space++) {
+        for (uint16_t space = 0; space < trackSpaceCount; space++) {
 
             const auto &alternateTimeRegionsIt = alternateTimeRegionsMap.find(space);
             if (alternateTimeRegionsIt != alternateTimeRegionsMap.end()) {

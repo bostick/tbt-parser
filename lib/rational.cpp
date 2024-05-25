@@ -329,6 +329,8 @@ int16_t rational::to_int16() const {
 
     ASSERT(d == 1);
 
+    ASSERT(n <= 0x7fff);
+
     return static_cast<int16_t>(n);
 }
 
@@ -338,12 +340,16 @@ uint16_t rational::to_uint16() const {
 
     ASSERT(d == 1);
 
+    ASSERT(n <= 0xffff);
+
     return static_cast<uint16_t>(n);
 }
 
 int32_t rational::to_int32() const {
 
     ASSERT(d == 1);
+
+    ASSERT(n <= 0x7fffffff);
 
     return static_cast<int32_t>(n);
 }
@@ -353,6 +359,8 @@ uint32_t rational::to_uint32() const {
     ASSERT(n >= 0);
 
     ASSERT(d == 1);
+
+    ASSERT(n <= 0xffffffff);
 
     return static_cast<uint32_t>(n);
 }

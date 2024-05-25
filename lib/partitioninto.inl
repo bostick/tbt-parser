@@ -25,7 +25,7 @@
 //
 
 
-template <uint32_t S>
+template <uint8_t S>
 Status
 partitionInto(
     const std::vector<uint8_t> &data,
