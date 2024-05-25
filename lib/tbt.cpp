@@ -614,39 +614,45 @@ std::string tbtFileVersionString(const tbt_file &t) {
 
 
 template <uint8_t VERSION, typename tbt_file_t>
-void
+std::string
 TtbtFileInfo(const tbt_file_t &t) {
 
-    auto versionString = fromPascal1String(t.header.versionString.data());
-
-    auto versionNumber = t.header.versionNumber;
-
-    LOGI("tbt file version: %s (0x%02x)", versionString.c_str(), versionNumber);
+    std::string acc;
 
     if constexpr (0x6e <= VERSION) {
 
-        LOGI("title: %s", trim(fromPascal2String(t.metadata.title.data())).c_str());
+        acc += std::string("title: ") + trim(fromPascal2String(t.metadata.title.data()));
+        acc += '\n';
 
-        LOGI("artist: %s", trim(fromPascal2String(t.metadata.artist.data())).c_str());
+        acc += std::string("artist: ") + trim(fromPascal2String(t.metadata.artist.data()));
+        acc += '\n';
 
-        LOGI("album: %s", trim(fromPascal2String(t.metadata.album.data())).c_str());
+        acc += std::string("album: ") + trim(fromPascal2String(t.metadata.album.data()));
+        acc += '\n';
 
-        LOGI("transcribed by: %s", trim(fromPascal2String(t.metadata.transcribedBy.data())).c_str());
+        acc += std::string("transcribed by: ") + trim(fromPascal2String(t.metadata.transcribedBy.data()));
+        acc += '\n';
 
-        // LOGI("%s", trim(fromPascal2String(t.metadata.comment.data())).c_str());
+        acc += trim(fromPascal2String(t.metadata.comment.data()));
+        acc += '\n';
 
     } else {
 
-        LOGI("title: %s", trim(fromPascal1String(t.metadata.title.data())).c_str());
+        acc += std::string("title: ") + trim(fromPascal1String(t.metadata.title.data()));
+        acc += '\n';
 
-        LOGI("artist: %s", trim(fromPascal1String(t.metadata.artist.data())).c_str());
+        acc += std::string("artist: ") + trim(fromPascal1String(t.metadata.artist.data()));
+        acc += '\n';
 
-        // LOGI("%s", trim(fromPascal1String(t.metadata.comment.data())).c_str());
+        acc += trim(fromPascal1String(t.metadata.comment.data()));
+        acc += '\n';
     }
+
+    return acc;
 }
 
 
-void tbtFileInfo(const tbt_file &t) {
+std::string tbtFileInfo(const tbt_file &t) {
 
     auto versionNumber = tbtFileVersionNumber(t);
 
@@ -655,103 +661,77 @@ void tbtFileInfo(const tbt_file &t) {
 
         auto t71 = std::get<tbt_file71>(t);
         
-        TtbtFileInfo<0x72>(t71);
-        
-        break;
+        return TtbtFileInfo<0x72>(t71);
     }
     case 0x71: {
         
         auto t71 = std::get<tbt_file71>(t);
         
-        TtbtFileInfo<0x71>(t71);
-        
-        break;
+        return TtbtFileInfo<0x71>(t71);
     }
     case 0x70: {
         
         auto t70 = std::get<tbt_file70>(t);
         
-        TtbtFileInfo<0x70>(t70);
-        
-        break;
+        return TtbtFileInfo<0x70>(t70);
     }
     case 0x6f: {
         
         auto t6f = std::get<tbt_file6f>(t);
         
-        TtbtFileInfo<0x6f>(t6f);
-        
-        break;
+        return TtbtFileInfo<0x6f>(t6f);
     }
     case 0x6e: {
         
         auto t6e = std::get<tbt_file6e>(t);
         
-        TtbtFileInfo<0x6e>(t6e);
-        
-        break;
+        return TtbtFileInfo<0x6e>(t6e);
     }
     case 0x6b: {
         
         auto t6b = std::get<tbt_file6b>(t);
         
-        TtbtFileInfo<0x6b>(t6b);
-        
-        break;
+        return TtbtFileInfo<0x6b>(t6b);
     }
     case 0x6a: {
         
         auto t6a = std::get<tbt_file6a>(t);
         
-        TtbtFileInfo<0x6a>(t6a);
-        
-        break;
+        return TtbtFileInfo<0x6a>(t6a);
     }
     case 0x69: {
         
         auto t68 = std::get<tbt_file68>(t);
         
-        TtbtFileInfo<0x69>(t68);
-        
-        break;
+        return TtbtFileInfo<0x69>(t68);
     }
     case 0x68: {
         
         auto t68 = std::get<tbt_file68>(t);
         
-        TtbtFileInfo<0x68>(t68);
-        
-        break;
+        return TtbtFileInfo<0x68>(t68);
     }
     case 0x67: {
         
         auto t65 = std::get<tbt_file65>(t);
         
-        TtbtFileInfo<0x67>(t65);
-        
-        break;
+        return TtbtFileInfo<0x67>(t65);
     }
     case 0x66: {
         
         auto t65 = std::get<tbt_file65>(t);
         
-        TtbtFileInfo<0x66>(t65);
-        
-        break;
+        return TtbtFileInfo<0x66>(t65);
     }
     case 0x65: {
         
         auto t65 = std::get<tbt_file65>(t);
         
-        TtbtFileInfo<0x65>(t65);
-        
-        break;
+        return TtbtFileInfo<0x65>(t65);
     }
     default:
-
         ASSERT(false);
-        
-        break;
+        return "";
     }
 }
 

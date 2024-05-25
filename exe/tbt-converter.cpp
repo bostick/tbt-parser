@@ -82,7 +82,19 @@ int main(int argc, const char *argv[]) {
         return ret;
     }
 
-    tbtFileInfo(t);
+#ifndef NDEBUG
+
+    auto versionString = tbtFileVersionString(t);
+
+    auto versionNumber = tbtFileVersionNumber(t);
+
+    LOGI("tbt file version: %s (0x%02x)", versionString.c_str(), versionNumber);
+
+#endif // NDEBUG
+
+    auto info = tbtFileInfo(t);
+
+    LOGI("%s", info.c_str());
 
     LOGI("exporting...");
 
