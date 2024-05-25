@@ -50,7 +50,7 @@ parseTrackEffectChangesMapList(
             return ret;
         }
 
-        uint32_t space = 0;
+        uint16_t space = 0;
 
         auto &trackEffectChangesMap = out.body.mapsList[track].trackEffectChangesMap;
 

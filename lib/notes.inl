@@ -34,9 +34,12 @@ parseNotesMapList(
 
     for (uint8_t track = 0; track < out.header.trackCount; track++) {
 
-        uint32_t trackSpaceCount;
+        uint16_t trackSpaceCount;
         if constexpr (0x70 <= VERSION) {
-            trackSpaceCount = out.metadata.tracks[track].spaceCount;
+            //
+            // stored as 32-bit int, so must be cast
+            //
+            trackSpaceCount = static_cast<uint16_t>(out.metadata.tracks[track].spaceCount);
         } else if constexpr (VERSION == 0x6f) {
             trackSpaceCount = out.header.spaceCount;
         } else {

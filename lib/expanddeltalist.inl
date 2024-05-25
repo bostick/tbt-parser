@@ -31,7 +31,7 @@ expandDeltaList(
     const std::vector<uint8_t> &deltaList,
     uint32_t unitCount,
     uint8_t x,
-    std::map<uint32_t, std::array<uint8_t, S> > &map) {
+    std::map<uint16_t, std::array<uint8_t, S> > &map) {
 
     std::vector<std::array<uint8_t, 2> > parts;
 
@@ -52,17 +52,17 @@ expandDeltaList(
         }
     );
 
-    uint32_t unit = 0;
+    int32_t unit = 0;
 
-    auto dv = std::div(static_cast<int>(unit), S);
+    auto dv = std::div(unit, S);
 
-    auto space = static_cast<uint32_t>(dv.quot);
-    auto slot = static_cast<uint32_t>(dv.rem);
+    auto space = static_cast<uint16_t>(dv.quot);
+    auto slot = static_cast<uint16_t>(dv.rem);
 
-    uint32_t newUnit;
+    int32_t newUnit;
 
-    uint32_t newSpace;
-    uint32_t newSlot;
+    uint16_t newSpace;
+    uint16_t newSlot;
 
     std::array<uint8_t, S> units{};
     bool hasNonDefaultValue = false;
@@ -96,8 +96,8 @@ expandDeltaList(
 
         dv = std::div(static_cast<int>(newUnit), S);
 
-        newSpace = static_cast<uint32_t>(dv.quot);
-        newSlot = static_cast<uint32_t>(dv.rem);
+        newSpace = static_cast<uint16_t>(dv.quot);
+        newSlot = static_cast<uint16_t>(dv.rem);
 
         if (y == x) {
 
@@ -182,7 +182,7 @@ expandDeltaList(
                 //
                 if (space + 1 < newSpace) {
 
-                    for (uint32_t sp = space + 1; sp < newSpace; sp++) {
+                    for (uint16_t sp = space + 1; sp < newSpace; sp++) {
 
                         //
                         // this is not actually exercised by any known .tbt file
@@ -211,7 +211,7 @@ expandDeltaList(
     }
 
 #ifndef NDEBUG
-    ASSERT(unit == unitCount);
+    ASSERT(static_cast<uint32_t>(unit) == unitCount);
 #else
     (void)unitCount;
 #endif // NDEBUG

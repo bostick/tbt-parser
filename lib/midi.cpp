@@ -160,11 +160,11 @@ void
 insertTempoMap_atActualSpace(
     uint16_t newTempo,
     rational actualSpace,
-    std::map<uint32_t, std::map<rational, uint16_t> > &tempoMap) {
+    std::map<uint16_t, std::map<rational, uint16_t> > &tempoMap) {
 
     auto flooredActualSpace = actualSpace.floor();
 
-    auto flooredActualSpaceI = flooredActualSpace.to_uint32();
+    auto flooredActualSpaceI = flooredActualSpace.to_uint16();
 
     auto spaceDiff = (actualSpace - flooredActualSpace);
 
@@ -210,13 +210,16 @@ template <uint8_t VERSION, bool HASALTERNATETIMEREGIONS, typename tbt_file_t, si
 void
 computeTempoMap(
     const tbt_file_t &t,
-    std::map<uint32_t, std::map<rational, uint16_t> > &tempoMap) {
+    std::map<uint16_t, std::map<rational, uint16_t> > &tempoMap) {
 
     for (uint8_t track = 0; track < t.header.trackCount; track++) {
 
-        uint32_t trackSpaceCount;
+        uint16_t trackSpaceCount;
         if constexpr (0x70 <= VERSION) {
-            trackSpaceCount = t.metadata.tracks[track].spaceCount;
+            //
+            // stored as 32-bit int, so must be cast
+            //
+            trackSpaceCount = static_cast<uint16_t>(t.metadata.tracks[track].spaceCount);
         } else if constexpr (VERSION == 0x6f) {
             trackSpaceCount = t.header.spaceCount;
         } else {
@@ -227,7 +230,7 @@ computeTempoMap(
 
         rational actualSpace = 0;
 
-        for (uint32_t space = 0; space < trackSpaceCount;) {
+        for (uint16_t space = 0; space < trackSpaceCount;) {
 
             if constexpr (VERSION == 0x72) {
 
@@ -319,7 +322,7 @@ computeTempoMap(
 
 
 struct repeat_close_struct {
-    uint32_t open;
+    uint16_t open;
     size_t repeats;
     size_t dataStart;
     size_t dataEnd;
@@ -329,7 +332,7 @@ struct repeat_close_struct {
 
 struct repeat_open_struct {
     rational actualSpace;
-    uint32_t space;
+    uint16_t space;
 };
 
 
@@ -337,9 +340,9 @@ template <uint8_t VERSION, typename tbt_file_t>
 void
 computeRepeats(
     const tbt_file_t &t,
-    uint32_t barsSpaceCount,
-    std::vector<std::set<uint32_t> > &openSpaceSets,
-    std::vector<std::map<uint32_t, repeat_close_struct> > &repeatCloseMaps) {
+    uint16_t barsSpaceCount,
+    std::vector<std::set<uint16_t> > &openSpaceSets,
+    std::vector<std::map<uint16_t, repeat_close_struct> > &repeatCloseMaps) {
 
     //
     // Setup repeats
@@ -352,13 +355,13 @@ computeRepeats(
         openSpaceSets.push_back( {} );
     }
 
-    uint32_t lastOpenSpace = 0;
+    uint16_t lastOpenSpace = 0;
 
     bool currentlyOpen = false;
     bool savedClose = false;
     uint8_t savedRepeats = 0;
 
-    for (uint32_t space = 0; space < barsSpaceCount;) {
+    for (uint16_t space = 0; space < barsSpaceCount;) {
 
         //
         // Setup repeats:
@@ -607,7 +610,7 @@ TconvertToMidi(
     const midi_convert_opts &opts,
     midi_file &out) {
 
-    uint32_t barLinesSpaceCount;
+    uint16_t barLinesSpaceCount;
     if constexpr (0x70 <= VERSION) {
         barLinesSpaceCount = t.body.barLinesSpaceCount;
     } else if constexpr (VERSION == 0x6f) {
@@ -626,7 +629,7 @@ TconvertToMidi(
     //
     // pre-computed
     //
-    std::map<uint32_t, std::map<rational, uint16_t> > tempoMap;
+    std::map<uint16_t, std::map<rational, uint16_t> > tempoMap;
 
     computeTempoMap<VERSION, HASALTERNATETIMEREGIONS, tbt_file_t, STRINGS_PER_TRACK>(t, tempoMap);
 
@@ -645,7 +648,7 @@ TconvertToMidi(
     //
     // pre-computed
     //
-    std::vector<std::set<uint32_t> > openSpaceSets;
+    std::vector<std::set<uint16_t> > openSpaceSets;
 
     //
     // for each track, including tempo track:
@@ -653,7 +656,7 @@ TconvertToMidi(
     //
     // pre-computed
     //
-    std::vector<std::map<uint32_t, repeat_close_struct> > repeatCloseMaps;
+    std::vector<std::map<uint16_t, repeat_close_struct> > repeatCloseMaps;
 
     computeRepeats<VERSION, tbt_file_t>(t, barLinesSpaceCount, openSpaceSets, repeatCloseMaps);
 
@@ -781,7 +784,7 @@ TconvertToMidi(
 
         auto &repeatCloseMap = repeatCloseMaps[0];
 
-        for (uint32_t space = 0; space < barLinesSpaceCount + 1;) { // space count, + 1 for handling repeats at end
+        for (uint16_t space = 0; space < barLinesSpaceCount + 1;) { // space count, + 1 for handling repeats at end
 
             //
             // handle any repeat closes first
@@ -1074,7 +1077,7 @@ TconvertToMidi(
 
         rational flooredActualSpace = 0;
 
-        uint32_t flooredActualSpaceI = 0;
+        uint16_t flooredActualSpaceI = 0;
 
         rational lastEventTick = 0;
 
@@ -1246,9 +1249,12 @@ TconvertToMidi(
 
         lastEventTick = roundedTick;
 
-        uint32_t trackSpaceCount;
+        uint16_t trackSpaceCount;
         if constexpr (0x70 <= VERSION) {
-            trackSpaceCount = trackMetadata.spaceCount;
+            //
+            // stored as 32-bit int, so must be cast
+            //
+            trackSpaceCount = static_cast<uint16_t>(trackMetadata.spaceCount);
         } else if constexpr (VERSION == 0x6f) {
             trackSpaceCount = t.header.spaceCount;
         } else {
@@ -1260,7 +1266,7 @@ TconvertToMidi(
         //
         // computed when rendering track
         //
-        std::map<uint32_t, repeat_open_struct> repeatOpenMap;
+        std::map<uint16_t, repeat_open_struct> repeatOpenMap;
 
         auto &openSpaceSet = openSpaceSets[track + 1];
 
@@ -1268,7 +1274,7 @@ TconvertToMidi(
 
         const auto &maps = t.body.mapsList[track];
 
-        for (uint32_t space = 0; space < trackSpaceCount + 1;) { // space count, + 1 for handling repeats at end
+        for (uint16_t space = 0; space < trackSpaceCount + 1;) { // space count, + 1 for handling repeats at end
 
             //
             // handle any repeat closes first
