@@ -31,4 +31,4 @@ openFile(
 Status
 saveFile(
     const char *path,
-    const std::vector<uint8_t> buf);
+    const std::vector<uint8_t> &buf);
