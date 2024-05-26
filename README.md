@@ -14,7 +14,7 @@ All known versions of TabIt are handled.
 
 tbt-parser depends on zlib and uses CMake for building.
 
-tbt-parser requires a C++17 compiler because of features such as `if constexpr`.
+tbt-parser requires a C++20 compiler because of features such as `__VA_OPT__`.
 
 ```
 cd cpp
