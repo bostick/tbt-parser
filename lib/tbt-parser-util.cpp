@@ -593,6 +593,21 @@ std::string trim(const std::string str) {
 }
 
 
+//
+// % operator may return negative values
+//
+// we want in the range 0 <= r < b
+//
+int8_t euclidean_mod(int8_t a, int8_t b) {
+
+    int8_t r = a % b;
+
+    if (0 <= r) {
+        return r;
+    }
+
+    return r + b;
+}
 
 
 
