@@ -63,7 +63,7 @@ TparseTbtBytes(
     // parse header
     //
 
-    std::memcpy(&out.header, &*it, HEADER_SIZE);
+    std::memcpy(&out.header, &*it, TBT_HEADER_SIZE);
 
     //
     // handle file corruption
@@ -77,7 +77,7 @@ TparseTbtBytes(
         
         CHECK(out.header.totalByteCount == size, "file is corrupted. file byte counts do not match. expected: %" PRIu32 ", actual: %zu", out.header.totalByteCount, size);
 
-        auto restToCheck_it = it + HEADER_SIZE;
+        auto restToCheck_it = it + TBT_HEADER_SIZE;
 
         auto crc32Rest = crc32_checksum(restToCheck_it, end);
 
@@ -85,7 +85,7 @@ TparseTbtBytes(
 
         auto headerToCheck_it = it;
 
-        auto crc32Header = crc32_checksum(headerToCheck_it, it + HEADER_SIZE - 4);
+        auto crc32Header = crc32_checksum(headerToCheck_it, it + TBT_HEADER_SIZE - 4);
 
         CHECK(crc32Header == out.header.crc32Header, "file is corrupted. CRC-32 of header does not match. expected: %" PRIu32 ", actual: %" PRIu32, out.header.crc32Header, crc32Header);
     }
@@ -139,7 +139,7 @@ TparseTbtBytes(
         CHECK(out.header.tempo2_unused == 0, "file is corrupted.");
     }
 
-    it += HEADER_SIZE;
+    it += TBT_HEADER_SIZE;
 
     //
     // parse metadata
@@ -404,7 +404,7 @@ parseTbtBytes(
 
     CHECK(len != 0, "empty file");
 
-    CHECK_NOT(len <= HEADER_SIZE, "file is too small to be parsed. size: %zu", len);
+    CHECK_NOT(len <= TBT_HEADER_SIZE, "file is too small to be parsed. size: %zu", len);
 
     auto versionNumber_it = it + 3;
 

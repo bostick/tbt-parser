@@ -29,7 +29,7 @@
 #include <cstddef> // for size_t
 
 
-const int HEADER_SIZE = 64;
+const int TBT_HEADER_SIZE = 64;
 
 
 struct tbt_header70 {
@@ -58,7 +58,7 @@ struct tbt_header70 {
     uint32_t crc32Header;
 };
 
-static_assert(sizeof(tbt_header70) == HEADER_SIZE, "size of tbt_header70 is not correct");
+static_assert(sizeof(tbt_header70) == TBT_HEADER_SIZE, "size of tbt_header70 is not correct");
 
 struct tbt_header6f {
 
@@ -86,7 +86,7 @@ struct tbt_header6f {
     uint32_t crc32Header;
 };
 
-static_assert(sizeof(tbt_header6f) == HEADER_SIZE, "size of tbt_header6f is not correct");
+static_assert(sizeof(tbt_header6f) == TBT_HEADER_SIZE, "size of tbt_header6f is not correct");
 
 struct tbt_header6e {
 
@@ -114,7 +114,7 @@ struct tbt_header6e {
     uint32_t crc32Header;
 };
 
-static_assert(sizeof(tbt_header6e) == HEADER_SIZE, "size of tbt_header6e is not correct");
+static_assert(sizeof(tbt_header6e) == TBT_HEADER_SIZE, "size of tbt_header6e is not correct");
 
 struct tbt_header68 {
 
@@ -142,7 +142,7 @@ struct tbt_header68 {
     uint32_t crc32Header;
 };
 
-static_assert(sizeof(tbt_header68) == HEADER_SIZE, "size of tbt_header68 is not correct");
+static_assert(sizeof(tbt_header68) == TBT_HEADER_SIZE, "size of tbt_header68 is not correct");
 
 struct tbt_header65 {
 
@@ -170,7 +170,7 @@ struct tbt_header65 {
     uint32_t crc32Header_unused;
 };
 
-static_assert(sizeof(tbt_header65) == HEADER_SIZE, "size of tbt_header65 is not correct");
+static_assert(sizeof(tbt_header65) == TBT_HEADER_SIZE, "size of tbt_header65 is not correct");
 
 
 #pragma pack(push, 1)
