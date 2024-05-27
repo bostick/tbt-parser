@@ -43,11 +43,6 @@ uint16_t parseLE2(std::vector<uint8_t>::const_iterator &it) {
 }
 
 
-uint16_t parseLE2(const uint8_t *data) {
-    return static_cast<uint16_t>((data[0] << 0) | (data[1] << 8));
-}
-
-
 uint16_t parseLE2(uint8_t b0, uint8_t b1) {
     return static_cast<uint16_t>((b0 << 0) | (b1 << 8));
 }
@@ -61,11 +56,6 @@ uint32_t parseLE4(std::vector<uint8_t>::const_iterator &it) {
     auto d3 = *it++;
 
     return static_cast<uint32_t>((d0 << 0) | (d1 << 8) | (d2 << 16) | (d3 << 24));
-}
-
-
-uint32_t parseLE4(const uint8_t *data) {
-    return static_cast<uint32_t>((data[0] << 0) | (data[1] << 8) | (data[2] << 16) | (data[3] << 24));
 }
 
 
