@@ -610,6 +610,25 @@ int8_t euclidean_mod(int8_t a, int8_t b) {
 }
 
 
+//
+// return number of base 10 digits
+//
+uint8_t width(int a) {
+
+    ASSERT(0 <= a);
+
+    ASSERT(a < 1000);
+
+    if (100 <= a) {
+        return 3;
+    }
+
+    if (10 <= a) {
+        return 2;
+    }
+
+    return 1;
+}
 
 
 
