@@ -30,6 +30,10 @@ add_executable(tbt-printer-exe
     tbt-printer.cpp
 )
 
+add_executable(tbt-info-exe
+    tbt-info.cpp
+)
+
 target_link_libraries(tbt-converter-exe
     PRIVATE
         tbt-parser-static-lib
@@ -45,6 +49,11 @@ target_link_libraries(tbt-printer-exe
         tbt-parser-static-lib
 )
 
+target_link_libraries(tbt-info-exe
+    PRIVATE
+        tbt-parser-static-lib
+)
+
 target_include_directories(tbt-converter-exe
     PRIVATE
         ../include/
@@ -56,6 +65,11 @@ target_include_directories(midi-info-exe
 )
 
 target_include_directories(tbt-printer-exe
+    PRIVATE
+        ../include/
+)
+
+target_include_directories(tbt-info-exe
     PRIVATE
         ../include/
 )
@@ -81,6 +95,13 @@ set_target_properties(tbt-printer-exe
         CXX_STANDARD_REQUIRED ON
 )
 
+set_target_properties(tbt-info-exe
+    PROPERTIES
+        OUTPUT_NAME tbt-info
+        CXX_STANDARD 20
+        CXX_STANDARD_REQUIRED ON
+)
+
 #
 # Setup warnings
 #
@@ -96,6 +117,9 @@ target_compile_options(midi-info-exe PRIVATE
 target_compile_options(tbt-printer-exe PRIVATE
     -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas
 )
+target_compile_options(tbt-info-exe PRIVATE
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas
+)
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
 target_compile_options(tbt-converter-exe PRIVATE
     -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas
@@ -106,6 +130,9 @@ target_compile_options(midi-info-exe PRIVATE
 target_compile_options(tbt-printer-exe PRIVATE
     -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas
 )
+target_compile_options(tbt-info-exe PRIVATE
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas
+)
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 target_compile_options(tbt-converter-exe PRIVATE
     -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas
@@ -114,6 +141,9 @@ target_compile_options(midi-info-exe PRIVATE
     -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas
 )
 target_compile_options(tbt-printer-exe PRIVATE
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas
+)
+target_compile_options(tbt-info-exe PRIVATE
     -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas
 )
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
@@ -130,6 +160,12 @@ target_compile_options(midi-info-exe PRIVATE
     /Zc:preprocessor /WX /W4
 )
 target_compile_options(tbt-printer-exe PRIVATE
+    #
+    # Zc:preprocessor is needed for handling __VA_OPT__(,)
+    #
+    /Zc:preprocessor /WX /W4
+)
+target_compile_options(tbt-info-exe PRIVATE
     #
     # Zc:preprocessor is needed for handling __VA_OPT__(,)
     #
@@ -162,6 +198,14 @@ add_test(
         tbt-printer-exe-black-test
     COMMAND
         $<TARGET_FILE:tbt-printer-exe> --input-file ../../test/data/black.tbt
+)
+
+
+add_test(
+    NAME
+        tbt-info-exe-black-test
+    COMMAND
+        $<TARGET_FILE:tbt-info-exe> --input-file ../../test/data/black.tbt
 )
 
 

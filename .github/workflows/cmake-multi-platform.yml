@@ -88,6 +88,13 @@ jobs:
         name: midi-info-exe
         path: ${{ steps.strings.outputs.build-output-dir }}/exe/Release/midi-info.exe
 
+    - name: Upload tbt-info-exe (Windows)
+      if: runner.os == 'Windows'
+      uses: actions/upload-artifact@v4
+      with:
+        name: tbt-info-exe
+        path: ${{ steps.strings.outputs.build-output-dir }}/exe/Release/tbt-info.exe
+
     - name: Upload tbt-printer-exe (Windows)
       if: runner.os == 'Windows'
       uses: actions/upload-artifact@v4
