@@ -650,6 +650,8 @@ std::string tbtFileVersionString(const tbt_file &t);
 
 std::string tbtFileInfo(const tbt_file &t);
 
+std::string tbtFileComment(const tbt_file &t);
+
 std::string tbtFileTablature(const tbt_file &t);
 
 

@@ -736,6 +736,102 @@ std::string tbtFileInfo(const tbt_file &t) {
 }
 
 
+template <uint8_t VERSION, typename tbt_file_t>
+std::string
+TtbtFileComment(const tbt_file_t &t) {
+
+    if constexpr (0x6e <= VERSION) {
+
+        return fromPascal2String(t.metadata.comment.data());
+
+    } else {
+
+        return fromPascal1String(t.metadata.comment.data());
+    }
+}
+
+std::string tbtFileComment(const tbt_file &t) {
+
+    auto versionNumber = tbtFileVersionNumber(t);
+
+    switch (versionNumber) {
+    case 0x72: {
+
+        auto t71 = std::get<tbt_file71>(t);
+        
+        return TtbtFileComment<0x72>(t71);
+    }
+    case 0x71: {
+        
+        auto t71 = std::get<tbt_file71>(t);
+        
+        return TtbtFileComment<0x71>(t71);
+    }
+    case 0x70: {
+        
+        auto t70 = std::get<tbt_file70>(t);
+        
+        return TtbtFileComment<0x70>(t70);
+    }
+    case 0x6f: {
+        
+        auto t6f = std::get<tbt_file6f>(t);
+        
+        return TtbtFileComment<0x6f>(t6f);
+    }
+    case 0x6e: {
+        
+        auto t6e = std::get<tbt_file6e>(t);
+        
+        return TtbtFileComment<0x6e>(t6e);
+    }
+    case 0x6b: {
+        
+        auto t6b = std::get<tbt_file6b>(t);
+        
+        return TtbtFileComment<0x6b>(t6b);
+    }
+    case 0x6a: {
+        
+        auto t6a = std::get<tbt_file6a>(t);
+        
+        return TtbtFileComment<0x6a>(t6a);
+    }
+    case 0x69: {
+        
+        auto t68 = std::get<tbt_file68>(t);
+        
+        return TtbtFileComment<0x69>(t68);
+    }
+    case 0x68: {
+        
+        auto t68 = std::get<tbt_file68>(t);
+        
+        return TtbtFileComment<0x68>(t68);
+    }
+    case 0x67: {
+        
+        auto t65 = std::get<tbt_file65>(t);
+        
+        return TtbtFileComment<0x67>(t65);
+    }
+    case 0x66: {
+        
+        auto t65 = std::get<tbt_file65>(t);
+        
+        return TtbtFileComment<0x66>(t65);
+    }
+    case 0x65: {
+        
+        auto t65 = std::get<tbt_file65>(t);
+        
+        return TtbtFileComment<0x65>(t65);
+    }
+    default:
+        ASSERT(false);
+        return "";
+    }
+}
 
 
 
