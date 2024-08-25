@@ -633,8 +633,8 @@ TtbtFileInfo(const tbt_file_t &t) {
         acc += std::string("transcribed by: ") + trim(fromPascal2String(t.metadata.transcribedBy.data()));
         acc += '\n';
 
-        acc += trim(fromPascal2String(t.metadata.comment.data()));
-        acc += '\n';
+        // acc += std::string("comment: ") + trim(fromPascal2String(t.metadata.comment.data()));
+        // acc += '\n';
 
     } else {
 
@@ -644,8 +644,8 @@ TtbtFileInfo(const tbt_file_t &t) {
         acc += std::string("artist: ") + trim(fromPascal1String(t.metadata.artist.data()));
         acc += '\n';
 
-        acc += trim(fromPascal1String(t.metadata.comment.data()));
-        acc += '\n';
+        // acc += std::string("comment: ") + trim(fromPascal1String(t.metadata.comment.data()));
+        // acc += '\n';
     }
 
     return acc;
