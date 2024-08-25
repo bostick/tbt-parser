@@ -28,6 +28,9 @@
 #define TAG "rational"
 
 
+int64_t gcd(int64_t p, int64_t q);
+
+
 rational::rational() : n(0), d(1) {}
 
 rational::rational(int a) : n(a), d(1) {}

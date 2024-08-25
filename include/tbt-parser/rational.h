@@ -21,9 +21,6 @@
 #include <cstdint>
 
 
-int64_t gcd(int64_t p, int64_t q);
-
-
 class rational {
 private:
 
