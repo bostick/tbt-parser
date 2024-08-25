@@ -59,7 +59,7 @@ int main(int argc, const char *argv[]) {
 
     if (inputFile.empty()) {
 
-        LOGE("input file is missing");
+        LOGE("input file is missing (or --input-file is not specified)");
         
         return EXIT_FAILURE;
     }
@@ -74,27 +74,11 @@ int main(int argc, const char *argv[]) {
 
     tbt_file t;
 
-    LOGI("parsing...");
-
     Status ret = parseTbtFile(inputFile.c_str(), t);
 
     if (ret != OK) {
         return ret;
     }
-
-#ifndef NDEBUG
-
-    auto versionString = tbtFileVersionString(t);
-
-    auto versionNumber = tbtFileVersionNumber(t);
-
-    LOGI("tbt file version: %s (0x%02x)", versionString.c_str(), versionNumber);
-
-#endif // NDEBUG
-
-    auto info = tbtFileInfo(t);
-
-    LOGI("%s", info.c_str());
 
     LOGI("exporting...");
 
