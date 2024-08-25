@@ -52,7 +52,7 @@ int main(int argc, const char *argv[]) {
     }
 
     if (inputFile.empty()) {
-        LOGE("input file is missing");
+        LOGE("input file is missing (or --input-file is not specified)");
         return EXIT_FAILURE;
     }
 
@@ -61,18 +61,16 @@ int main(int argc, const char *argv[]) {
 
     midi_file m;
 
-    LOGI("parsing...");
-
     Status ret = parseMidiFile(inputFile.c_str(), m);
 
     if (ret != OK) {
         return ret;
     }
 
-    midiFileInfo(m);
+    auto info = midiFileInfo(m);
 
-    LOGI("finished!");
-
+    LOGI("%s", info.c_str());
+    
     return EXIT_SUCCESS;
 }
 

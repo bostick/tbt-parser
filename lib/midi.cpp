@@ -32,6 +32,7 @@
 #include <cinttypes>
 #include <cmath> // for round, floor, fmod
 #include <cstring> // for memcmp
+#include <cstdio> // for snprintf
 
 
 #include "last-found.inl"
@@ -3144,20 +3145,33 @@ midiFileTimes(const midi_file &m) {
 }
 
 
-void
+std::string
 midiFileInfo(const midi_file &m) {
 
-    LOGI("header:");
-    LOGI("Format: %d", m.header.format);
-    LOGI("Track Count: %d", m.header.trackCount);
-    LOGI("Division: %d", m.header.division);
+    std::string acc;
+    
+    char buf[100];
 
-    LOGI("events:");
+    std::snprintf(buf, 100, "header:\n");
+    acc += buf;
+
+    std::snprintf(buf, 100, "Format: %d\n", m.header.format);
+    acc += buf;
+
+    std::snprintf(buf, 100, "Track Count: %d\n", m.header.trackCount);
+    acc += buf;
+
+    std::snprintf(buf, 100, "Division: %d\n", m.header.division);
+    acc += buf;
+
+
+    std::snprintf(buf, 100, "events:\n");
+    acc += buf;
 
     for (const auto &track : m.tracks) {
 
         for (const auto &e : track) {
-            std::visit([](auto&& e) {
+            std::visit([&](auto&& e) {
                 using T = std::decay_t<decltype(e)>;
                 if constexpr (std::is_same_v<T, MetaEvent>) {
                     switch (e.type) {
@@ -3165,7 +3179,8 @@ midiFileInfo(const midi_file &m) {
 
                         std::string str{ e.data.cbegin(), e.data.cend() };
 
-                        LOGI("Track Name: %s", str.c_str());
+                        std::snprintf(buf, 100, "Track Name: %s\n", str.c_str());
+                        acc += buf;
 
                         break;
                     }
@@ -3176,10 +3191,17 @@ midiFileInfo(const midi_file &m) {
                         auto ticksPerBeat = e.data[2];
                         auto notated32notesPerBeat = e.data[3];
 
-                        LOGI("Time Signature Numerator: %d", numerator);
-                        LOGI("Time Signature Denominator: %d", denominator);
-                        LOGI("Time Signature Ticks Per Beat: %d", ticksPerBeat);
-                        LOGI("Time Signature 32nd notes Per Beat: %d", notated32notesPerBeat);
+                        std::snprintf(buf, 100, "Time Signature Numerator: %d\n", numerator);
+                        acc += buf;
+
+                        std::snprintf(buf, 100, "Time Signature Denominator: %d\n", denominator);
+                        acc += buf;
+
+                        std::snprintf(buf, 100, "Time Signature Ticks Per Beat: %d\n", ticksPerBeat);
+                        acc += buf;
+
+                        std::snprintf(buf, 100, "Time Signature 32nd notes Per Beat: %d\n", notated32notesPerBeat);
+                        acc += buf;
 
                         break;
                     }
@@ -3191,39 +3213,71 @@ midiFileInfo(const midi_file &m) {
 
     auto times = midiFileTimes(m);
 
-    LOGI("times:                      h:mm:sssss");
+    std::snprintf(buf, 100, "times:                      h:mm:sssss\n");
+    acc += buf;
+
     if (times.lastNoteOnMicros != -1) {
         double lastNoteOnSec = times.lastNoteOnMicros / 1e6;
         double lastNoteOnMin = lastNoteOnSec / 60.0;
         double lastNoteOnHr = lastNoteOnMin / 60.0;
-        LOGI("       last Note On (wall): %.0f:%02.0f:%05.2f", std::floor(lastNoteOnHr), std::floor(std::fmod(lastNoteOnMin, 60.0)), std::fmod(lastNoteOnSec, 60.0));
+
+        std::snprintf(buf, 100, "       last Note On (wall): %.0f:%02.0f:%05.2f\n", std::floor(lastNoteOnHr), std::floor(std::fmod(lastNoteOnMin, 60.0)), std::fmod(lastNoteOnSec, 60.0));
+        acc += buf;
+
     } else {
-        LOGI("       last Note On (wall): (none)");
+
+        std::snprintf(buf, 100, "       last Note On (wall): (none)\n");
+        acc += buf;
     }
+
     if (times.lastNoteOffMicros != -1) {
+
         double lastNoteOffSec = times.lastNoteOffMicros / 1e6;
         double lastNoteOffMin = lastNoteOffSec / 60.0;
         double lastNoteOffHr = lastNoteOffMin / 60.0;
-        LOGI("      last Note Off (wall): %.0f:%02.0f:%05.2f", std::floor(lastNoteOffHr), std::floor(std::fmod(lastNoteOffMin, 60.0)), std::fmod(lastNoteOffSec, 60.0));
+        std::snprintf(buf, 100, "      last Note Off (wall): %.0f:%02.0f:%05.2f\n", std::floor(lastNoteOffHr), std::floor(std::fmod(lastNoteOffMin, 60.0)), std::fmod(lastNoteOffSec, 60.0));
+        acc += buf;
+
     } else {
-        LOGI("      last Note Off (wall): (none)");
+
+        std::snprintf(buf, 100, "      last Note Off (wall): (none)\n");
+        acc += buf;
     }
+
     if (times.lastEndOfTrackMicros != -1) {
+        
         double lastEndOfTrackSec = times.lastEndOfTrackMicros / 1e6;
         double lastEndOfTrackMin = lastEndOfTrackSec / 60.0;
         double lastEndOfTrackHr = lastEndOfTrackMin / 60.0;
-        LOGI("  last End Of Track (wall): %.0f:%02.0f:%05.2f", std::floor(lastEndOfTrackHr), std::floor(std::fmod(lastEndOfTrackMin, 60.0)), std::fmod(lastEndOfTrackSec, 60.0));
+        std::snprintf(buf, 100, "  last End Of Track (wall): %.0f:%02.0f:%05.2f\n", std::floor(lastEndOfTrackHr), std::floor(std::fmod(lastEndOfTrackMin, 60.0)), std::fmod(lastEndOfTrackSec, 60.0));
+        acc += buf;
+
     } else {
-        LOGI("  last End Of Track (wall): (none)");
+        std::snprintf(buf, 100, "  last End Of Track (wall): (none)\n");
+        acc += buf;
     }
 
-    LOGI("     last Note On (micros): %.17f", times.lastNoteOnMicros);
-    LOGI("    last Note Off (micros): %.17f", times.lastNoteOffMicros);
-    LOGI("last End Of Track (micros): %.17f", times.lastEndOfTrackMicros);
+    std::snprintf(buf, 100, "     last Note On (micros): %.17f\n", times.lastNoteOnMicros);
+    acc += buf;
 
-    LOGI("      last Note On (ticks): %d", times.lastNoteOnTick);
-    LOGI("     last Note Off (ticks): %d", times.lastNoteOffTick);
-    LOGI(" last End Of Track (ticks): %d", times.lastEndOfTrackTick);
+    std::snprintf(buf, 100, "    last Note Off (micros): %.17f\n", times.lastNoteOffMicros);
+    acc += buf;
+
+    std::snprintf(buf, 100, "last End Of Track (micros): %.17f\n", times.lastEndOfTrackMicros);
+    acc += buf;
+
+
+    std::snprintf(buf, 100, "      last Note On (ticks): %d\n", times.lastNoteOnTick);
+    acc += buf;
+
+    std::snprintf(buf, 100, "     last Note Off (ticks): %d\n", times.lastNoteOffTick);
+    acc += buf;
+
+    std::snprintf(buf, 100, " last End Of Track (ticks): %d\n", times.lastEndOfTrackTick);
+    acc += buf;
+
+
+    return acc;
 }
 
 

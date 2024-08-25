@@ -680,7 +680,7 @@ struct midi_file_times {
 
 midi_file_times midiFileTimes(const midi_file &m);
 
-void midiFileInfo(const midi_file &m);
+std::string midiFileInfo(const midi_file &m);
 
 
 
