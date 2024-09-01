@@ -29,6 +29,9 @@
 #include <cinttypes>
 
 
+#define TAG "midi-info"
+
+
 int main(int argc, const char *argv[]) {
 
     LOGI("midi info v1.2.0");

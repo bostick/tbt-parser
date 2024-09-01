@@ -20,7 +20,7 @@ tbt-parser requires a C++20 compiler because of features such as `__VA_OPT__`.
 cd cpp
 mkdir build
 cd build
-cmake ..
+cmake -DCOMMON_DIR=/Users/brenton/development/github/common ..
 cmake --build .
 ```
 

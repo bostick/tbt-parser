@@ -28,6 +28,9 @@
 #include <cstdlib>
 
 
+#define TAG "tbt-converter"
+
+
 int main(int argc, const char *argv[]) {
 
     LOGI("tbt converter v1.2.0");

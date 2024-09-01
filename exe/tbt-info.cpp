@@ -28,6 +28,9 @@
 #include <cstdlib>
 
 
+#define TAG "tbt-info"
+
+
 int main(int argc, const char *argv[]) {
 
     LOGI("tbt info v1.2.0");

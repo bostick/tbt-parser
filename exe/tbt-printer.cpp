@@ -29,6 +29,9 @@
 #include <cstdlib>
 
 
+#define TAG "tbt-printer"
+
+
 int main(int argc, const char *argv[]) {
 
     LOGI("tbt printer v1.2.0");

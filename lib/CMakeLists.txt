@@ -18,6 +18,10 @@
 
 cmake_minimum_required(VERSION 3.24)
 
+if(NOT DEFINED COMMON_DIR)
+  message(FATAL_ERROR "COMMON_DIR is not defined")
+endif()
+
 include(FetchContent)
 FetchContent_Declare(zlib
     GIT_REPOSITORY
@@ -46,11 +50,9 @@ endif()
 
 
 set(CPP_LIB_SOURCES
-    
-    #
-    # from common
-    #
-    file.cpp
+
+    ${COMMON_DIR}/lib/file.cpp
+    ${COMMON_DIR}/lib/logging.cpp
 
     midi.cpp
     rational.cpp
@@ -65,6 +67,7 @@ add_library(tbt-parser-static-lib STATIC
 
 target_include_directories(tbt-parser-static-lib PRIVATE
     ../include/
+    ${COMMON_DIR}/include/
 )
 
 target_link_libraries(tbt-parser-static-lib PRIVATE
