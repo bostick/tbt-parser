@@ -1104,6 +1104,8 @@ TconvertToMidi(
 
         lastEventTick = roundedTick;
 
+        if (opts.emit_control_change_events) {
+
             if (midiBank != 0) {
 
                 //
@@ -1123,6 +1125,9 @@ TconvertToMidi(
 
                 lastEventTick = roundedTick;
             }
+        }
+
+        if (opts.emit_program_change_events) {
 
             diff = (roundedTick - lastEventTick);
 
@@ -1133,6 +1138,9 @@ TconvertToMidi(
             });
 
             lastEventTick = roundedTick;
+        }
+
+        if (opts.emit_control_change_events) {
 
             diff = (roundedTick - lastEventTick);
 
@@ -1237,6 +1245,9 @@ TconvertToMidi(
             });
 
             lastEventTick = roundedTick;
+        }
+
+        if (opts.emit_pitch_bend_events) {
 
             diff = (roundedTick - lastEventTick);
 
@@ -1247,6 +1258,7 @@ TconvertToMidi(
             });
 
             lastEventTick = roundedTick;
+        }
 
         uint16_t trackSpaceCount;
         if constexpr (0x70 <= VERSION) {
@@ -1653,6 +1665,8 @@ TconvertToMidi(
                         switch(effect) {
                         case TE_INSTRUMENT: {
 
+                            if (opts.emit_control_change_events) {
+
                                 auto newInstrument = value;
 
                                 bool midiBankFlag;
@@ -1681,6 +1695,9 @@ TconvertToMidi(
 
                                     lastEventTick = roundedTick;
                                 }
+                            }
+
+                            if (opts.emit_program_change_events) {
 
                                 diff = (roundedTick - lastEventTick);
 
@@ -1691,10 +1708,13 @@ TconvertToMidi(
                                 });
 
                                 lastEventTick = roundedTick;
+                            }
 
                             break;
                         }
                         case TE_VOLUME: {
+
+                            if (opts.emit_control_change_events) {
 
                                 auto newVolume = static_cast<uint8_t>(value);
 
@@ -1708,6 +1728,7 @@ TconvertToMidi(
                                 });
 
                                 lastEventTick = roundedTick;
+                            }
 
                             break;
                         }
@@ -1723,7 +1744,9 @@ TconvertToMidi(
                             //
                             break;
                         case TE_PAN: {
-                            
+
+                            if (opts.emit_control_change_events) {
+
                                 auto newPan = static_cast<uint8_t>(value);
 
                                 diff = (roundedTick - lastEventTick);
@@ -1736,11 +1759,14 @@ TconvertToMidi(
                                 });
 
                                 lastEventTick = roundedTick;
+                            }
 
                             break;
                         }
                         case TE_CHORUS: {
-                            
+
+                            if (opts.emit_control_change_events) {
+
                                 auto newChorus = static_cast<uint8_t>(value);
 
                                 diff = (roundedTick - lastEventTick);
@@ -1753,11 +1779,14 @@ TconvertToMidi(
                                 });
 
                                 lastEventTick = roundedTick;
+                            }
 
                             break;
                         }
                         case TE_REVERB: {
-                            
+
+                            if (opts.emit_control_change_events) {
+
                                 auto newReverb = static_cast<uint8_t>(value);
 
                                 diff = (roundedTick - lastEventTick);
@@ -1770,11 +1799,14 @@ TconvertToMidi(
                                 });
 
                                 lastEventTick = roundedTick;
+                            }
 
                             break;
                         }
                         case TE_MODULATION: {
-                            
+
+                            if (opts.emit_control_change_events) {
+
                                 auto newModulation = static_cast<uint8_t>(value);
 
                                 diff = (roundedTick - lastEventTick);
@@ -1787,10 +1819,13 @@ TconvertToMidi(
                                 });
 
                                 lastEventTick = roundedTick;
+                            }
 
                             break;
                         }
                         case TE_PITCH_BEND: {
+
+                            if (opts.emit_pitch_bend_events) {
 
                                 //
                                 // convert from (-2400, 2400) to (0b0000000000000000 to 0b0011111111111111) i.e. (0 to 16383)
@@ -1806,6 +1841,7 @@ TconvertToMidi(
                                 });
 
                                 lastEventTick = roundedTick;
+                            }
 
                             break;
                         }
@@ -1832,6 +1868,8 @@ TconvertToMidi(
                         break;
                     case 'I': { // Instrument change
 
+                        if (opts.emit_program_change_events) {
+
                             auto newInstrument = effectVsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
                             dontLetRing = ((newInstrument & 0b10000000) == 0b10000000);
@@ -1846,10 +1884,13 @@ TconvertToMidi(
                             });
 
                             lastEventTick = roundedTick;
+                        }
 
                         break;
                     }
                     case 'V': { // Volume change
+
+                        if (opts.emit_control_change_events) {
 
                             auto newVolume = effectVsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
@@ -1863,6 +1904,7 @@ TconvertToMidi(
                             });
 
                             lastEventTick = roundedTick;
+                        }
 
                         break;
                     }
@@ -1880,6 +1922,8 @@ TconvertToMidi(
                         break;
                     case 'C': { // Chorus change
 
+                        if (opts.emit_control_change_events) {
+
                             auto newChorus = effectVsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
                             diff = (roundedTick - lastEventTick);
@@ -1892,10 +1936,13 @@ TconvertToMidi(
                             });
 
                             lastEventTick = roundedTick;
+                        }
 
                         break;
                     }
                     case 'P': { // Pan change
+
+                        if (opts.emit_control_change_events) {
 
                             auto newPan = effectVsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
@@ -1909,10 +1956,13 @@ TconvertToMidi(
                             });
 
                             lastEventTick = roundedTick;
+                        }
 
                         break;
                     }
                     case 'R': { // Reverb change
+
+                        if (opts.emit_control_change_events) {
 
                             auto newReverb = effectVsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
@@ -1926,6 +1976,7 @@ TconvertToMidi(
                             });
 
                             lastEventTick = roundedTick;
+                        }
 
                         break;
                     }

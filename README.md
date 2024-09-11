@@ -47,6 +47,24 @@ tbt converter v1.2.0
 Copyright (C) 2024 by Brenton Bostick
 input file: black.tbt
 output file: out.mid
+emit control change events: 1
+emit program change events: 1
+emit pitch bend events: 1
+exporting...
+finished!
+% 
+```
+
+Generate a MIDI file from a .tbt TabIt file, and do not emit any ControlChange events, ProgramChange events, or PitchBend events:
+```
+% ./tbt-converter --input-file black.tbt --emit-controlchange-events 0 --emit-programchange-events 0 --emit-pitchbend-events 0
+tbt converter v1.2.0
+Copyright (C) 2024 by Brenton Bostick
+input file: black.tbt
+output file: out.mid
+emit control change events: 0
+emit program change events: 0
+emit pitch bend events: 0
 exporting...
 finished!
 % 

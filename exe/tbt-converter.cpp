@@ -47,6 +47,8 @@ int main(int argc, const char *argv[]) {
     std::string inputFile;
     std::string outputFile;
 
+    midi_convert_opts opts;
+
     for (int i = 0; i < argc; i++) {
 
         if (strcmp(argv[i], "--input-file") == 0) {
@@ -70,6 +72,72 @@ int main(int argc, const char *argv[]) {
             i++;
 
             outputFile = argv[i];
+
+        } else if (strcmp(argv[i], "--emit-controlchange-events") == 0) {
+
+            if (i == argc - 1) {
+                printUsage();
+                return EXIT_FAILURE;
+            }
+
+            i++;
+
+            if (strcmp(argv[i], "0") == 0) {
+
+                opts.emit_control_change_events = false;
+
+            } else if (strcmp(argv[i], "1") == 0) {
+
+                opts.emit_control_change_events = true;
+
+            } else {
+                printUsage();
+                return EXIT_FAILURE;
+            }
+
+        } else if (strcmp(argv[i], "--emit-programchange-events") == 0) {
+
+            if (i == argc - 1) {
+                printUsage();
+                return EXIT_FAILURE;
+            }
+
+            i++;
+
+            if (strcmp(argv[i], "0") == 0) {
+
+                opts.emit_program_change_events = false;
+
+            } else if (strcmp(argv[i], "1") == 0) {
+
+                opts.emit_program_change_events = true;
+
+            } else {
+                printUsage();
+                return EXIT_FAILURE;
+            }
+
+        } else if (strcmp(argv[i], "--emit-pitchbend-events") == 0) {
+
+            if (i == argc - 1) {
+                printUsage();
+                return EXIT_FAILURE;
+            }
+
+            i++;
+
+            if (strcmp(argv[i], "0") == 0) {
+
+                opts.emit_pitch_bend_events = false;
+
+            } else if (strcmp(argv[i], "1") == 0) {
+
+                opts.emit_pitch_bend_events = true;
+
+            } else {
+                printUsage();
+                return EXIT_FAILURE;
+            }
         }
     }
 
@@ -85,6 +153,9 @@ int main(int argc, const char *argv[]) {
     LOGI("input file: %s", inputFile.c_str());
     LOGI("output file: %s", outputFile.c_str());
 
+    LOGI("emit control change events: %d", opts.emit_control_change_events);
+    LOGI("emit program change events: %d", opts.emit_program_change_events);
+    LOGI("emit pitch bend events: %d", opts.emit_pitch_bend_events);
 
     tbt_file t;
 
@@ -95,8 +166,6 @@ int main(int argc, const char *argv[]) {
     }
 
     LOGI("exporting...");
-
-    midi_convert_opts opts;
 
     midi_file m;
 
@@ -119,7 +188,11 @@ int main(int argc, const char *argv[]) {
 
 
 void printUsage() {
-    LOGI("usage: tbt-converter --input-file XXX [--output-file YYY]");
+    LOGI("usage: tbt-converter --input-file XXX [--output-file YYY] [options]");
+    LOGI("options:");
+    LOGI("--emit-controlchange-events (0|1)");
+    LOGI("--emit-programchange-events (0|1)");
+    LOGI("--emit-pitchbend-events (0|1)");
     LOGI();
 }
 

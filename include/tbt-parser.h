@@ -561,6 +561,27 @@ struct midi_convert_opts {
     // Custom Lyric events may be used to trigger callbacks in FluidSynth
     //
     bool emit_custom_lyric_events = false;
+
+    //
+    // Not emitting ControlChanges, ProgramChanges, and PitchBends was requested in a Reddit comment here:
+    //
+    // https://old.reddit.com/r/tabit/comments/1fd3p3i/comment/lmm3uez/
+    //
+
+    //
+    // emit ControlChangeEvents
+    //
+    bool emit_control_change_events = true;
+
+    //
+    // emit ProgramChangeEvents
+    //
+    bool emit_program_change_events = true;
+
+    //
+    // emit PitchBendEvents
+    //
+    bool emit_pitch_bend_events = true;
 };
 
 
