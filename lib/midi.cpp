@@ -1104,149 +1104,149 @@ TconvertToMidi(
 
         lastEventTick = roundedTick;
 
-        if (midiBank != 0) {
+            if (midiBank != 0) {
 
-            //
-            // Bank Select MSB and Bank Select LSB are special and do not really mean MSB/LSB
-            // TabIt only sends MSB
-            //
-            auto midiBankMSB = midiBank;
+                //
+                // Bank Select MSB and Bank Select LSB are special and do not really mean MSB/LSB
+                // TabIt only sends MSB
+                //
+                auto midiBankMSB = midiBank;
+
+                diff = (roundedTick - lastEventTick);
+
+                tmp.push_back(ControlChangeEvent{
+                    diff.to_int32(), // delta time
+                    channel,
+                    C_BANKSELECT_MSB,
+                    midiBankMSB
+                });
+
+                lastEventTick = roundedTick;
+            }
+
+            diff = (roundedTick - lastEventTick);
+
+            tmp.push_back(ProgramChangeEvent{
+                diff.to_int32(), // delta time
+                channel,
+                midiProgram
+            });
+
+            lastEventTick = roundedTick;
 
             diff = (roundedTick - lastEventTick);
 
             tmp.push_back(ControlChangeEvent{
                 diff.to_int32(), // delta time
                 channel,
-                C_BANKSELECT_MSB,
-                midiBankMSB
+                C_VOLUME,
+                volume
             });
 
             lastEventTick = roundedTick;
-        }
 
-        diff = (roundedTick - lastEventTick);
+            diff = (roundedTick - lastEventTick);
 
-        tmp.push_back(ProgramChangeEvent{
-            diff.to_int32(), // delta time
-            channel,
-            midiProgram
-        });
+            tmp.push_back(ControlChangeEvent{
+                diff.to_int32(), // delta time
+                channel,
+                C_PAN,
+                pan
+            });
 
-        lastEventTick = roundedTick;
+            lastEventTick = roundedTick;
 
-        diff = (roundedTick - lastEventTick);
+            diff = (roundedTick - lastEventTick);
 
-        tmp.push_back(ControlChangeEvent{
-            diff.to_int32(), // delta time
-            channel,
-            C_VOLUME,
-            volume
-        });
+            tmp.push_back(ControlChangeEvent{
+                diff.to_int32(), // delta time
+                channel,
+                C_REVERB,
+                reverb
+            });
 
-        lastEventTick = roundedTick;
+            lastEventTick = roundedTick;
 
-        diff = (roundedTick - lastEventTick);
+            diff = (roundedTick - lastEventTick);
 
-        tmp.push_back(ControlChangeEvent{
-            diff.to_int32(), // delta time
-            channel,
-            C_PAN,
-            pan
-        });
+            tmp.push_back(ControlChangeEvent{
+                diff.to_int32(), // delta time
+                channel,
+                C_CHORUS,
+                chorus
+            });
 
-        lastEventTick = roundedTick;
+            lastEventTick = roundedTick;
 
-        diff = (roundedTick - lastEventTick);
+            diff = (roundedTick - lastEventTick);
 
-        tmp.push_back(ControlChangeEvent{
-            diff.to_int32(), // delta time
-            channel,
-            C_REVERB,
-            reverb
-        });
+            tmp.push_back(ControlChangeEvent{
+                diff.to_int32(), // delta time
+                channel,
+                C_MODULATION,
+                modulation
+            });
 
-        lastEventTick = roundedTick;
+            lastEventTick = roundedTick;
 
-        diff = (roundedTick - lastEventTick);
+            //
+            // RPN Parameter MSB 0, RPN Parameter LSB 0 = RPN Parameter 0
+            // RPN Parameter 0 is standardized for pitch bend range
+            //
 
-        tmp.push_back(ControlChangeEvent{
-            diff.to_int32(), // delta time
-            channel,
-            C_CHORUS,
-            chorus
-        });
+            diff = (roundedTick - lastEventTick);
 
-        lastEventTick = roundedTick;
+            tmp.push_back(ControlChangeEvent{
+                diff.to_int32(), // delta time
+                channel,
+                C_RPNPARAM_MSB,
+                0
+            });
 
-        diff = (roundedTick - lastEventTick);
+            lastEventTick = roundedTick;
 
-        tmp.push_back(ControlChangeEvent{
-            diff.to_int32(), // delta time
-            channel,
-            C_MODULATION,
-            modulation
-        });
+            diff = (roundedTick - lastEventTick);
 
-        lastEventTick = roundedTick;
+            tmp.push_back(ControlChangeEvent{
+                diff.to_int32(), // delta time
+                channel,
+                C_RPNPARAM_LSB,
+                0
+            });
 
-        //
-        // RPN Parameter MSB 0, RPN Parameter LSB 0 = RPN Parameter 0
-        // RPN Parameter 0 is standardized for pitch bend range
-        //
+            lastEventTick = roundedTick;
 
-        diff = (roundedTick - lastEventTick);
+            diff = (roundedTick - lastEventTick);
 
-        tmp.push_back(ControlChangeEvent{
-            diff.to_int32(), // delta time
-            channel,
-            C_RPNPARAM_MSB,
-            0
-        });
+            tmp.push_back(ControlChangeEvent{
+                diff.to_int32(), // delta time
+                channel,
+                C_DATAENTRY_MSB,
+                24 // semi-tones
+            });
 
-        lastEventTick = roundedTick;
+            lastEventTick = roundedTick;
 
-        diff = (roundedTick - lastEventTick);
+            diff = (roundedTick - lastEventTick);
 
-        tmp.push_back(ControlChangeEvent{
-            diff.to_int32(), // delta time
-            channel,
-            C_RPNPARAM_LSB,
-            0
-        });
+            tmp.push_back(ControlChangeEvent{
+                diff.to_int32(), // delta time
+                channel,
+                C_DATAENTRY_LSB,
+                0 // cents
+            });
 
-        lastEventTick = roundedTick;
+            lastEventTick = roundedTick;
 
-        diff = (roundedTick - lastEventTick);
+            diff = (roundedTick - lastEventTick);
 
-        tmp.push_back(ControlChangeEvent{
-            diff.to_int32(), // delta time
-            channel,
-            C_DATAENTRY_MSB,
-            24 // semi-tones
-        });
+            tmp.push_back(PitchBendEvent{
+                diff.to_int32(), // delta time
+                channel,
+                pitchBend
+            });
 
-        lastEventTick = roundedTick;
-
-        diff = (roundedTick - lastEventTick);
-
-        tmp.push_back(ControlChangeEvent{
-            diff.to_int32(), // delta time
-            channel,
-            C_DATAENTRY_LSB,
-            0 // cents
-        });
-
-        lastEventTick = roundedTick;
-
-        diff = (roundedTick - lastEventTick);
-
-        tmp.push_back(PitchBendEvent{
-            diff.to_int32(), // delta time
-            channel,
-            pitchBend
-        });
-
-        lastEventTick = roundedTick;
+            lastEventTick = roundedTick;
 
         uint16_t trackSpaceCount;
         if constexpr (0x70 <= VERSION) {
@@ -1653,61 +1653,61 @@ TconvertToMidi(
                         switch(effect) {
                         case TE_INSTRUMENT: {
 
-                            auto newInstrument = value;
+                                auto newInstrument = value;
 
-                            bool midiBankFlag;
+                                bool midiBankFlag;
 
-                            midiBankFlag = ((newInstrument & 0b1000000000000000) == 0b1000000000000000);
-                            midiBank     = ((newInstrument & 0b0111111100000000) >> 8);
-                            dontLetRing  = ((newInstrument & 0b0000000010000000) == 0b0000000010000000);
-                            midiProgram  =  (newInstrument & 0b0000000001111111);
-                            
-                            if (midiBankFlag) {
-
-                                //
-                                // Bank Select MSB and Bank Select LSB are special and do not really mean MSB/LSB
-                                // TabIt only sends MSB
-                                //
-                                uint8_t midiBankMSB = midiBank;
+                                midiBankFlag = ((newInstrument & 0b1000000000000000) == 0b1000000000000000);
+                                midiBank     = ((newInstrument & 0b0111111100000000) >> 8);
+                                dontLetRing  = ((newInstrument & 0b0000000010000000) == 0b0000000010000000);
+                                midiProgram  =  (newInstrument & 0b0000000001111111);
                                 
+                                if (midiBankFlag) {
+
+                                    //
+                                    // Bank Select MSB and Bank Select LSB are special and do not really mean MSB/LSB
+                                    // TabIt only sends MSB
+                                    //
+                                    uint8_t midiBankMSB = midiBank;
+                                    
+                                    diff = (roundedTick - lastEventTick);
+
+                                    tmp.push_back(ControlChangeEvent{
+                                        diff.to_int32(), // delta time
+                                        channel,
+                                        C_BANKSELECT_MSB,
+                                        midiBankMSB
+                                    });
+
+                                    lastEventTick = roundedTick;
+                                }
+
                                 diff = (roundedTick - lastEventTick);
 
-                                tmp.push_back(ControlChangeEvent{
+                                tmp.push_back(ProgramChangeEvent{
                                     diff.to_int32(), // delta time
                                     channel,
-                                    C_BANKSELECT_MSB,
-                                    midiBankMSB
+                                    midiProgram
                                 });
 
                                 lastEventTick = roundedTick;
-                            }
-
-                            diff = (roundedTick - lastEventTick);
-
-                            tmp.push_back(ProgramChangeEvent{
-                                diff.to_int32(), // delta time
-                                channel,
-                                midiProgram
-                            });
-
-                            lastEventTick = roundedTick;
 
                             break;
                         }
                         case TE_VOLUME: {
 
-                            auto newVolume = static_cast<uint8_t>(value);
+                                auto newVolume = static_cast<uint8_t>(value);
 
-                            diff = (roundedTick - lastEventTick);
+                                diff = (roundedTick - lastEventTick);
 
-                            tmp.push_back(ControlChangeEvent{
-                                diff.to_int32(), // delta time
-                                channel,
-                                C_VOLUME,
-                                newVolume
-                            });
+                                tmp.push_back(ControlChangeEvent{
+                                    diff.to_int32(), // delta time
+                                    channel,
+                                    C_VOLUME,
+                                    newVolume
+                                });
 
-                            lastEventTick = roundedTick;
+                                lastEventTick = roundedTick;
 
                             break;
                         }
@@ -1724,88 +1724,88 @@ TconvertToMidi(
                             break;
                         case TE_PAN: {
                             
-                            auto newPan = static_cast<uint8_t>(value);
+                                auto newPan = static_cast<uint8_t>(value);
 
-                            diff = (roundedTick - lastEventTick);
+                                diff = (roundedTick - lastEventTick);
 
-                            tmp.push_back(ControlChangeEvent{
-                                diff.to_int32(), // delta time
-                                channel,
-                                C_PAN,
-                                newPan
-                            });
+                                tmp.push_back(ControlChangeEvent{
+                                    diff.to_int32(), // delta time
+                                    channel,
+                                    C_PAN,
+                                    newPan
+                                });
 
-                            lastEventTick = roundedTick;
+                                lastEventTick = roundedTick;
 
                             break;
                         }
                         case TE_CHORUS: {
                             
-                            auto newChorus = static_cast<uint8_t>(value);
+                                auto newChorus = static_cast<uint8_t>(value);
 
-                            diff = (roundedTick - lastEventTick);
+                                diff = (roundedTick - lastEventTick);
 
-                            tmp.push_back(ControlChangeEvent{
-                                diff.to_int32(), // delta time
-                                channel,
-                                C_CHORUS,
-                                newChorus
-                            });
+                                tmp.push_back(ControlChangeEvent{
+                                    diff.to_int32(), // delta time
+                                    channel,
+                                    C_CHORUS,
+                                    newChorus
+                                });
 
-                            lastEventTick = roundedTick;
+                                lastEventTick = roundedTick;
 
                             break;
                         }
                         case TE_REVERB: {
                             
-                            auto newReverb = static_cast<uint8_t>(value);
+                                auto newReverb = static_cast<uint8_t>(value);
 
-                            diff = (roundedTick - lastEventTick);
+                                diff = (roundedTick - lastEventTick);
 
-                            tmp.push_back(ControlChangeEvent{
-                                diff.to_int32(), // delta time
-                                channel,
-                                C_REVERB,
-                                newReverb
-                            });
+                                tmp.push_back(ControlChangeEvent{
+                                    diff.to_int32(), // delta time
+                                    channel,
+                                    C_REVERB,
+                                    newReverb
+                                });
 
-                            lastEventTick = roundedTick;
+                                lastEventTick = roundedTick;
 
                             break;
                         }
                         case TE_MODULATION: {
                             
-                            auto newModulation = static_cast<uint8_t>(value);
+                                auto newModulation = static_cast<uint8_t>(value);
 
-                            diff = (roundedTick - lastEventTick);
+                                diff = (roundedTick - lastEventTick);
 
-                            tmp.push_back(ControlChangeEvent{
-                                diff.to_int32(), // delta time
-                                channel,
-                                C_MODULATION,
-                                newModulation
-                            });
+                                tmp.push_back(ControlChangeEvent{
+                                    diff.to_int32(), // delta time
+                                    channel,
+                                    C_MODULATION,
+                                    newModulation
+                                });
 
-                            lastEventTick = roundedTick;
+                                lastEventTick = roundedTick;
 
                             break;
                         }
                         case TE_PITCH_BEND: {
 
-                            //
-                            // convert from (-2400, 2400) to (0b0000000000000000 to 0b0011111111111111) i.e. (0 to 16383)
-                            //
-                            auto newPitchBend = (((rational(static_cast<int16_t>(value)) + 2400) * 0b0011111111111111) / (2 * 2400)).round().to_int16();
+                                //
+                                // convert from (-2400, 2400) to (0b0000000000000000 to 0b0011111111111111) i.e. (0 to 16383)
+                                //
+                                auto newPitchBend = (((rational(static_cast<int16_t>(value)) + 2400) * 0b0011111111111111) / (2 * 2400)).round().to_int16();
 
-                            diff = (roundedTick - lastEventTick);
+                                diff = (roundedTick - lastEventTick);
 
-                            tmp.push_back(PitchBendEvent{
-                                diff.to_int32(), // delta time
-                                channel,
-                                newPitchBend
-                            });
+                                tmp.push_back(PitchBendEvent{
+                                    diff.to_int32(), // delta time
+                                    channel,
+                                    newPitchBend
+                                });
 
-                            lastEventTick = roundedTick;
+                                lastEventTick = roundedTick;
 
                             break;
                         }
@@ -1832,37 +1832,37 @@ TconvertToMidi(
                         break;
                     case 'I': { // Instrument change
 
-                        auto newInstrument = effectVsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
+                            auto newInstrument = effectVsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
-                        dontLetRing = ((newInstrument & 0b10000000) == 0b10000000);
-                        midiProgram =  (newInstrument & 0b01111111);
+                            dontLetRing = ((newInstrument & 0b10000000) == 0b10000000);
+                            midiProgram =  (newInstrument & 0b01111111);
 
-                        diff = (roundedTick - lastEventTick);
+                            diff = (roundedTick - lastEventTick);
 
-                        tmp.push_back(ProgramChangeEvent{
-                            diff.to_int32(), // delta time
-                            channel,
-                            midiProgram
-                        });
+                            tmp.push_back(ProgramChangeEvent{
+                                diff.to_int32(), // delta time
+                                channel,
+                                midiProgram
+                            });
 
-                        lastEventTick = roundedTick;
+                            lastEventTick = roundedTick;
 
                         break;
                     }
                     case 'V': { // Volume change
 
-                        auto newVolume = effectVsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
+                            auto newVolume = effectVsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
-                        diff = (roundedTick - lastEventTick);
+                            diff = (roundedTick - lastEventTick);
 
-                        tmp.push_back(ControlChangeEvent{
-                            diff.to_int32(), // delta time
-                            channel,
-                            C_VOLUME,
-                            newVolume
-                        });
+                            tmp.push_back(ControlChangeEvent{
+                                diff.to_int32(), // delta time
+                                channel,
+                                C_VOLUME,
+                                newVolume
+                            });
 
-                        lastEventTick = roundedTick;
+                            lastEventTick = roundedTick;
 
                         break;
                     }
@@ -1880,52 +1880,52 @@ TconvertToMidi(
                         break;
                     case 'C': { // Chorus change
 
-                        auto newChorus = effectVsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
+                            auto newChorus = effectVsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
-                        diff = (roundedTick - lastEventTick);
+                            diff = (roundedTick - lastEventTick);
 
-                        tmp.push_back(ControlChangeEvent{
-                            diff.to_int32(), // delta time
-                            channel,
-                            C_CHORUS,
-                            newChorus
-                        });
+                            tmp.push_back(ControlChangeEvent{
+                                diff.to_int32(), // delta time
+                                channel,
+                                C_CHORUS,
+                                newChorus
+                            });
 
-                        lastEventTick = roundedTick;
+                            lastEventTick = roundedTick;
 
                         break;
                     }
                     case 'P': { // Pan change
 
-                        auto newPan = effectVsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
+                            auto newPan = effectVsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
-                        diff = (roundedTick - lastEventTick);
+                            diff = (roundedTick - lastEventTick);
 
-                        tmp.push_back(ControlChangeEvent{
-                            diff.to_int32(), // delta time
-                            channel,
-                            C_PAN,
-                            newPan
-                        });
+                            tmp.push_back(ControlChangeEvent{
+                                diff.to_int32(), // delta time
+                                channel,
+                                C_PAN,
+                                newPan
+                            });
 
-                        lastEventTick = roundedTick;
+                            lastEventTick = roundedTick;
 
                         break;
                     }
                     case 'R': { // Reverb change
 
-                        auto newReverb = effectVsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
+                            auto newReverb = effectVsqs[STRINGS_PER_TRACK + STRINGS_PER_TRACK + 3];
 
-                        diff = (roundedTick - lastEventTick);
+                            diff = (roundedTick - lastEventTick);
 
-                        tmp.push_back(ControlChangeEvent{
-                            diff.to_int32(), // delta time
-                            channel,
-                            C_REVERB,
-                            newReverb
-                        });
+                            tmp.push_back(ControlChangeEvent{
+                                diff.to_int32(), // delta time
+                                channel,
+                                C_REVERB,
+                                newReverb
+                            });
 
-                        lastEventTick = roundedTick;
+                            lastEventTick = roundedTick;
 
                         break;
                     }
