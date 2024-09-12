@@ -37,7 +37,7 @@ void printUsage();
 
 int main(int argc, const char *argv[]) {
 
-    LOGI("tbt printer v1.2.0");
+    LOGI("tbt printer v1.3.0");
     LOGI("Copyright (C) 2024 by Brenton Bostick");
 
     if (argc == 1) {
