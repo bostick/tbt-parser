@@ -52,7 +52,8 @@ parseAlternateTimeRegionsMapList(
             alternateTimeRegionsDeltaListAcc.insert(
                 alternateTimeRegionsDeltaListAcc.end(),
                 deltaList.cbegin(),
-                deltaList.cend());
+                deltaList.cend()
+            );
 
             ret = computeDeltaListCount(deltaList, &dsqCount);
 
@@ -73,7 +74,8 @@ parseAlternateTimeRegionsMapList(
             alternateTimeRegionsDeltaListAcc,
             dsqCount,
             1,
-            alternateTimeRegionsMap);
+            alternateTimeRegionsMap
+        );
 
         if (ret != OK) {
             return ret;

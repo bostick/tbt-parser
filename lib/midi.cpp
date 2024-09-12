@@ -115,7 +115,8 @@ computeChannelMap(
                 std::remove(
                     availableChannels.begin(),
                     availableChannels.end(),
-                    t.metadata.tracks[track].midiChannel),
+                    t.metadata.tracks[track].midiChannel
+                ),
                 availableChannels.end()
             );
 

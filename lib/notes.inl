@@ -78,7 +78,8 @@ parseNotesMapList(
             notesDeltaListAcc,
             vsqCount,
             0,
-            out.body.mapsList[track].notesMap);
+            out.body.mapsList[track].notesMap
+        );
 
         if (ret != OK) {
             return ret;
