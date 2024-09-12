@@ -47,12 +47,6 @@ tbt converter v1.2.0
 Copyright (C) 2024 by Brenton Bostick
 input file: black.tbt
 output file: out.mid
-parsing...
-tbt file version: 2.0 (0x72)
-title: Back In Black
-artist: AC/DC
-album: Back In Black
-transcribed by: Wraith (wraith_anleu@yahoo.com)
 exporting...
 finished!
 % 
@@ -85,6 +79,29 @@ last Note Off (micros): 257513760.00000000000000000
 finished!
 % 
 ```
+
+Print out information about a .tbt TabIt file:
+```
+% ./tbt-info --input-file black.tbt
+tbt info v1.2.0
+Copyright (C) 2024 by Brenton Bostick
+input file: black.tbt
+tbt file version: 2.0 (0x72)
+title: Back In Black
+artist: AC/DC
+album: Back In Black
+transcribed by: Wraith (wraith_anleu@yahoo.com)
+
+let me know if I can fix anything
+
+edit  10-13-05
+-more small things changes
+edit  2-4-05 
+-fixed some small things
+% 
+```
+
+
 
 
 
