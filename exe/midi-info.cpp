@@ -32,13 +32,16 @@
 #define TAG "midi-info"
 
 
+void printUsage();
+
+
 int main(int argc, const char *argv[]) {
 
     LOGI("midi info v1.2.0");
     LOGI("Copyright (C) 2024 by Brenton Bostick");
 
     if (argc == 1) {
-        LOGI("usage: midi-info --input-file XXX");
+        printUsage();
         return EXIT_SUCCESS;
     }
 
@@ -47,6 +50,11 @@ int main(int argc, const char *argv[]) {
     for (int i = 0; i < argc; i++) {
 
         if (strcmp(argv[i], "--input-file") == 0) {
+
+            if (i == argc - 1) {
+                printUsage();
+                return EXIT_FAILURE;
+            }
 
             i++;
 
@@ -77,6 +85,11 @@ int main(int argc, const char *argv[]) {
     return EXIT_SUCCESS;
 }
 
+
+void printUsage() {
+    LOGI("usage: midi-info --input-file XXX");
+    LOGI();
+}
 
 
 

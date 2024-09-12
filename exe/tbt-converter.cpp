@@ -31,13 +31,16 @@
 #define TAG "tbt-converter"
 
 
+void printUsage();
+
+
 int main(int argc, const char *argv[]) {
 
     LOGI("tbt converter v1.2.0");
     LOGI("Copyright (C) 2024 by Brenton Bostick");
 
     if (argc == 1) {
-        LOGI("usage: tbt-converter --input-file XXX [--output-file YYY]");
+        printUsage();
         return EXIT_SUCCESS;
     }
 
@@ -48,11 +51,21 @@ int main(int argc, const char *argv[]) {
 
         if (strcmp(argv[i], "--input-file") == 0) {
 
+            if (i == argc - 1) {
+                printUsage();
+                return EXIT_FAILURE;
+            }
+
             i++;
 
             inputFile = argv[i];
 
         } else if (strcmp(argv[i], "--output-file") == 0) {
+
+            if (i == argc - 1) {
+                printUsage();
+                return EXIT_FAILURE;
+            }
 
             i++;
 
@@ -61,9 +74,7 @@ int main(int argc, const char *argv[]) {
     }
 
     if (inputFile.empty()) {
-
         LOGE("input file is missing (or --input-file is not specified)");
-        
         return EXIT_FAILURE;
     }
 
@@ -107,6 +118,10 @@ int main(int argc, const char *argv[]) {
 }
 
 
+void printUsage() {
+    LOGI("usage: tbt-converter --input-file XXX [--output-file YYY]");
+    LOGI();
+}
 
 
 
