@@ -54,7 +54,7 @@ target_include_directories(tbt-test-exe
     PRIVATE
         ../include/
         ../lib/
-        ${COMMON_DIR}/include
+        ${COMMON_DIR}/src/main/cpp/include
 )
 
 #

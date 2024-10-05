@@ -51,8 +51,8 @@ endif()
 
 set(CPP_LIB_SOURCES
 
-    ${COMMON_DIR}/lib/file.cpp
-    ${COMMON_DIR}/lib/logging.cpp
+    ${COMMON_DIR}/src/main/cpp/lib/file.cpp
+    ${COMMON_DIR}/src/main/cpp/lib/logging.cpp
 
     midi.cpp
     rational.cpp
@@ -67,7 +67,7 @@ add_library(tbt-parser-static-lib STATIC
 
 target_include_directories(tbt-parser-static-lib PRIVATE
     ../include/
-    ${COMMON_DIR}/include/
+    ${COMMON_DIR}/src/main/cpp/include/
 )
 
 target_link_libraries(tbt-parser-static-lib PRIVATE

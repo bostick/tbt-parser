@@ -62,25 +62,25 @@ target_link_libraries(tbt-info-exe
 target_include_directories(tbt-converter-exe
     PRIVATE
         ../include/
-        ${COMMON_DIR}/include/
+        ${COMMON_DIR}/src/main/cpp/include/
 )
 
 target_include_directories(midi-info-exe
     PRIVATE
         ../include/
-        ${COMMON_DIR}/include/
+        ${COMMON_DIR}/src/main/cpp/include/
 )
 
 target_include_directories(tbt-printer-exe
     PRIVATE
         ../include/
-        ${COMMON_DIR}/include/
+        ${COMMON_DIR}/src/main/cpp/include/
 )
 
 target_include_directories(tbt-info-exe
     PRIVATE
         ../include/
-        ${COMMON_DIR}/include/
+        ${COMMON_DIR}/src/main/cpp/include/
 )
 
 set_target_properties(tbt-converter-exe
