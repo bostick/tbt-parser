@@ -101,9 +101,11 @@ target_compile_options(tbt-parser-static-lib PRIVATE
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 target_compile_options(tbt-parser-static-lib PRIVATE
     #
-    # Zc:preprocessor is needed for handling __VA_OPT__(,)
+    # /Zc:preprocessor is needed for handling __VA_OPT__(,)
     #
-    /Zc:preprocessor /WX /W4
+    # /wd4068 disables "unknown pragma" warnings
+    #
+    /Zc:preprocessor /WX /W4 /wd4068
 )
 else ()
 message(FATAL_ERROR "Unrecognized compiler: ${CMAKE_CXX_COMPILER_ID}")
