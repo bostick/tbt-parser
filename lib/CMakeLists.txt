@@ -17,12 +17,8 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 cmake_minimum_required(VERSION 3.24)
-
-if(NOT DEFINED COMMON_DIR)
-  message(FATAL_ERROR "COMMON_DIR is not defined")
-endif()
-
 include(FetchContent)
+
 FetchContent_Declare(zlib
     GIT_REPOSITORY
         https://github.com/madler/zlib.git
@@ -48,12 +44,16 @@ target_compile_options(zlibstatic PRIVATE
 )
 endif()
 
+FetchContent_Declare(common
+    GIT_REPOSITORY
+        https://github.com/bostick/common.git
+    GIT_TAG
+        main
+)
+FetchContent_MakeAvailable(common)
+
 
 set(CPP_LIB_SOURCES
-
-    ${COMMON_DIR}/src/main/cpp/lib/file.cpp
-    ${COMMON_DIR}/src/main/cpp/lib/logging.cpp
-
     midi.cpp
     rational.cpp
     tbt.cpp
@@ -65,13 +65,19 @@ add_library(tbt-parser-static-lib STATIC
     ${CPP_LIB_SOURCES}
 )
 
-target_include_directories(tbt-parser-static-lib PRIVATE
-    ../include/
-    ${COMMON_DIR}/src/main/cpp/include/
+target_include_directories(tbt-parser-static-lib
+    PUBLIC
+        ../include/
+        #
+        # for the .inl files
+        #
+        ../lib/
 )
 
-target_link_libraries(tbt-parser-static-lib PRIVATE
-    zlibstatic
+target_link_libraries(tbt-parser-static-lib
+    PRIVATE
+        zlibstatic
+        common-lib
 )
 
 set_target_properties(tbt-parser-static-lib

@@ -17,9 +17,9 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 cmake_minimum_required(VERSION 3.14)
-
-
 include(FetchContent)
+
+
 FetchContent_Declare(googletest
   GIT_REPOSITORY
     https://github.com/google/googletest.git
@@ -30,6 +30,14 @@ FetchContent_Declare(googletest
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 include(GoogleTest)
+
+FetchContent_Declare(common
+    GIT_REPOSITORY
+        https://github.com/bostick/common.git
+    GIT_TAG
+        main
+)
+FetchContent_MakeAvailable(common)
 
 
 set(CPP_TEST_SOURCES
@@ -48,13 +56,7 @@ target_link_libraries(tbt-test-exe
     PRIVATE
         tbt-parser-static-lib
         GTest::gmock_main
-)
-
-target_include_directories(tbt-test-exe
-    PRIVATE
-        ../include/
-        ../lib/
-        ${COMMON_DIR}/src/main/cpp/include
+        common-lib
 )
 
 #
