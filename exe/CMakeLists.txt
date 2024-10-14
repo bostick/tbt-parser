@@ -17,10 +17,15 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 cmake_minimum_required(VERSION 3.5)
+include(FetchContent)
 
-if(NOT DEFINED COMMON_DIR)
-  message(FATAL_ERROR "COMMON_DIR is not defined")
-endif()
+FetchContent_Declare(common
+    GIT_REPOSITORY
+        https://github.com/bostick/common.git
+    GIT_TAG
+        main
+)
+FetchContent_MakeAvailable(common)
 
 
 add_executable(tbt-converter-exe
@@ -42,45 +47,25 @@ add_executable(tbt-info-exe
 target_link_libraries(tbt-converter-exe
     PRIVATE
         tbt-parser-static-lib
+        common-lib
 )
 
 target_link_libraries(midi-info-exe
     PRIVATE
         tbt-parser-static-lib
+        common-lib
 )
 
 target_link_libraries(tbt-printer-exe
     PRIVATE
         tbt-parser-static-lib
+        common-lib
 )
 
 target_link_libraries(tbt-info-exe
     PRIVATE
         tbt-parser-static-lib
-)
-
-target_include_directories(tbt-converter-exe
-    PRIVATE
-        ../include/
-        ${COMMON_DIR}/src/main/cpp/include/
-)
-
-target_include_directories(midi-info-exe
-    PRIVATE
-        ../include/
-        ${COMMON_DIR}/src/main/cpp/include/
-)
-
-target_include_directories(tbt-printer-exe
-    PRIVATE
-        ../include/
-        ${COMMON_DIR}/src/main/cpp/include/
-)
-
-target_include_directories(tbt-info-exe
-    PRIVATE
-        ../include/
-        ${COMMON_DIR}/src/main/cpp/include/
+        common-lib
 )
 
 set_target_properties(tbt-converter-exe
