@@ -16,7 +16,7 @@
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.22.1)
 include(FetchContent)
 
 
@@ -35,7 +35,9 @@ FetchContent_Declare(common
     GIT_REPOSITORY
         https://github.com/bostick/common.git
     GIT_TAG
-        main
+        v0.1.0
+    GIT_SHALLOW 1
+    GIT_PROGRESS 1
 )
 FetchContent_MakeAvailable(common)
 
@@ -64,19 +66,19 @@ target_link_libraries(tbt-test-exe
 #
 # https://www.foonathan.net/2018/10/cmake-warnings/
 #
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 target_compile_options(tbt-test-exe PRIVATE
-    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas -Wno-unused-const-variable
 )
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
 target_compile_options(tbt-test-exe PRIVATE
-    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas -Wno-unused-const-variable
 )
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 target_compile_options(tbt-test-exe PRIVATE
-    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas -Wno-unused-const-variable
 )
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 target_compile_options(tbt-test-exe PRIVATE
     #
     # /Zc:preprocessor is needed for handling __VA_OPT__(,)
@@ -85,7 +87,7 @@ target_compile_options(tbt-test-exe PRIVATE
     #
     /Zc:preprocessor /WX /W4 /wd4068
 )
-else ()
+else()
 message(FATAL_ERROR "Unrecognized compiler: ${CMAKE_CXX_COMPILER_ID}")
 endif()
 
@@ -94,6 +96,7 @@ set_target_properties(tbt-test-exe
         OUTPUT_NAME tbt-test
         CXX_STANDARD 20
         CXX_STANDARD_REQUIRED ON
+        CXX_EXTENSIONS NO
 )
 
 

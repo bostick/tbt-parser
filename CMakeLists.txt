@@ -16,23 +16,44 @@
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.22.1)
 
-project(tbt-parser)
+project(tbt-parser
+	LANGUAGES CXX
+)
 
+
+set(TBTPARSER_BUILD_TESTS OFF CACHE BOOL "Build tests")
+
+message(STATUS "TBTPARSER_BUILD_TESTS: ${TBTPARSER_BUILD_TESTS}")
+
+
+#
+# exe adds some tests, so enable testing before adding exe
+#
+if(TBTPARSER_BUILD_TESTS)
 
 enable_testing()
+
+endif()
 
 
 add_subdirectory(lib)
 
-if(BUILD_TESTS)
+add_subdirectory(exe)
+
+
+if(TBTPARSER_BUILD_TESTS)
 
 add_subdirectory(test)
 
-endif(BUILD_TESTS)
+endif()
 
-add_subdirectory(exe)
+
+
+
+
+
 
 
 

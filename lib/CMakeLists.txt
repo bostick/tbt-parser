@@ -16,7 +16,7 @@
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.22.1)
 include(FetchContent)
 
 FetchContent_Declare(zlib
@@ -29,7 +29,7 @@ set(ZLIB_USE_STATIC_LIBS ON)
 set(ZLIB_BUILD_EXAMPLES OFF)
 FetchContent_MakeAvailable(zlib)
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
 target_compile_options(zlib PRIVATE
     #
     # disable warnings when building zlib in e.g. Xcode
@@ -48,7 +48,9 @@ FetchContent_Declare(common
     GIT_REPOSITORY
         https://github.com/bostick/common.git
     GIT_TAG
-        main
+        v0.1.0
+    GIT_SHALLOW 1
+    GIT_PROGRESS 1
 )
 FetchContent_MakeAvailable(common)
 
@@ -67,11 +69,11 @@ add_library(tbt-parser-static-lib STATIC
 
 target_include_directories(tbt-parser-static-lib
     PUBLIC
-        ../include/
+        ../include
         #
         # for the .inl files
         #
-        ../lib/
+        ../lib
 )
 
 target_link_libraries(tbt-parser-static-lib
@@ -85,26 +87,27 @@ set_target_properties(tbt-parser-static-lib
         OUTPUT_NAME tbt-parser-static
         CXX_STANDARD 20
         CXX_STANDARD_REQUIRED ON
+        CXX_EXTENSIONS NO
 )
 
 #
-# Setup warnings
+# Set up warnings
 #
 # https://www.foonathan.net/2018/10/cmake-warnings/
 #
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 target_compile_options(tbt-parser-static-lib PRIVATE
-    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas -Wno-unused-const-variable
 )
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
 target_compile_options(tbt-parser-static-lib PRIVATE
-    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas -Wno-unused-const-variable
 )
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 target_compile_options(tbt-parser-static-lib PRIVATE
-    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas -Wno-unused-const-variable
 )
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 target_compile_options(tbt-parser-static-lib PRIVATE
     #
     # /Zc:preprocessor is needed for handling __VA_OPT__(,)
@@ -113,7 +116,7 @@ target_compile_options(tbt-parser-static-lib PRIVATE
     #
     /Zc:preprocessor /WX /W4 /wd4068
 )
-else ()
+else()
 message(FATAL_ERROR "Unrecognized compiler: ${CMAKE_CXX_COMPILER_ID}")
 endif()
 
