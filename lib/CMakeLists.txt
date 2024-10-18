@@ -68,11 +68,11 @@ add_library(tbt-parser-static-lib STATIC
 
 target_include_directories(tbt-parser-static-lib
     PUBLIC
-        ../include/
+        ../include
         #
         # for the .inl files
         #
-        ../lib/
+        ../lib
 )
 
 target_link_libraries(tbt-parser-static-lib
