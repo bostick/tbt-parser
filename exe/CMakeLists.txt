@@ -28,12 +28,14 @@ include(FetchContent)
 cmake_policy(SET CMP0156 NEW)
 
 FetchContent_Declare(common
-    GIT_REPOSITORY
-        https://github.com/bostick/common.git
-    GIT_TAG
-        v0.1.0
-    GIT_SHALLOW 1
-    GIT_PROGRESS 1
+    # GIT_REPOSITORY
+    #     https://github.com/bostick/common.git
+    # GIT_TAG
+    #     v0.1.0
+    # GIT_SHALLOW 1
+    # GIT_PROGRESS 1
+    SOURCE_DIR
+        /Users/brenton/development/github/common
 )
 FetchContent_MakeAvailable(common)
 
