@@ -1539,7 +1539,7 @@ TtbtFileTablature(const tbt_file_t &t) {
                             debugTextWidthAcc += 1;
 #endif // NDEBUG
 
-                        } while (0);
+                        } while (false);
 
                         break;
                     }
@@ -1641,7 +1641,7 @@ TtbtFileTablature(const tbt_file_t &t) {
                             debugTextWidthAcc += 1;
 #endif // NDEBUG
 
-                        } while (0);
+                        } while (false);
 
                         break;
                     }
