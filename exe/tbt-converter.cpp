@@ -188,11 +188,11 @@ int main(int argc, const char *argv[]) {
 
 
 void printUsage() {
-    LOGI("usage: tbt-converter --input-file XXX [--output-file YYY] [options]");
+    LOGI("usage: tbt-converter --input-file XXX [--output-file YYY (default: out.mid)] [options]");
     LOGI("options:");
-    LOGI("--emit-controlchange-events (0|1)");
-    LOGI("--emit-programchange-events (0|1)");
-    LOGI("--emit-pitchbend-events (0|1)");
+    LOGI("--emit-controlchange-events (0|1) (default: 1)");
+    LOGI("--emit-programchange-events (0|1) (default: 1)");
+    LOGI("--emit-pitchbend-events (0|1) (default: 1)");
     LOGI();
 }
 

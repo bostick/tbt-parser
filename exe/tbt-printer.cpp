@@ -116,7 +116,7 @@ int main(int argc, const char *argv[]) {
 
 
 void printUsage() {
-    LOGI("usage: tbt-printer --input-file XXX [--output-file YYY]");
+    LOGI("usage: tbt-printer --input-file XXX [--output-file YYY (default: out.txt)]");
     LOGI();
 }
 
