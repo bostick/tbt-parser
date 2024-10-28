@@ -120,9 +120,9 @@ std::string trackEffectChangesString(const std::map<tbt_track_effect, uint16_t> 
         return "M";
     case TE_PITCH_BEND:
         return "B";
-    default:
-        ASSERT(false);
-        return "";
+    default: {
+        ABORT("invalid effect: %d", effect);
+    }
     }
 }
 
@@ -150,9 +150,9 @@ std::string trackEffectString(uint8_t trackEffect) {
         return "P";
     case 'R': // Reverb change
         return "R";
-    default:
-        ASSERT(false);
-        return "";
+    default: {
+        ABORT("invalid trackEffect: %c (%d)", trackEffect, trackEffect);
+    }
     }
 }
 
@@ -336,11 +336,12 @@ TtbtFileTablature(const tbt_file_t &t) {
                     }
                     case OPEN:
                     case SINGLE:
-                    case DOUBLE:
+                    case DOUBLE: {
                         break;
-                    default:
-                        ASSERT(false);
-                        break;
+                    }
+                    default: {
+                        ABORT("invalid change: %d", change);
+                    }
                     }
                 }
 
@@ -404,11 +405,12 @@ TtbtFileTablature(const tbt_file_t &t) {
                     }
                     case OPEN:
                     case SINGLE:
-                    case DOUBLE:
+                    case DOUBLE: {
                         break;
-                    default:
-                        ASSERT(false);
-                        break;
+                    }
+                    default: {
+                        ABORT("invalid change: %d", change);
+                    }
                     }
                 }
 
@@ -1643,9 +1645,9 @@ TtbtFileTablature(const tbt_file_t &t) {
 
                         break;
                     }
-                    default:
-                        ASSERT(false);
-                        break;
+                    default: {
+                        ABORT("invalid change: %d", change);
+                    }
                     }
 
                     barLinesMap.erase(barLinesMapIt);
@@ -1948,9 +1950,9 @@ TtbtFileTablature(const tbt_file_t &t) {
 
                         break;
                     }
-                    default:
-                        ASSERT(false);
-                        break;
+                    default: {
+                        ABORT("invalid change: %d", change);
+                    }
                     }
                 }
 
@@ -2156,9 +2158,9 @@ std::string tbtFileTablature(const tbt_file &t) {
 
         return TtbtFileTablature<0x65, false, 6>(t65);
     }
-    default:
-        ASSERT(false);
-        return "";
+    default: {
+        ABORT("invalid versionNumber: 0x%02x", versionNumber);
+    }
     }
 }
 

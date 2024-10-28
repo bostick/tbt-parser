@@ -286,6 +286,22 @@ computeTempoMap(
 
                         break;
                     }
+                    case '\0':
+                    case 'I':
+                    case 'V':
+                    case 'D':
+                    case 'U':
+                    case 'C':
+                    case 'P':
+                    case 'R': {
+                        //
+                        // skip
+                        //
+                        break;
+                    }
+                    default: {
+                        ABORT("invalid trackEffect: %c (%d)", trackEffect, trackEffect);
+                    }
                     }
                 }
             }
@@ -499,8 +515,7 @@ computeRepeats(
                     //
                     break;
                 default:
-                    ASSERT(false);
-                    break;
+                    ABORT("invalid change: %d", change);
                 }
             }
         }
@@ -1851,9 +1866,9 @@ TconvertToMidi(
 
                             break;
                         }
-                        default:
-                            ASSERT(false);
-                            break;
+                        default: {
+                            ABORT("invalid effect: %d", effect);
+                        }
                         }
                     }
                 }
@@ -1987,9 +2002,9 @@ TconvertToMidi(
 
                         break;
                     }
-                    default:
-                        ASSERT(false);
-                        break;
+                    default: {
+                        ABORT("invalid trackEffect: %c (%d)", trackEffect, trackEffect);
+                    }
                     }
                 }
             }
@@ -2266,9 +2281,9 @@ convertToMidi(
         
         return TconvertToMidi<0x65, false, 6>(t65, opts, out);
     }
-    default:
-        ASSERT(false);
-        return ERR;
+    default: {
+        ABORT("invalid versionNumber: 0x%02x", versionNumber);
+    }
     }
 }
 
