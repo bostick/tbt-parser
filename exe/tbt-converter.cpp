@@ -51,7 +51,7 @@ int main(int argc, const char *argv[]) {
 
     for (int i = 0; i < argc; i++) {
 
-        if (strcmp(argv[i], "--input-file") == 0) {
+        if (std::strcmp(argv[i], "--input-file") == 0) {
 
             if (i == argc - 1) {
                 printUsage();
@@ -62,7 +62,7 @@ int main(int argc, const char *argv[]) {
 
             inputFile = argv[i];
 
-        } else if (strcmp(argv[i], "--output-file") == 0) {
+        } else if (std::strcmp(argv[i], "--output-file") == 0) {
 
             if (i == argc - 1) {
                 printUsage();
@@ -73,7 +73,7 @@ int main(int argc, const char *argv[]) {
 
             outputFile = argv[i];
 
-        } else if (strcmp(argv[i], "--emit-controlchange-events") == 0) {
+        } else if (std::strcmp(argv[i], "--emit-controlchange-events") == 0) {
 
             if (i == argc - 1) {
                 printUsage();
@@ -82,11 +82,11 @@ int main(int argc, const char *argv[]) {
 
             i++;
 
-            if (strcmp(argv[i], "0") == 0) {
+            if (std::strcmp(argv[i], "0") == 0) {
 
                 opts.emit_control_change_events = false;
 
-            } else if (strcmp(argv[i], "1") == 0) {
+            } else if (std::strcmp(argv[i], "1") == 0) {
 
                 opts.emit_control_change_events = true;
 
@@ -95,7 +95,7 @@ int main(int argc, const char *argv[]) {
                 return EXIT_FAILURE;
             }
 
-        } else if (strcmp(argv[i], "--emit-programchange-events") == 0) {
+        } else if (std::strcmp(argv[i], "--emit-programchange-events") == 0) {
 
             if (i == argc - 1) {
                 printUsage();
@@ -104,11 +104,11 @@ int main(int argc, const char *argv[]) {
 
             i++;
 
-            if (strcmp(argv[i], "0") == 0) {
+            if (std::strcmp(argv[i], "0") == 0) {
 
                 opts.emit_program_change_events = false;
 
-            } else if (strcmp(argv[i], "1") == 0) {
+            } else if (std::strcmp(argv[i], "1") == 0) {
 
                 opts.emit_program_change_events = true;
 
@@ -117,7 +117,7 @@ int main(int argc, const char *argv[]) {
                 return EXIT_FAILURE;
             }
 
-        } else if (strcmp(argv[i], "--emit-pitchbend-events") == 0) {
+        } else if (std::strcmp(argv[i], "--emit-pitchbend-events") == 0) {
 
             if (i == argc - 1) {
                 printUsage();
@@ -126,11 +126,11 @@ int main(int argc, const char *argv[]) {
 
             i++;
 
-            if (strcmp(argv[i], "0") == 0) {
+            if (std::strcmp(argv[i], "0") == 0) {
 
                 opts.emit_pitch_bend_events = false;
 
-            } else if (strcmp(argv[i], "1") == 0) {
+            } else if (std::strcmp(argv[i], "1") == 0) {
 
                 opts.emit_pitch_bend_events = true;
 

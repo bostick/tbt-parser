@@ -50,7 +50,7 @@ int main(int argc, const char *argv[]) {
 
     for (int i = 0; i < argc; i++) {
 
-        if (strcmp(argv[i], "--input-file") == 0) {
+        if (std::strcmp(argv[i], "--input-file") == 0) {
 
             if (i == argc - 1) {
                 printUsage();
@@ -61,7 +61,7 @@ int main(int argc, const char *argv[]) {
 
             inputFile = argv[i];
 
-        } else if (strcmp(argv[i], "--output-file") == 0) {
+        } else if (std::strcmp(argv[i], "--output-file") == 0) {
 
             if (i == argc - 1) {
                 printUsage();
