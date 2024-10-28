@@ -135,6 +135,7 @@ std::string trackEffectString(uint8_t trackEffect) {
         return "I";
     case 'V': // Volume change
         return "V";
+    // NOLINTNEXTLINE(bugprone-branch-clone)
     case 'T': // Tempo change
         return "T";
     case 't': // Tempo change + 250

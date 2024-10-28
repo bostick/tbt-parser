@@ -504,49 +504,49 @@ struct tbt_body65 {
 };
 
 
-struct tbt_file71 {
+struct tbt_file71 { // NOLINT(*-pro-type-member-init)
     tbt_header70 header;
     tbt_metadata71 metadata;
     tbt_body71 body;
 };
 
-struct tbt_file70 {
+struct tbt_file70 { // NOLINT(*-pro-type-member-init)
     tbt_header70 header;
     tbt_metadata70 metadata;
     tbt_body70 body;
 };
 
-struct tbt_file6f {
+struct tbt_file6f { // NOLINT(*-pro-type-member-init)
     tbt_header6f header;
     tbt_metadata6e metadata;
     tbt_body6b body;
 };
 
-struct tbt_file6e {
+struct tbt_file6e { // NOLINT(*-pro-type-member-init)
     tbt_header6e header;
     tbt_metadata6e metadata;
     tbt_body6b body;
 };
 
-struct tbt_file6b {
+struct tbt_file6b { // NOLINT(*-pro-type-member-init)
     tbt_header68 header;
     tbt_metadata6b metadata;
     tbt_body6b body;
 };
 
-struct tbt_file6a {
+struct tbt_file6a { // NOLINT(*-pro-type-member-init)
     tbt_header68 header;
     tbt_metadata6a metadata;
     tbt_body65 body;
 };
 
-struct tbt_file68 {
+struct tbt_file68 { // NOLINT(*-pro-type-member-init)
     tbt_header68 header;
     tbt_metadata65 metadata;
     tbt_body65 body;
 };
 
-struct tbt_file65 {
+struct tbt_file65 { // NOLINT(*-pro-type-member-init)
     tbt_header65 header;
     tbt_metadata65 metadata;
     tbt_body65 body;

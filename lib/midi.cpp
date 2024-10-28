@@ -41,6 +41,10 @@
 #define TAG "midi"
 
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "modernize-use-emplace"
+
+
 const rational TBT_TICKS_PER_BEAT = 0xc0; // 192
 const rational TBT_TICKS_PER_SPACE = (TBT_TICKS_PER_BEAT / 4); // 48
 
@@ -332,7 +336,7 @@ struct repeat_close_struct {
 };
 
 
-struct repeat_open_struct {
+struct repeat_open_struct { // NOLINT(*-pro-type-member-init)
     rational actualSpace;
     uint16_t space;
 };
@@ -540,7 +544,7 @@ computeMidiNoteOffsetArrays(
 
         const auto &trackMetadata = t.metadata.tracks[track];
 
-        std::array<uint8_t, STRINGS_PER_TRACK> midiNoteOffsetArray;
+        std::array<uint8_t, STRINGS_PER_TRACK> midiNoteOffsetArray; // NOLINT(*-pro-type-member-init)
 
         for (uint8_t string = 0; string < trackMetadata.stringCount; string++) {
 
@@ -1733,6 +1737,7 @@ TconvertToMidi(
 
                             break;
                         }
+                        // NOLINTNEXTLINE(bugprone-branch-clone)
                         case TE_TEMPO:
                             //
                             // already handled
@@ -1909,6 +1914,7 @@ TconvertToMidi(
 
                         break;
                     }
+                    // NOLINTNEXTLINE(bugprone-branch-clone)
                     case 'T': // Tempo change
                     case 't': // Tempo change + 250
                         //
@@ -2464,7 +2470,7 @@ parseMidiFile(
 
 
 
-struct chunk {
+struct chunk { // NOLINT(*-pro-type-member-init)
     std::array<uint8_t, 4> type;
     std::vector<uint8_t> data;
 };
@@ -3332,6 +3338,9 @@ midiFileInfo(const midi_file &m) {
 
     return acc;
 }
+
+
+#pragma clang diagnostic pop
 
 
 
