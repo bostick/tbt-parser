@@ -107,7 +107,7 @@ uint32_t parseBE4(uint8_t b0, uint8_t b1, uint8_t b2, uint8_t b3) {
 Status
 parseVLQ(
     std::vector<uint8_t>::const_iterator &it,
-    const std::vector<uint8_t>::const_iterator end,
+    const std::vector<uint8_t>::const_iterator &end,
     uint32_t &out) {
 
     out = 0;
@@ -198,7 +198,7 @@ void toVLQ(uint32_t value, std::vector<uint8_t> &out) {
 Status
 readPascal2String(
     std::vector<uint8_t>::const_iterator &it,
-    const std::vector<uint8_t>::const_iterator end,
+    const std::vector<uint8_t>::const_iterator &end,
     std::vector<char> &out) {
 
     auto begin = it;
@@ -220,7 +220,7 @@ readPascal2String(
 Status
 parseDeltaListChunk(
     std::vector<uint8_t>::const_iterator &it,
-    const std::vector<uint8_t>::const_iterator end,
+    const std::vector<uint8_t>::const_iterator &end,
     std::vector<uint8_t> &out) {
 
     CHECK(it + 2 <= end, "out of data");
@@ -244,7 +244,7 @@ parseDeltaListChunk(
 Status
 parseChunk4(
     std::vector<uint8_t>::const_iterator &it,
-    const std::vector<uint8_t>::const_iterator end,
+    const std::vector<uint8_t>::const_iterator &end,
     std::vector<uint8_t> &out) {
 
     CHECK(it + 4 <= end, "out of data");
@@ -318,7 +318,7 @@ uint32_t table[256] = {
 
 uint32_t crc32_checksum(
     std::vector<uint8_t>::const_iterator &it,
-    const std::vector<uint8_t>::const_iterator end) {
+    const std::vector<uint8_t>::const_iterator &end) {
 
     uint32_t acc = 0xffffffff;
 
@@ -353,7 +353,7 @@ void zerr(int ret);
 Status
 zlib_inflate(
     std::vector<uint8_t>::const_iterator &it,
-    const std::vector<uint8_t>::const_iterator end,
+    const std::vector<uint8_t>::const_iterator &end,
     std::vector<uint8_t> &acc) {
 
     int ret;
@@ -571,7 +571,7 @@ std::string fromPascal2String(const char *data) {
 }
 
 
-std::string trim(const std::string str) {
+std::string trim(const std::string &str) {
 
     std::string tmp(str);
     

@@ -29,7 +29,7 @@ template <uint8_t VERSION, typename tbt_file_t>
 Status
 parseBarLinesMap(
     std::vector<uint8_t>::const_iterator &it,
-    const std::vector<uint8_t>::const_iterator end,
+    const std::vector<uint8_t>::const_iterator &end,
     tbt_file_t &out) {
 
     if constexpr (0x70 <= VERSION) {

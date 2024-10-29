@@ -41,7 +41,7 @@ uint32_t parseBE4(uint8_t b0, uint8_t b1, uint8_t b2, uint8_t b3);
 Status
 parseVLQ(
     std::vector<uint8_t>::const_iterator &it,
-    const std::vector<uint8_t>::const_iterator end,
+    const std::vector<uint8_t>::const_iterator &end,
     uint32_t &out);
 
 void toVLQ(uint32_t value, std::vector<uint8_t> &out);
@@ -50,28 +50,28 @@ void toVLQ(uint32_t value, std::vector<uint8_t> &out);
 Status
 readPascal2String(
     std::vector<uint8_t>::const_iterator &it,
-    const std::vector<uint8_t>::const_iterator end,
+    const std::vector<uint8_t>::const_iterator &end,
     std::vector<char> &out);
 
 Status
 parseDeltaListChunk(
     std::vector<uint8_t>::const_iterator &it,
-    const std::vector<uint8_t>::const_iterator end,
+    const std::vector<uint8_t>::const_iterator &end,
     std::vector<uint8_t> &out);
 
 Status
 parseChunk4(
     std::vector<uint8_t>::const_iterator &it,
-    const std::vector<uint8_t>::const_iterator end,
+    const std::vector<uint8_t>::const_iterator &end,
     std::vector<uint8_t> &out);
 
 uint32_t crc32_checksum(
     std::vector<uint8_t>::const_iterator &it,
-    const std::vector<uint8_t>::const_iterator end);
+    const std::vector<uint8_t>::const_iterator &end);
 
 Status zlib_inflate(
     std::vector<uint8_t>::const_iterator &it,
-    const std::vector<uint8_t>::const_iterator end,
+    const std::vector<uint8_t>::const_iterator &end,
     std::vector<uint8_t> &acc);
 
 Status computeDeltaListCount(const std::vector<uint8_t> &deltaList, uint32_t *acc);
@@ -84,7 +84,7 @@ std::string fromPascal1String(const char *data);
 
 std::string fromPascal2String(const char *data);
 
-std::string trim(const std::string str);
+std::string trim(const std::string &str);
 
 int8_t euclidean_mod(int8_t a, int8_t b);
 

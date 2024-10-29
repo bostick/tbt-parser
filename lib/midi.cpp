@@ -165,7 +165,7 @@ computeChannelMap(
 void
 insertTempoMap_atActualSpace(
     uint16_t newTempo,
-    rational actualSpace,
+    const rational &actualSpace,
     std::map<uint16_t, std::map<rational, uint16_t> > &tempoMap) {
 
     auto flooredActualSpace = actualSpace.floor();
@@ -2494,7 +2494,7 @@ struct chunk { // NOLINT(*-pro-type-member-init)
 Status
 parseChunk(
     std::vector<uint8_t>::const_iterator &it,
-    const std::vector<uint8_t>::const_iterator end,
+    const std::vector<uint8_t>::const_iterator &end,
     chunk &out) {
 
     CHECK(it + 4 + 4 <= end, "out of data");
@@ -2524,7 +2524,7 @@ parseChunk(
 Status
 parseHeader(
     std::vector<uint8_t>::const_iterator &it,
-    const std::vector<uint8_t>::const_iterator end,
+    const std::vector<uint8_t>::const_iterator &end,
     midi_file &out) {
 
     chunk c;
@@ -2567,7 +2567,7 @@ parseHeader(
 Status
 parseTrackEvent(
     std::vector<uint8_t>::const_iterator &it,
-    const std::vector<uint8_t>::const_iterator end,
+    const std::vector<uint8_t>::const_iterator &end,
     uint8_t &running,
     midi_track_event &out) {
 
@@ -2839,7 +2839,7 @@ parseTrackEvent(
 Status
 parseTrack(
     std::vector<uint8_t>::const_iterator &it,
-    const std::vector<uint8_t>::const_iterator end,
+    const std::vector<uint8_t>::const_iterator &end,
     midi_file &out) {
 
     uint8_t running = 0xff;
@@ -2899,7 +2899,7 @@ parseTrack(
 Status
 parseMidiBytes(
     std::vector<uint8_t>::const_iterator &it,
-    const std::vector<uint8_t>::const_iterator end,
+    const std::vector<uint8_t>::const_iterator &end,
     midi_file &out) {
 
     auto len = (end - it);

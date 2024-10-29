@@ -29,7 +29,7 @@ template <uint8_t VERSION, typename tbt_file_t>
 Status
 parseAlternateTimeRegionsMapList(
     std::vector<uint8_t>::const_iterator &it,
-    const std::vector<uint8_t>::const_iterator end,
+    const std::vector<uint8_t>::const_iterator &end,
     tbt_file_t &out) {
 
     for (uint8_t track = 0; track < out.header.trackCount; track++) {

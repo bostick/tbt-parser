@@ -29,7 +29,7 @@ template <uint8_t VERSION, bool HASALTERNATETIMEREGIONS, typename tbt_file_t>
 Status
 parseBody(
     std::vector<uint8_t>::const_iterator &it,
-    const std::vector<uint8_t>::const_iterator end,
+    const std::vector<uint8_t>::const_iterator &end,
     tbt_file_t &out) {
 
     //

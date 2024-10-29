@@ -662,7 +662,7 @@ Status parseTbtFile(const char *path, tbt_file &out);
 
 Status parseTbtBytes(
     std::vector<uint8_t>::const_iterator &it,
-    const std::vector<uint8_t>::const_iterator end,
+    const std::vector<uint8_t>::const_iterator &end,
     tbt_file &out);
 
 uint8_t tbtFileVersionNumber(const tbt_file &t);
@@ -686,7 +686,7 @@ Status parseMidiFile(const char *path, midi_file &out);
 
 Status parseMidiBytes(
     std::vector<uint8_t>::const_iterator &it,
-    const std::vector<uint8_t>::const_iterator end,
+    const std::vector<uint8_t>::const_iterator &end,
     midi_file &out);
 
 struct midi_file_times {

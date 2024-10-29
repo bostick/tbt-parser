@@ -127,7 +127,7 @@ int64_t gcd(int64_t p, int64_t q) {
 }
 
 
-rational rational::operator/(const rational x) const {
+rational rational::operator/(const rational &x) const {
 
     if (x.n == 0) {
         LOGE("DIVIDE BY 0");
@@ -136,7 +136,7 @@ rational rational::operator/(const rational x) const {
     return { n * x.d, d * x.n };
 }
 
-rational rational::operator-(const rational x) const {
+rational rational::operator-(const rational &x) const {
 
     if (d == x.d) {
         
@@ -150,11 +150,11 @@ rational rational::operator-(const rational x) const {
     return { n * x.d - x.n * d, d * x.d };
 }
 
-rational rational::operator*(const rational x) const {
+rational rational::operator*(const rational &x) const {
     return { n * x.n, d * x.d };
 }
 
-rational rational::operator+(const rational x) const {
+rational rational::operator+(const rational &x) const {
 
     if (d == x.d) {
 
@@ -168,15 +168,15 @@ rational rational::operator+(const rational x) const {
     return { n * x.d + x.n * d, d * x.d };
 }
 
-bool rational::operator==(const rational x) const {
+bool rational::operator==(const rational &x) const {
     return n == x.n && d == x.d;
 }
 
-bool rational::operator>(const rational x) const {
+bool rational::operator>(const rational &x) const {
     return n * x.d > d * x.n;
 }
 
-bool rational::operator<(const rational x) const {
+bool rational::operator<(const rational &x) const {
     return n * x.d < d * x.n;
 }
 
@@ -190,7 +190,7 @@ bool rational::is_positive() const {
 }
 
 
-rational& rational::operator+=(const rational x) {
+rational& rational::operator+=(const rational &x) {
 
     if (x.n == 0) {
         return *this;
@@ -254,7 +254,7 @@ rational& rational::operator+=(const rational x) {
     return *this;
 }
 
-rational& rational::operator-=(const rational x) {
+rational& rational::operator-=(const rational &x) {
 
     if (x.n == 0) {
         return *this;

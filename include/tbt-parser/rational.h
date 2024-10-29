@@ -45,21 +45,21 @@ public:
 	int64_t numerator() const;
 	int64_t denominator() const;
 
-	rational operator/(const rational x) const;
-	rational operator-(const rational x) const;
-	rational operator*(const rational x) const;
-	rational operator+(const rational x) const;
+	rational operator/(const rational &x) const;
+	rational operator-(const rational &x) const;
+	rational operator*(const rational &x) const;
+	rational operator+(const rational &x) const;
 
-	bool operator==(const rational x) const;
-	bool operator>(const rational x) const;
-	bool operator<(const rational x) const;
+	bool operator==(const rational &x) const;
+	bool operator>(const rational &x) const;
+	bool operator<(const rational &x) const;
 
 	bool is_nonnegative() const;
 	bool is_positive() const;
 	
-	rational& operator+=(const rational x);
+	rational& operator+=(const rational &x);
 
-	rational& operator-=(const rational x);
+	rational& operator-=(const rational &x);
 	
 	rational& operator++();
 	rational& operator--();

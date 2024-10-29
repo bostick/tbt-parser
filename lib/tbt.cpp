@@ -50,7 +50,7 @@ template <uint8_t VERSION, bool HASALTERNATETIMEREGIONS, typename tbt_file_t>
 Status
 TparseTbtBytes(
     std::vector<uint8_t>::const_iterator &it,
-    const std::vector<uint8_t>::const_iterator end,
+    const std::vector<uint8_t>::const_iterator &end,
     tbt_file_t &out) {
 
     //
@@ -397,7 +397,7 @@ parseTbtFile(
 Status
 parseTbtBytes(
     std::vector<uint8_t>::const_iterator &it,
-    const std::vector<uint8_t>::const_iterator end,
+    const std::vector<uint8_t>::const_iterator &end,
     tbt_file &out) {
 
     auto len = end - it;
