@@ -1009,9 +1009,14 @@ TtbtFileTablature(const tbt_file_t &t) {
             }
 
             //
+            // save this because barLinesMap may be modified later and invalidate barLinesMapIt
+            //
+            bool barLinesMapItIsEnd = (barLinesMapIt == barLinesMap.end());
+
+            //
             // bar line (when processed BEFORE the space)
             //
-            if (barLinesMapIt != barLinesMap.end()) {
+            if (!barLinesMapItIsEnd) {
 
                 if constexpr (0x70 <= VERSION) {
 
@@ -1355,7 +1360,7 @@ TtbtFileTablature(const tbt_file_t &t) {
             //
             // bar line (when processed AFTER the space)
             //
-            if (barLinesMapIt != barLinesMap.end()) {
+            if (!barLinesMapItIsEnd) {
 
                 if constexpr (0x70 <= VERSION) {
 
