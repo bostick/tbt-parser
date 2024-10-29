@@ -40,7 +40,7 @@ public:
 	rational(int64_t nIn, int64_t dIn);
 
 	rational& operator=(const rational &a);
-	rational& operator=(const rational &&a);
+	rational& operator=(rational &&a);
 
 	int64_t numerator() const;
 	int64_t denominator() const;

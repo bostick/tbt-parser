@@ -39,27 +39,20 @@ rational::rational(uint32_t a) : n(a), d(1) {}
 
 rational::rational(int64_t a) : n(a), d(1) {}
 
-rational::rational(const rational &a) : n(a.n), d(a.d) {}
+rational::rational(const rational &a) = default;
 
 rational::rational(int64_t nIn, int64_t dIn) : n(nIn), d(dIn) {
     simplify();
 }
 
 
-rational& rational::operator=(const rational &a) {
+rational& rational::operator=(const rational &a) = default;
+
+rational& rational::operator=(rational &&a) {
 
     n = a.n;
 
     d = a.d;
-
-    return *this;
-}
-
-rational& rational::operator=(const rational &&a) {
-
-    n = std::move(a.n);
-
-    d = std::move(a.d);
 
     return *this;
 }
