@@ -585,39 +585,39 @@ computeMidiNoteOffsetArrays(
 }
 
 
-bool operator==(const ProgramChangeEvent& lhs, const ProgramChangeEvent& rhs) {
+bool operator==(const ProgramChangeEvent &lhs, const ProgramChangeEvent &rhs) {
     return lhs.deltaTime == rhs.deltaTime && lhs.channel == rhs.channel && lhs.midiProgram == rhs.midiProgram;
 }
 
-bool operator==(const PitchBendEvent& lhs, const PitchBendEvent& rhs) {
+bool operator==(const PitchBendEvent &lhs, const PitchBendEvent &rhs) {
     return lhs.deltaTime == rhs.deltaTime && lhs.channel == rhs.channel && lhs.pitchBend == rhs.pitchBend;
 }
 
-bool operator==(const NoteOffEvent& lhs, const NoteOffEvent& rhs) {
+bool operator==(const NoteOffEvent &lhs, const NoteOffEvent &rhs) {
     return lhs.deltaTime == rhs.deltaTime && lhs.channel == rhs.channel && lhs.midiNote == rhs.midiNote && lhs.velocity == rhs.velocity;
 }
 
-bool operator==(const NoteOnEvent& lhs, const NoteOnEvent& rhs) {
+bool operator==(const NoteOnEvent &lhs, const NoteOnEvent &rhs) {
     return lhs.deltaTime == rhs.deltaTime && lhs.channel == rhs.channel && lhs.midiNote == rhs.midiNote && lhs.velocity == rhs.velocity;
 }
 
-bool operator==(const ControlChangeEvent& lhs, const ControlChangeEvent& rhs) {
+bool operator==(const ControlChangeEvent &lhs, const ControlChangeEvent &rhs) {
     return lhs.deltaTime == rhs.deltaTime && lhs.channel == rhs.channel && lhs.controller == rhs.controller && lhs.value == rhs.value;
 }
 
-bool operator==(const MetaEvent& lhs, const MetaEvent& rhs) {
+bool operator==(const MetaEvent &lhs, const MetaEvent &rhs) {
     return lhs.deltaTime == rhs.deltaTime && lhs.type == rhs.type && lhs.data == rhs.data;
 }
 
-bool operator==(const PolyphonicKeyPressureEvent& lhs, const PolyphonicKeyPressureEvent& rhs) {
+bool operator==(const PolyphonicKeyPressureEvent &lhs, const PolyphonicKeyPressureEvent &rhs) {
     return lhs.deltaTime == rhs.deltaTime && lhs.channel == rhs.channel && lhs.midiNote == rhs.midiNote && lhs.pressure == rhs.pressure;
 }
 
-bool operator==(const ChannelPressureEvent& lhs, const ChannelPressureEvent& rhs) {
+bool operator==(const ChannelPressureEvent &lhs, const ChannelPressureEvent &rhs) {
     return lhs.deltaTime == rhs.deltaTime && lhs.channel == rhs.channel && lhs.pressure == rhs.pressure;
 }
 
-bool operator==(const SysExEvent& lhs, const SysExEvent& rhs) {
+bool operator==(const SysExEvent &lhs, const SysExEvent &rhs) {
     return lhs.deltaTime == rhs.deltaTime && lhs.data == rhs.data;
 }
 

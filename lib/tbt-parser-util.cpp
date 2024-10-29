@@ -400,16 +400,16 @@ zlib_inflate(
                 return ERR;
             }
             switch (ret) {
-                case Z_NEED_DICT:
-                    ret = Z_DATA_ERROR;
-                    /* fall through */
-                case Z_DATA_ERROR:
-                case Z_MEM_ERROR:
-                    inflateEnd(&strm);
-                    zerr(ret);
-                    return ERR;
-                default:
-                    break;
+            case Z_NEED_DICT:
+                ret = Z_DATA_ERROR;
+                /* fall through */
+            case Z_DATA_ERROR:
+            case Z_MEM_ERROR:
+                inflateEnd(&strm);
+                zerr(ret);
+                return ERR;
+            default:
+                break;
             }
 
             have = CHUNK - strm.avail_out;

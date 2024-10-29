@@ -28,13 +28,13 @@
 // returns m.rend() on failure
 //
 template <class M, class T>
-typename M::const_reverse_iterator last_found(const M& m, const T& val) {
+typename M::const_reverse_iterator last_found(const M &m, const T &val) {
 
     typename M::const_reverse_iterator first = m.rbegin();
 
     typename M::const_reverse_iterator last = m.rend();
 
-    return std::lower_bound(first, last, val, [](const typename M::value_type& a, const T& b){ return a.first > b; });
+    return std::lower_bound(first, last, val, [](const typename M::value_type &a, const T &b){ return a.first > b; });
 }
 
 
