@@ -28,7 +28,7 @@
 #include "common/logging.h"
 
 #include <cinttypes>
-#include <cstring>
+#include <cstring> // for memcpy, strrchr, strcmp
 #include <cmath> // for round in alternate-time-regions.inl, in body.inl
 
 
@@ -376,6 +376,11 @@ parseTbtFile(
     const char *path,
     tbt_file &out) {
     
+    const char *dot = std::strrchr(path, '.');
+    if (!(dot && std::strcmp(dot, ".tbt") == 0)) {
+        LOGW("tbt file does not end with .tbt: %s", path);
+    }
+
     Status ret;
 
     std::vector<uint8_t> buf;

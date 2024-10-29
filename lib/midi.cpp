@@ -31,7 +31,7 @@
 #include <iterator>
 #include <cinttypes>
 #include <cmath> // for round, floor, fmod
-#include <cstring> // for memcmp
+#include <cstring> // for memcmp, strrchr, strcmp
 #include <cstdio> // for snprintf
 
 
@@ -2466,6 +2466,11 @@ parseMidiFile(
     const char *path,
     midi_file &out) {
     
+    const char *dot = std::strrchr(path, '.');
+    if (!(dot && std::strcmp(dot, ".mid") == 0)) {
+        LOGW("mid file does not end with .mid: %s", path);
+    }
+
     Status ret;
 
     std::vector<uint8_t> buf;
