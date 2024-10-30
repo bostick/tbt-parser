@@ -2490,7 +2490,7 @@ parseChunk(
     const std::vector<uint8_t>::const_iterator &end,
     chunk &out) {
 
-    CHECK(it + 4 + 4 <= end, "out of data");
+    CHECK(4 + 4 <= (end - it), "out of data");
 
     std::memcpy(out.type.data(), &*it, 4);
 
@@ -2503,10 +2503,10 @@ parseChunk(
     }
 
     auto begin = it;
-    
-    it += len;
 
-    CHECK(it <= end, "out of data");
+    CHECK(len <= (end - it), "out of data");
+
+    it += len;
 
     out.data = std::vector<uint8_t>(begin, it);
 
@@ -2534,7 +2534,7 @@ parseHeader(
 
     auto end2 = c.data.cend();
 
-    CHECK(it2 + 2 + 2 + 2 <= end2, "out of data");
+    CHECK(2 + 2 + 2 <= (end2 - it2), "out of data");
 
     out.header.format = parseBE2(it2);
 
@@ -2574,7 +2574,7 @@ parseTrackEvent(
 
     auto deltaTime = static_cast<int32_t>(UdeltaTime);
 
-    CHECK(it + 1 <= end, "out of data");
+    CHECK(1 <= (end - it), "out of data");
 
     auto b = *it++;
 
@@ -2605,7 +2605,7 @@ parseTrackEvent(
         hi = (b & 0b11110000);
         lo = (b & 0b00001111);
 
-        CHECK(it + 1 <= end, "out of data");
+        CHECK(1 <= (end - it), "out of data");
 
         b = *it++;
 
@@ -2620,7 +2620,7 @@ parseTrackEvent(
         hi = (b & 0b11110000);
         lo = (b & 0b00001111);
 
-        CHECK(it + 1 <= end, "out of data");
+        CHECK(1 <= (end - it), "out of data");
 
         b = *it++;
 
@@ -2635,7 +2635,7 @@ parseTrackEvent(
         hi = (b & 0b11110000);
         lo = (b & 0b00001111);
 
-        CHECK(it + 1 <= end, "out of data");
+        CHECK(1 <= (end - it), "out of data");
 
         b = *it++;
     }
@@ -2647,7 +2647,7 @@ parseTrackEvent(
 
         uint8_t midiNote = (b & 0b01111111);
 
-        CHECK(it + 1 <= end, "out of data");
+        CHECK(1 <= (end - it), "out of data");
 
         b = *it++;
 
@@ -2663,7 +2663,7 @@ parseTrackEvent(
 
         uint8_t midiNote = (b & 0b01111111);
         
-        CHECK(it + 1 <= end, "out of data");
+        CHECK(1 <= (end - it), "out of data");
 
         b = *it++;
 
@@ -2679,7 +2679,7 @@ parseTrackEvent(
 
         uint8_t midiNote = (b & 0b01111111);
         
-        CHECK(it + 1 <= end, "out of data");
+        CHECK(1 <= (end - it), "out of data");
 
         b = *it++;
 
@@ -2695,7 +2695,7 @@ parseTrackEvent(
 
         auto controller = b;
 
-        CHECK(it + 1 <= end, "out of data");
+        CHECK(1 <= (end - it), "out of data");
 
         b = *it++;
 
@@ -2731,7 +2731,7 @@ parseTrackEvent(
 
         uint8_t pitchBendLSB = (b & 0b01111111);
         
-        CHECK(it + 1 <= end, "out of data");
+        CHECK(1 <= (end - it), "out of data");
 
         b = *it++;
 
@@ -2757,7 +2757,7 @@ parseTrackEvent(
                     break;
                 }
 
-                CHECK(it + 1 <= end, "out of data");
+                CHECK(1 <= (end - it), "out of data");
 
                 b = *it++;
 
@@ -2776,7 +2776,7 @@ parseTrackEvent(
                 return ret;
             }
 
-            if (it2 + len != end2) {
+            if (len != (end2 - it2)) {
 
                 LOGW("SysEx event len is not correct");
 
@@ -2801,9 +2801,9 @@ parseTrackEvent(
 
             auto begin = it;
 
-            it += len;
+            CHECK(len <= (end - it), "out of data");
 
-            CHECK(it <= end, "out of data");
+            it += len;
 
             std::vector<uint8_t> data(begin, it);
 

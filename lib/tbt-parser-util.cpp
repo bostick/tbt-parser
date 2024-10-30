@@ -114,7 +114,7 @@ parseVLQ(
 
     while (true) {
 
-        CHECK(it + 1 <= end, "out of data");
+        CHECK(1 <= (end - it), "out of data");
 
         auto b = *it++;
 
@@ -203,13 +203,13 @@ readPascal2String(
 
     auto begin = it;
 
-    CHECK(it + 2 <= end, "out of data");
+    CHECK(2 <= (end - it), "out of data");
 
     auto len = parseLE2(it);
 
-    it += len;
+    CHECK(len <= (end - it), "out of data");
 
-    CHECK(it <= end, "out of data");
+    it += len;
 
     out = std::vector<char>(begin, it);
 
@@ -223,7 +223,7 @@ parseDeltaListChunk(
     const std::vector<uint8_t>::const_iterator &end,
     std::vector<uint8_t> &out) {
 
-    CHECK(it + 2 <= end, "out of data");
+    CHECK(2 <= (end - it), "out of data");
 
     auto count = parseLE2(it);
 
@@ -231,9 +231,9 @@ parseDeltaListChunk(
 
     auto begin = it;
 
-    it += 2 * count;
+    CHECK(2 * count <= (end - it), "out of data");
 
-    CHECK(it <= end, "out of data");
+    it += 2 * count;
 
     out = std::vector<uint8_t>(begin, it);
 
@@ -247,7 +247,7 @@ parseChunk4(
     const std::vector<uint8_t>::const_iterator &end,
     std::vector<uint8_t> &out) {
 
-    CHECK(it + 4 <= end, "out of data");
+    CHECK(4 <= (end - it), "out of data");
 
     auto count = parseLE4(it);
 
@@ -257,9 +257,9 @@ parseChunk4(
 
     auto begin = it;
 
-    it += count;
+    CHECK(count <= (end - it), "unhandled");
 
-    CHECK(it <= end, "unhandled");
+    it += count;
 
     out = std::vector<uint8_t>(begin, it);
 
@@ -376,10 +376,10 @@ zlib_inflate(
     do {
         
         ASSERT(it <= end);
-        
+
         if (it == end) {
             break;
-        } else if (it + CHUNK <= end) {
+        } else if (CHUNK <= (end - it)) {
             strm.avail_in = CHUNK;
         } else {
             strm.avail_in = static_cast<uInt>(end - it);
@@ -417,7 +417,7 @@ zlib_inflate(
 
         } while (strm.avail_out == 0);
         
-        if (it + CHUNK < end) {
+        if (CHUNK < (end - it)) {
             strm.avail_in = CHUNK;
             it += CHUNK;
         } else {

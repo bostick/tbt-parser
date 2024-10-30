@@ -170,9 +170,9 @@ TparseTbtBytes(
 
             auto metadataToInflate_it = it;
 
-            it += out.header.compressedMetadataLen;
+            CHECK(out.header.compressedMetadataLen <= (end - it), "file is corrupted.");
 
-            CHECK(it <= end, "file is corrupted.");
+            it += out.header.compressedMetadataLen;
 
             auto metadataToInflate_end = it;
 
@@ -196,7 +196,7 @@ TparseTbtBytes(
                 return ret;
             }
 
-            ASSERT(metadataToParse_it == metadataToParse_begin + metadataLen);
+            ASSERT(metadataLen == (metadataToParse_it - metadataToParse_begin));
 
             //
             // now read the remaining title, artist, album, transcribedBy, and comment
@@ -257,9 +257,9 @@ TparseTbtBytes(
                 out.metadata.tracks = std::vector<tbt_track_metadata65>(out.header.trackCount);
             }
 
-            auto metadataToParse_end = it + metadataLen;
+            CHECK(metadataLen <= (end - it), "file is corrupted.");
 
-            CHECK(metadataToParse_end <= end, "file is corrupted.");
+            auto metadataToParse_end = it + metadataLen;
 
             Status ret = parseMetadata<VERSION, tbt_file_t>(it, metadataToParse_end, out);
 
@@ -273,11 +273,11 @@ TparseTbtBytes(
             // now read the remaining title, artist, and comment
             //
 
-            CHECK(it + 1 <= end, "file is corrupted.");
+            CHECK(1 <= (end - it), "file is corrupted.");
 
             auto strLen = *it;
 
-            CHECK(it + 1 + strLen <= end, "file is corrupted.");
+            CHECK(1 + strLen <= (end - it), "file is corrupted.");
 
             auto begin = it;
 
@@ -285,11 +285,11 @@ TparseTbtBytes(
 
             out.metadata.title = std::vector<char>(begin, it);
 
-            CHECK(it + 1 <= end, "file is corrupted.");
+            CHECK(1 <= (end - it), "file is corrupted.");
 
             strLen = *it;
 
-            CHECK(it + 1 + strLen <= end, "file is corrupted.");
+            CHECK(1 + strLen <= (end - it), "file is corrupted.");
 
             begin = it;
 
@@ -297,11 +297,11 @@ TparseTbtBytes(
 
             out.metadata.artist = std::vector<char>(begin, it);
 
-            CHECK(it + 1 <= end, "file is corrupted.");
+            CHECK(1 <= (end - it), "file is corrupted.");
 
             strLen = *it;
 
-            CHECK(it + 1 + strLen <= end, "file is corrupted.");
+            CHECK(1 + strLen <= (end - it), "file is corrupted.");
 
             begin = it;
 
