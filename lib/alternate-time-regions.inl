@@ -81,7 +81,6 @@ parseAlternateTimeRegionsMapList(
             return ret;
         }
 
-#ifndef NDEBUG
         rational alternateTimeRegionsCorrection = 0;
         for (uint16_t space = 0; space < trackSpaceCount; space++) {
 
@@ -97,7 +96,6 @@ parseAlternateTimeRegionsMapList(
         }
 
         ASSERT(rational(out.metadata.tracks[track].spaceCount) == rational(out.body.barLinesSpaceCount) + alternateTimeRegionsCorrection);
-#endif // NDEBUG
     }
 
     return OK;

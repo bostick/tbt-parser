@@ -699,9 +699,7 @@ TconvertToMidi(
 
     std::vector<midi_track_event> tmp;
 
-#ifndef NDEBUG
     uint32_t tickCount;
-#endif // NDEBUG
 
     //
     // Track 0
@@ -863,7 +861,6 @@ TconvertToMidi(
                         auto sectionSize = r.dataEnd - r.dataStart;
                         auto sectionStart = tmp.cbegin() + static_cast<tmp_diff_t>(r.dataStart);
 
-#ifndef NDEBUG
                         //
                         // verify all events are correct
                         //
@@ -875,7 +872,6 @@ TconvertToMidi(
                             midi_track_event b = *(sectionStart + static_cast<tmp_diff_t>(i));
                             ASSERT(a == b);
                         }
-#endif // NDEBUG
 
                         auto sectionEnd = tmp.cbegin() + static_cast<tmp_diff_t>(r.dataEnd);
 
@@ -994,12 +990,10 @@ TconvertToMidi(
 
         roundedTick = tick.round();
 
-#ifndef NDEBUG
         for (const auto &repeatCloseMapIt : repeatCloseMap) {
             const auto &r = repeatCloseMapIt.second;
             ASSERT(r.repeats == 0);
         }
-#endif // NDEBUG
 
         diff = (roundedTick - lastEventTick);
 
@@ -1015,9 +1009,7 @@ TconvertToMidi(
 
         out.tracks.push_back(tmp);
 
-#ifndef NDEBUG
         tickCount = tick.to_uint32();
-#endif // NDEBUG
 
     } // Track 0
 
@@ -1412,7 +1404,6 @@ TconvertToMidi(
                         auto sectionSize = r.dataEnd - r.dataStart;
                         auto sectionStart = tmp.cbegin() + static_cast<tmp_diff_t>(r.dataStart);
 
-#ifndef NDEBUG
                         //
                         // verify all events are correct
                         //
@@ -1424,7 +1415,6 @@ TconvertToMidi(
                             midi_track_event b = *(sectionStart + static_cast<tmp_diff_t>(i));
                             ASSERT(a == b);
                         }
-#endif // NDEBUG
 
                         auto sectionEnd = tmp.cbegin() + static_cast<tmp_diff_t>(r.dataEnd);
 
@@ -2126,7 +2116,6 @@ TconvertToMidi(
         
         --actualSpace;
 
-#ifndef NDEBUG
         ASSERT(tick == tickCount);
         ASSERT(roundedTick == tickCount);
         ASSERT(actualSpace == barLinesSpaceCount);
@@ -2135,7 +2124,6 @@ TconvertToMidi(
             ASSERT(r.repeats == 0);
         }
         ASSERT(openSpaceSet.empty());
-#endif // NDEBUG
 
         //
         // Emit any final note offs

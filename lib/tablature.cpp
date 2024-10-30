@@ -753,9 +753,7 @@ TtbtFileTablature(const tbt_file_t &t) {
         std::string trackEffectChanges;
         std::string bottomLineText;
 
-#ifndef NDEBUG
         std::string debugText;
-#endif // NDEBUG
 
         if (trackMetadata.topLineText) {
             topLineText.reserve(totalWidth);
@@ -773,9 +771,7 @@ TtbtFileTablature(const tbt_file_t &t) {
             bottomLineText.reserve(totalWidth);
         }
 
-#ifndef NDEBUG
         debugText.reserve(totalWidth);
-#endif // NDEBUG
 
 
         //
@@ -842,10 +838,8 @@ TtbtFileTablature(const tbt_file_t &t) {
                 bottomLineText.append(tuningWidth, ' ');
             }
 
-#ifndef NDEBUG
             debugText += (static_cast<int8_t>(tuningWidth) + '0');
             debugText.append(tuningWidth - 1, ' ');
-#endif // NDEBUG
         }
 
 
@@ -900,9 +894,7 @@ TtbtFileTablature(const tbt_file_t &t) {
                     bottomLineText += ' ';
                 }
 
-#ifndef NDEBUG
                 debugText += (1 + '0');
-#endif // NDEBUG
             }
 
             //
@@ -936,9 +928,7 @@ TtbtFileTablature(const tbt_file_t &t) {
 
         uint8_t bottomLineTextWidthAcc = 0;
 
-#ifndef NDEBUG
         uint8_t debugTextWidthAcc = 0;
-#endif // NDEBUG
 
 
         auto fillin = [&](uint8_t width) {
@@ -976,11 +966,9 @@ TtbtFileTablature(const tbt_file_t &t) {
                 bottomLineTextWidthAcc = 0;
             }
 
-#ifndef NDEBUG
             debugText.append(width - debugTextWidthAcc, ' ');
 
             debugTextWidthAcc = 0;
-#endif // NDEBUG
         };
 
 
@@ -1071,11 +1059,9 @@ TtbtFileTablature(const tbt_file_t &t) {
                             }
                         }
 
-#ifndef NDEBUG
                         debugText += (static_cast<int8_t>(repeatsStr.size()) + '0');
 
                         debugTextWidthAcc += 1;
-#endif // NDEBUG
                         savedClose = false;
 
                     } else {
@@ -1108,11 +1094,9 @@ TtbtFileTablature(const tbt_file_t &t) {
                             }
                         }
 
-#ifndef NDEBUG
                         debugText += (1 + '0');
 
                         debugTextWidthAcc += 1;
-#endif // NDEBUG
                     }
 
                     if ((barLine[0] & CLOSEREPEAT_MASK_GE70) == CLOSEREPEAT_MASK_GE70) {
@@ -1313,11 +1297,9 @@ TtbtFileTablature(const tbt_file_t &t) {
                     }
                 }
 
-#ifndef NDEBUG
                 debugText += (static_cast<int8_t>(spaceWidth) + '0');
 
                 debugTextWidthAcc += 1;
-#endif // NDEBUG
 
             } // note
 
@@ -1428,11 +1410,9 @@ TtbtFileTablature(const tbt_file_t &t) {
                         // nothing to do here
                         //
 
-#ifndef NDEBUG
                         debugText += (static_cast<int8_t>(repeatsStr.size()) + '0');
 
                         debugTextWidthAcc += 1;
-#endif // NDEBUG
 
                         break;
                     }
@@ -1489,11 +1469,9 @@ TtbtFileTablature(const tbt_file_t &t) {
                                     // nothing to do here
                                     //
 
-#ifndef NDEBUG
                                     debugText += (1 + '0');
 
                                     debugTextWidthAcc += 1;
-#endif // NDEBUG
 
                                     break;
                                 }
@@ -1533,11 +1511,9 @@ TtbtFileTablature(const tbt_file_t &t) {
                             // nothing to do here
                             //
 
-#ifndef NDEBUG
                             debugText += (1 + '0');
 
                             debugTextWidthAcc += 1;
-#endif // NDEBUG
 
                         } while (false);
 
@@ -1591,11 +1567,9 @@ TtbtFileTablature(const tbt_file_t &t) {
                                     // nothing to do here
                                     //
 
-#ifndef NDEBUG
                                     debugText += (1 + '0');
 
                                     debugTextWidthAcc += 1;
-#endif // NDEBUG
 
                                     break;
                                 }
@@ -1635,11 +1609,9 @@ TtbtFileTablature(const tbt_file_t &t) {
                             // nothing to do here
                             //
 
-#ifndef NDEBUG
                             debugText += (1 + '0');
 
                             debugTextWidthAcc += 1;
-#endif // NDEBUG
 
                         } while (false);
 
@@ -1729,11 +1701,9 @@ TtbtFileTablature(const tbt_file_t &t) {
                             }
                         }
 
-#ifndef NDEBUG
                         debugText += (static_cast<int8_t>(repeatsStr.size()) + '0');
 
                         debugTextWidthAcc += 1;
-#endif // NDEBUG
 
                         savedClose = false;
 
@@ -1767,11 +1737,9 @@ TtbtFileTablature(const tbt_file_t &t) {
                             }
                         }
 
-#ifndef NDEBUG
                         debugText += (1 + '0');
 
                         debugTextWidthAcc += 1;
-#endif // NDEBUG
                     }
 
                     if ((barLine[0] & CLOSEREPEAT_MASK_GE70) == CLOSEREPEAT_MASK_GE70) {
@@ -1846,11 +1814,9 @@ TtbtFileTablature(const tbt_file_t &t) {
                         // nothing to do here
                         //
 
-#ifndef NDEBUG
                         debugText += (static_cast<int8_t>(repeatsStr.size()) + '0');
 
                         debugTextWidthAcc += 1;
-#endif // NDEBUG
 
                         break;
                     }
@@ -1898,11 +1864,9 @@ TtbtFileTablature(const tbt_file_t &t) {
                         // nothing to do here
                         //
 
-#ifndef NDEBUG
                         debugText += (1 + '0');
 
                         debugTextWidthAcc += 1;
-#endif // NDEBUG
 
                         break;
                     }
@@ -1942,11 +1906,9 @@ TtbtFileTablature(const tbt_file_t &t) {
                         // nothing to do here
                         //
 
-#ifndef NDEBUG
                         debugText += (1 + '0');
 
                         debugTextWidthAcc += 1;
-#endif // NDEBUG
 
                         break;
                     }
@@ -1983,9 +1945,7 @@ TtbtFileTablature(const tbt_file_t &t) {
             ASSERT(bottomLineTextWidthAcc == 0);
         }
 
-#ifndef NDEBUG
         ASSERT(debugTextWidthAcc == 0);
-#endif // NDEBUG
 
 
         if (trackMetadata.topLineText) {
@@ -2004,9 +1964,7 @@ TtbtFileTablature(const tbt_file_t &t) {
             ASSERT(bottomLineText.size() == totalWidth);
         }
 
-#ifndef NDEBUG
         ASSERT(debugText.size() == totalWidth);
-#endif // NDEBUG
 
         acc += std::string("track ") + std::to_string(track + 1) + ":\n";
 
@@ -2027,9 +1985,7 @@ TtbtFileTablature(const tbt_file_t &t) {
                 toReserve += (totalWidth + 1);
             }
 
-    #ifndef NDEBUG
             toReserve += (totalWidth + 1);
-    #endif // NDEBUG
 
             toReserve += 1;
 
@@ -2057,10 +2013,8 @@ TtbtFileTablature(const tbt_file_t &t) {
             acc += '\n';
         }
 
-#ifndef NDEBUG
         acc += debugText;
         acc += '\n';
-#endif // NDEBUG
 
         acc += '\n';
 

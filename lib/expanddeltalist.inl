@@ -210,11 +210,7 @@ expandDeltaList(
         slot = newSlot;
     }
 
-#ifndef NDEBUG
     ASSERT(static_cast<uint32_t>(unit) == unitCount);
-#else
-    (void)unitCount;
-#endif // NDEBUG
 
     return OK;
 }
