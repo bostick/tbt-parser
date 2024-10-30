@@ -108,7 +108,7 @@ Status
 parseVLQ(
     std::vector<uint8_t>::const_iterator &it,
     const std::vector<uint8_t>::const_iterator &end,
-    uint32_t &out) {
+    int32_t &out) {
 
     out = 0;
 
@@ -126,12 +126,18 @@ parseVLQ(
         }
     }
 
+    ASSERT(out >= 0);
+    ASSERT(out <= 0x0fffffff);
+    
     return OK;
 }
 
 
-void toVLQ(uint32_t value, std::vector<uint8_t> &out) {
+void toVLQ(int32_t value, std::vector<uint8_t> &out) {
 
+    ASSERT(value >= 0);
+    ASSERT(value <= 0x0fffffff);
+    
     if (value <= 0b1111111) {
 
         uint8_t v0 = value & 0b01111111;
@@ -159,7 +165,7 @@ void toVLQ(uint32_t value, std::vector<uint8_t> &out) {
         out.push_back(v1 | 0b10000000);
         out.push_back(v2);
 
-    } else if (value <= 0b1111111111111111111111111111) {
+    } else {
 
         uint8_t v3 = value & 0b01111111;
         value >>= 7;
@@ -173,24 +179,6 @@ void toVLQ(uint32_t value, std::vector<uint8_t> &out) {
         out.push_back(v1 | 0b10000000);
         out.push_back(v2 | 0b10000000);
         out.push_back(v3);
-
-    } else {
-
-        uint8_t v4 = value & 0b01111111;
-        value >>= 7;
-        uint8_t v3 = value & 0b01111111;
-        value >>= 7;
-        uint8_t v2 = value & 0b01111111;
-        value >>= 7;
-        uint8_t v1 = value & 0b01111111;
-        value >>= 7;
-        uint8_t v0 = value & 0b00001111;
-
-        out.push_back(v0 | 0b10000000);
-        out.push_back(v1 | 0b10000000);
-        out.push_back(v2 | 0b10000000);
-        out.push_back(v3 | 0b10000000);
-        out.push_back(v4);
     }
 }
 

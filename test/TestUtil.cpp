@@ -145,7 +145,7 @@ TEST_F(UtilTest, toVLQ) {
   
   EXPECT_EQ(data, (std::vector<uint8_t>{ 0x00 }) );
 
-  uint32_t out;
+  int32_t out;
 
   auto it = data.cbegin();
   auto end = data.cend();
@@ -233,16 +233,22 @@ TEST_F(UtilTest, toVLQ) {
 
   data.clear();
 
-  toVLQ(0xffffffff, data);
+  //
+  // The largest number which is allowed is 0FFFFFFF
+  //
+  // http://www.music.mcgill.ca/~ich/classes/mumt306/StandardMIDIfileformat.html#BM1_1
+  //
+    
+  toVLQ(0x0fffffff, data);
   
-  EXPECT_EQ(data, (std::vector<uint8_t>{ 0x8f, 0xff, 0xff, 0xff, 0x7f }) );
+  EXPECT_EQ(data, (std::vector<uint8_t>{ 0xff, 0xff, 0xff, 0x7f }) );
 
   it = data.cbegin();
   end = data.cend();
 
   parseVLQ(it, end, out);
 
-  EXPECT_EQ(out, 0xffffffff);
+  EXPECT_EQ(out, 0x0fffffff);
 }
 
 
