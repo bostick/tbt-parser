@@ -73,9 +73,11 @@ TparseTbtBytes(
 
     if constexpr (0x68 <= VERSION) {
 
-        CHECK(out.header.compressedMetadataLen < size, "unhandled");
+        CHECK(out.header.compressedMetadataLen >= 0, "file is corrupted. compressedMetadataLen is negative: %" PRIi32, out.header.compressedMetadataLen);
+
+        CHECK(out.header.compressedMetadataLen < size, "file is corrupted. compressedMetadataLen is smaller than expected. expected: %" PRIi32 ", actual: %td", out.header.compressedMetadataLen, size);
         
-        CHECK(out.header.totalByteCount == size, "file is corrupted. file byte counts do not match. expected: %" PRIu32 ", actual: %zu", out.header.totalByteCount, size);
+        CHECK(out.header.totalByteCount == size, "file is corrupted. file byte counts do not match. expected: %" PRIi32 ", actual: %td", out.header.totalByteCount, size);
 
         auto restToCheck_it = it + TBT_HEADER_SIZE;
 

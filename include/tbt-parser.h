@@ -52,9 +52,9 @@ struct tbt_header70 {
     uint16_t lastNonEmptySpace_unused;
     uint16_t tempo2;
 
-    uint32_t compressedMetadataLen;
+    int32_t compressedMetadataLen;
     uint32_t crc32Rest;
-    uint32_t totalByteCount;
+    int32_t totalByteCount;
     uint32_t crc32Header;
 };
 
@@ -80,9 +80,9 @@ struct tbt_header6f {
     uint16_t lastNonEmptySpace;
     uint16_t tempo2;
 
-    uint32_t compressedMetadataLen;
+    int32_t compressedMetadataLen;
     uint32_t crc32Rest;
-    uint32_t totalByteCount;
+    int32_t totalByteCount;
     uint32_t crc32Header;
 };
 
@@ -108,9 +108,9 @@ struct tbt_header6e {
     uint16_t lastNonEmptySpace;
     uint16_t tempo2;
 
-    uint32_t compressedMetadataLen;
+    int32_t compressedMetadataLen;
     uint32_t crc32Rest;
-    uint32_t totalByteCount;
+    int32_t totalByteCount;
     uint32_t crc32Header;
 };
 
@@ -136,9 +136,9 @@ struct tbt_header68 {
     uint16_t lastNonEmptySpace_unused;
     uint16_t tempo2_unused;
 
-    uint32_t compressedMetadataLen;
+    int32_t compressedMetadataLen;
     uint32_t crc32Rest;
-    uint32_t totalByteCount;
+    int32_t totalByteCount;
     uint32_t crc32Header;
 };
 
@@ -164,9 +164,9 @@ struct tbt_header65 {
     uint16_t lastNonEmptySpace_unused;
     uint16_t tempo2_unused;
 
-    uint32_t compressedMetadataLen_unused;
+    int32_t compressedMetadataLen_unused;
     uint32_t crc32Rest_unused;
-    uint32_t totalByteCount_unused;
+    int32_t totalByteCount_unused;
     uint32_t crc32Header_unused;
 };
 
