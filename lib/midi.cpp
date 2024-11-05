@@ -3126,11 +3126,11 @@ midiFileTimes(const midi_file &m) {
 
     EventFileTimesTempoMapVisitor eventFileTimesTempoMapVisitor{ m.header.division, tempoMap, 0, 0 };
 
-    for (uint16_t track = 0; track < m.tracks.size(); track++) {
+    for (size_t track = 0; track < m.tracks.size(); track++) {
 
         const auto &t = m.tracks[track];
 
-        eventFileTimesTempoMapVisitor.track = track;
+        eventFileTimesTempoMapVisitor.track = static_cast<uint16_t>(track);
         eventFileTimesTempoMapVisitor.runningTick = 0;
 
         for (const auto &e : t) {
