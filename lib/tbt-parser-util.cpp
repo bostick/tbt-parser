@@ -237,11 +237,9 @@ parseChunk4(
 
     CHECK(4 <= (end - it), "out of data");
 
-    auto count = parseLE4(it);
+    auto count = static_cast<int32_t>(parseLE4(it));
 
-    static const int MAX_SIGNED_INT32 = 0x7fffffff;
-
-    CHECK(count <= MAX_SIGNED_INT32, "unhandled");
+    CHECK(count >= 0, "unhandled");
 
     auto begin = it;
 
