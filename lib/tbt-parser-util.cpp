@@ -544,7 +544,7 @@ void toDigitsBEOnly3(uint32_t value, std::vector<uint8_t> &out) {
 
 std::string fromPascal1String(const char *data) {
 
-    uint8_t len = static_cast<uint8_t>(data[0]);
+    auto len = static_cast<uint8_t>(data[0]);
 
     return { data + 1, data + 1 + len };
 }

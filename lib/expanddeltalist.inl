@@ -94,7 +94,7 @@ expandDeltaList(
 
         newUnit = unit + n;
 
-        dv = std::div(static_cast<int>(newUnit), S);
+        dv = std::div(newUnit, S);
 
         newSpace = static_cast<uint16_t>(dv.quot);
         newSlot = static_cast<uint16_t>(dv.rem);
