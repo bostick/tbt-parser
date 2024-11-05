@@ -838,7 +838,7 @@ TtbtFileTablature(const tbt_file_t &t) {
                 bottomLineText.append(tuningWidth, ' ');
             }
 
-            debugText += (static_cast<int8_t>(tuningWidth) + '0');
+            debugText += static_cast<char>(tuningWidth + '0');
             debugText.append(tuningWidth - 1, ' ');
         }
 
@@ -894,7 +894,7 @@ TtbtFileTablature(const tbt_file_t &t) {
                     bottomLineText += ' ';
                 }
 
-                debugText += (1 + '0');
+                debugText += static_cast<char>(1 + '0');
             }
 
             //
@@ -1064,7 +1064,7 @@ TtbtFileTablature(const tbt_file_t &t) {
                             }
                         }
 
-                        debugText += (static_cast<int8_t>(repeatsStr.size()) + '0');
+                        debugText += static_cast<char>(repeatsStr.size() + '0');
 
                         debugTextWidthAcc += 1;
                         savedClose = false;
@@ -1099,7 +1099,7 @@ TtbtFileTablature(const tbt_file_t &t) {
                             }
                         }
 
-                        debugText += (1 + '0');
+                        debugText += static_cast<char>(1 + '0');
 
                         debugTextWidthAcc += 1;
                     }
@@ -1302,7 +1302,7 @@ TtbtFileTablature(const tbt_file_t &t) {
                     }
                 }
 
-                debugText += (static_cast<int8_t>(spaceWidth) + '0');
+                debugText += static_cast<char>(spaceWidth + '0');
 
                 debugTextWidthAcc += 1;
 
@@ -1415,7 +1415,7 @@ TtbtFileTablature(const tbt_file_t &t) {
                         // nothing to do here
                         //
 
-                        debugText += (static_cast<int8_t>(repeatsStr.size()) + '0');
+                        debugText += static_cast<char>(repeatsStr.size() + '0');
 
                         debugTextWidthAcc += 1;
 
@@ -1474,7 +1474,7 @@ TtbtFileTablature(const tbt_file_t &t) {
                                     // nothing to do here
                                     //
 
-                                    debugText += (1 + '0');
+                                    debugText += static_cast<char>(1 + '0');
 
                                     debugTextWidthAcc += 1;
 
@@ -1516,7 +1516,7 @@ TtbtFileTablature(const tbt_file_t &t) {
                             // nothing to do here
                             //
 
-                            debugText += (1 + '0');
+                            debugText += static_cast<char>(1 + '0');
 
                             debugTextWidthAcc += 1;
 
@@ -1572,7 +1572,7 @@ TtbtFileTablature(const tbt_file_t &t) {
                                     // nothing to do here
                                     //
 
-                                    debugText += (1 + '0');
+                                    debugText += static_cast<char>(1 + '0');
 
                                     debugTextWidthAcc += 1;
 
@@ -1614,7 +1614,7 @@ TtbtFileTablature(const tbt_file_t &t) {
                             // nothing to do here
                             //
 
-                            debugText += (1 + '0');
+                            debugText += static_cast<char>(1 + '0');
 
                             debugTextWidthAcc += 1;
 
@@ -1706,7 +1706,7 @@ TtbtFileTablature(const tbt_file_t &t) {
                             }
                         }
 
-                        debugText += (static_cast<int8_t>(repeatsStr.size()) + '0');
+                        debugText += static_cast<char>(repeatsStr.size() + '0');
 
                         debugTextWidthAcc += 1;
 
@@ -1742,7 +1742,7 @@ TtbtFileTablature(const tbt_file_t &t) {
                             }
                         }
 
-                        debugText += (1 + '0');
+                        debugText += static_cast<char>(1 + '0');
 
                         debugTextWidthAcc += 1;
                     }
@@ -1819,7 +1819,7 @@ TtbtFileTablature(const tbt_file_t &t) {
                         // nothing to do here
                         //
 
-                        debugText += (static_cast<int8_t>(repeatsStr.size()) + '0');
+                        debugText += static_cast<char>(repeatsStr.size() + '0');
 
                         debugTextWidthAcc += 1;
 
@@ -1869,7 +1869,7 @@ TtbtFileTablature(const tbt_file_t &t) {
                         // nothing to do here
                         //
 
-                        debugText += (1 + '0');
+                        debugText += static_cast<char>(1 + '0');
 
                         debugTextWidthAcc += 1;
 
@@ -1911,7 +1911,7 @@ TtbtFileTablature(const tbt_file_t &t) {
                         // nothing to do here
                         //
 
-                        debugText += (1 + '0');
+                        debugText += static_cast<char>(1 + '0');
 
                         debugTextWidthAcc += 1;
 
