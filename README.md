@@ -24,6 +24,13 @@ cmake ..
 cmake --build .
 ```
 
+If building tests with Xcode, must also do:
+```
+-DCMAKE_GTEST_DISCOVER_TESTS_DISCOVERY_MODE=PRE_TEST
+```
+
+https://gitlab.kitware.com/cmake/cmake/-/issues/25730
+
 
 ## How to use
 
