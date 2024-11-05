@@ -2496,8 +2496,10 @@ parseChunk(
 
     it += 4;
 
-    uint32_t len = parseBE4(it);
-    
+    auto len = static_cast<int32_t>(parseBE4(it));
+
+    CHECK(len >= 0, "len is negative");
+
     if (len == 0) {
         LOGW("chunk length is 0");
     }
