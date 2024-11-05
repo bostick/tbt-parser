@@ -149,23 +149,23 @@ TparseTbtBytes(
     {
         if constexpr (0x6e <= VERSION) {
 
-            uint32_t metadataLen;
+            int32_t metadataLen;
 
             if constexpr (0x71 <= VERSION) {
 
-                metadataLen = sizeof(tbt_track_metadata71) * out.header.trackCount;
+                metadataLen = static_cast<int32_t>(sizeof(tbt_track_metadata71) * out.header.trackCount);
 
                 out.metadata.tracks = std::vector<tbt_track_metadata71>(out.header.trackCount);
 
             } else if constexpr (0x70 <= VERSION) {
 
-                metadataLen = sizeof(tbt_track_metadata70) * out.header.trackCount;
+                metadataLen = static_cast<int32_t>(sizeof(tbt_track_metadata70) * out.header.trackCount);
 
                 out.metadata.tracks = std::vector<tbt_track_metadata70>(out.header.trackCount);
 
             } else {
 
-                metadataLen = sizeof(tbt_track_metadata6e) * out.header.trackCount;
+                metadataLen = static_cast<int32_t>(sizeof(tbt_track_metadata6e) * out.header.trackCount);
 
                 out.metadata.tracks = std::vector<tbt_track_metadata6e>(out.header.trackCount);
             }
@@ -238,26 +238,28 @@ TparseTbtBytes(
 
         } else {
 
-            uint32_t metadataLen;
+            int32_t metadataLen;
 
             if constexpr (VERSION == 0x6b) {
 
-                metadataLen = sizeof(tbt_track_metadata6b) * out.header.trackCount;
+                metadataLen = static_cast<int32_t>(sizeof(tbt_track_metadata6b) * out.header.trackCount);
 
                 out.metadata.tracks = std::vector<tbt_track_metadata6b>(out.header.trackCount);
 
             } else if constexpr (VERSION == 0x6a) {
 
-                metadataLen = sizeof(tbt_track_metadata6a) * out.header.trackCount;
+                metadataLen = static_cast<int32_t>(sizeof(tbt_track_metadata6a) * out.header.trackCount);
 
                 out.metadata.tracks = std::vector<tbt_track_metadata6a>(out.header.trackCount);
 
             } else {
 
-                metadataLen = sizeof(tbt_track_metadata65) * out.header.trackCount;
+                metadataLen = static_cast<int32_t>(sizeof(tbt_track_metadata65) * out.header.trackCount);
 
                 out.metadata.tracks = std::vector<tbt_track_metadata65>(out.header.trackCount);
             }
+
+            CHECK(metadataLen >= 0, "file is corrupted.");
 
             CHECK(metadataLen <= (end - it), "file is corrupted.");
 
