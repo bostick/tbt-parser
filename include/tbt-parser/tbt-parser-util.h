@@ -88,6 +88,8 @@ std::string trim(const std::string &str);
 
 int8_t euclidean_mod(int8_t a, int8_t b);
 
+int64_t euclidean_mod(int64_t a, int64_t b);
+
 uint8_t width(int a);
 
 

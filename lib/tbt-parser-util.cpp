@@ -576,7 +576,18 @@ std::string trim(const std::string &str) {
 //
 int8_t euclidean_mod(int8_t a, int8_t b) {
 
-    int8_t r = a % b;
+    auto r = static_cast<int8_t>(a % b);
+
+    if (0 <= r) {
+        return r;
+    }
+
+    return static_cast<int8_t>(r + b);
+}
+
+int64_t euclidean_mod(int64_t a, int64_t b) {
+
+    int64_t r = a % b;
 
     if (0 <= r) {
         return r;

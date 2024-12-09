@@ -77,6 +77,43 @@ TEST_F(RationalTest, pitchBend1) {
 }
 
 
+TEST_F(RationalTest, negative) {
+
+   auto r = rational{-11, 5};
+
+   EXPECT_EQ(r.numerator(), -11);
+   EXPECT_EQ(r.denominator(), 5);
+
+   r = rational{-12, 3};
+
+   EXPECT_EQ(r.numerator(), -4);
+   EXPECT_EQ(r.denominator(), 1);
+
+   r = rational{12, -3};
+
+   EXPECT_EQ(r.numerator(), -4);
+   EXPECT_EQ(r.denominator(), 1);
+
+   r = rational{-16, 4};
+
+   EXPECT_EQ(r.numerator(), -4);
+   EXPECT_EQ(r.denominator(), 1);
+
+   r = rational{16, -4};
+
+   EXPECT_EQ(r.numerator(), -4);
+   EXPECT_EQ(r.denominator(), 1);
+}
+
+
+
+
+
+
+
+
+
+
 
 
 

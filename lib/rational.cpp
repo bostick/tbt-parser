@@ -18,6 +18,8 @@
 
 #include "tbt-parser/rational.h"
 
+#include "tbt-parser/tbt-parser-util.h"
+
 #include "common/assert.h"
 #include "common/logging.h"
 
@@ -112,6 +114,13 @@ void rational::simplify() {
     //
 
     int64_t denom = gcd(n, d);
+    
+    ASSERT(0 <= denom);
+    
+    if (denom == 1) {
+        return;
+    }
+    
     n /= denom;
     d /= denom;
 }
@@ -123,7 +132,7 @@ int64_t gcd(int64_t p, int64_t q) {
         return p;
     }
 
-    return gcd(q, p % q);
+    return gcd(q, euclidean_mod(p, q));
 }
 
 
