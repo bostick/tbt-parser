@@ -23,6 +23,7 @@
 #include "tbt-parser/tbt.h"
 
 #include "common/assert.h"
+#include "common/logging.h"
 
 #include <map>
 
@@ -121,7 +122,8 @@ std::string trackEffectChangesString(const std::map<tbt_track_effect, uint16_t> 
     case TE_PITCH_BEND:
         return "B";
     default: {
-        ABORT("invalid effect: %d", effect);
+        LOGE("invalid effect: %d", effect);
+        ASSERT(false && "invalid effect");
     }
     }
 }
@@ -151,7 +153,8 @@ std::string trackEffectString(uint8_t trackEffect) {
     case 'R': // Reverb change
         return "R";
     default: {
-        ABORT("invalid trackEffect: %c (%d)", trackEffect, trackEffect);
+        LOGE("invalid trackEffect: %c (%d)", trackEffect, trackEffect);
+        ASSERT(false && "invalid trackEffect");
     }
     }
 }
@@ -340,7 +343,8 @@ TtbtFileTablature(const tbt_file_t &t) {
                         break;
                     }
                     default: {
-                        ABORT("invalid change: %d", change);
+                        LOGE("invalid change: %d", change);
+                        ASSERT(false && "invalid change");
                     }
                     }
                 }
@@ -409,7 +413,8 @@ TtbtFileTablature(const tbt_file_t &t) {
                         break;
                     }
                     default: {
-                        ABORT("invalid change: %d", change);
+                        LOGE("invalid change: %d", change);
+                        ASSERT(false && "invalid change");
                     }
                     }
                 }

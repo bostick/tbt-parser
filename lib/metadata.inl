@@ -58,7 +58,8 @@ parseMetadata(
 
     } else {
 
-        ABORT("invalid VERSION: 0x%02x", VERSION);
+        LOGE("invalid VERSION: 0x%02x", VERSION);
+        ASSERT(false && "invalid VERSION");
     }
 
     if constexpr (0x70 <= VERSION) {

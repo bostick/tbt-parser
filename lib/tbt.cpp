@@ -829,7 +829,8 @@ std::string tbtFileComment(const tbt_file &t) {
         return TtbtFileComment<0x65>(t65);
     }
     default: {
-        ABORT("invalid versionNumber: 0x%02x", versionNumber);
+        LOGE("invalid versionNumber: 0x%02x", versionNumber);
+        ASSERT(false && "invalid versionNumber");
     }
     }
 }
