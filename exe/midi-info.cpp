@@ -18,6 +18,8 @@
 
 #include "tbt-parser.h"
 
+#undef NDEBUG
+
 #include "common/assert.h"
 #include "common/check.h"
 #include "common/logging.h"
