@@ -1628,7 +1628,8 @@ TtbtFileTablature(const tbt_file_t &t) {
                         break;
                     }
                     default: {
-                        ABORT("invalid change: %d", change);
+                        LOGE("invalid change: %d", change);
+                        ASSERT(false && "invalid change");
                     }
                     }
 
@@ -1923,7 +1924,8 @@ TtbtFileTablature(const tbt_file_t &t) {
                         break;
                     }
                     default: {
-                        ABORT("invalid change: %d", change);
+                        LOGE("invalid change: %d", change);
+                        ASSERT(false && "invalid change");
                     }
                     }
                 }
@@ -2123,7 +2125,8 @@ std::string tbtFileTablature(const tbt_file &t) {
         return TtbtFileTablature<0x65, false, 6>(t65);
     }
     default: {
-        ABORT("invalid versionNumber: 0x%02x", versionNumber);
+        LOGE("invalid versionNumber: 0x%02x", versionNumber);
+        ASSERT(false && "invalid versionNumber");
     }
     }
 }
