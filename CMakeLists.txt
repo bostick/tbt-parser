@@ -23,8 +23,10 @@ project(tbt-parser
 )
 
 
+set(TBTPARSER_BUILD_EXE ON CACHE BOOL "Build exe")
 set(TBTPARSER_BUILD_TESTS OFF CACHE BOOL "Build tests")
 
+message(STATUS "TBTPARSER_BUILD_EXE: ${TBTPARSER_BUILD_EXE}")
 message(STATUS "TBTPARSER_BUILD_TESTS: ${TBTPARSER_BUILD_TESTS}")
 
 
@@ -40,7 +42,12 @@ endif()
 
 add_subdirectory(lib)
 
+
+if(TBTPARSER_BUILD_EXE)
+
 add_subdirectory(exe)
+
+endif ()
 
 
 if(TBTPARSER_BUILD_TESTS)
