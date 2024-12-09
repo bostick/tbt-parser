@@ -106,75 +106,67 @@ set_target_properties(tbt-info-exe
 #
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 target_compile_options(tbt-converter-exe PRIVATE
-    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas -Wno-unused-const-variable
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion
 )
 target_compile_options(midi-info-exe PRIVATE
-    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas -Wno-unused-const-variable
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion
 )
 target_compile_options(tbt-printer-exe PRIVATE
-    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas -Wno-unused-const-variable
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion
 )
 target_compile_options(tbt-info-exe PRIVATE
-    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas -Wno-unused-const-variable
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion
 )
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
 target_compile_options(tbt-converter-exe PRIVATE
-    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas -Wno-unused-const-variable
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion
 )
 target_compile_options(midi-info-exe PRIVATE
-    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas -Wno-unused-const-variable
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion
 )
 target_compile_options(tbt-printer-exe PRIVATE
-    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas -Wno-unused-const-variable
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion
 )
 target_compile_options(tbt-info-exe PRIVATE
-    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas -Wno-unused-const-variable
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion
 )
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 target_compile_options(tbt-converter-exe PRIVATE
-    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas -Wno-unused-const-variable
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion
 )
 target_compile_options(midi-info-exe PRIVATE
-    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas -Wno-unused-const-variable
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion
 )
 target_compile_options(tbt-printer-exe PRIVATE
-    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas -Wno-unused-const-variable
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion
 )
 target_compile_options(tbt-info-exe PRIVATE
-    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas -Wno-unused-const-variable
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion
 )
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 target_compile_options(tbt-converter-exe PRIVATE
     #
     # /Zc:preprocessor is needed for handling __VA_OPT__(,)
     #
-    # /wd4068 disables "unknown pragma" warnings
-    #
-    /Zc:preprocessor /WX /W4 /wd4068
+    /Zc:preprocessor /WX /W4
 )
 target_compile_options(midi-info-exe PRIVATE
     #
     # /Zc:preprocessor is needed for handling __VA_OPT__(,)
     #
-    # /wd4068 disables "unknown pragma" warnings
-    #
-    /Zc:preprocessor /WX /W4 /wd4068
+    /Zc:preprocessor /WX /W4
 )
 target_compile_options(tbt-printer-exe PRIVATE
     #
     # /Zc:preprocessor is needed for handling __VA_OPT__(,)
     #
-    # /wd4068 disables "unknown pragma" warnings
-    #
-    /Zc:preprocessor /WX /W4 /wd4068
+    /Zc:preprocessor /WX /W4
 )
 target_compile_options(tbt-info-exe PRIVATE
     #
     # /Zc:preprocessor is needed for handling __VA_OPT__(,)
     #
-    # /wd4068 disables "unknown pragma" warnings
-    #
-    /Zc:preprocessor /WX /W4 /wd4068
+    /Zc:preprocessor /WX /W4
 )
 else()
 message(FATAL_ERROR "Unrecognized compiler: ${CMAKE_CXX_COMPILER_ID}")

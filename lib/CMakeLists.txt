@@ -97,24 +97,22 @@ set_target_properties(tbt-parser-static-lib
 #
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 target_compile_options(tbt-parser-static-lib PRIVATE
-    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas -Wno-unused-const-variable
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion
 )
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
 target_compile_options(tbt-parser-static-lib PRIVATE
-    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas -Wno-unused-const-variable
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion
 )
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 target_compile_options(tbt-parser-static-lib PRIVATE
-    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion -Wno-unknown-pragmas -Wno-unused-const-variable
+    -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion
 )
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 target_compile_options(tbt-parser-static-lib PRIVATE
     #
     # /Zc:preprocessor is needed for handling __VA_OPT__(,)
     #
-    # /wd4068 disables "unknown pragma" warnings
-    #
-    /Zc:preprocessor /WX /W4 /wd4068
+    /Zc:preprocessor /WX /W4
 )
 else()
 message(FATAL_ERROR "Unrecognized compiler: ${CMAKE_CXX_COMPILER_ID}")

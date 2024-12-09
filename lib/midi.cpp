@@ -41,10 +41,6 @@
 #define TAG "midi"
 
 
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "modernize-use-emplace"
-
-
 const rational TBT_TICKS_PER_BEAT = 0xc0; // 192
 const rational TBT_TICKS_PER_SPACE = (TBT_TICKS_PER_BEAT / 4); // 48
 
@@ -3348,7 +3344,12 @@ midiFileInfo(const midi_file &m) {
 }
 
 
-#pragma clang diagnostic pop
+
+
+
+
+
+
 
 
 
