@@ -3289,7 +3289,7 @@ midiFileInfo(const midi_file &m) {
         double lastNoteOnMin = lastNoteOnSec / 60.0;
         double lastNoteOnHr = lastNoteOnMin / 60.0;
 
-        std::snprintf(buf, sizeof(buf), "       last Note On (wall): %.0f:%02.0f:%05.2f\n", std::floor(lastNoteOnHr), std::floor(std::fmod(lastNoteOnMin, 60.0)), std::fmod(lastNoteOnSec, 60.0));
+        std::snprintf(buf, sizeof(buf), "       last Note On (wall): %d:%02d:%05.2f\n", static_cast<int>(std::floor(lastNoteOnHr)), static_cast<int>(std::floor(std::fmod(lastNoteOnMin, 60.0))), std::fmod(lastNoteOnSec, 60.0));
         acc += buf;
 
     } else {
@@ -3303,7 +3303,7 @@ midiFileInfo(const midi_file &m) {
         double lastNoteOffSec = times.lastNoteOffMicros / 1e6;
         double lastNoteOffMin = lastNoteOffSec / 60.0;
         double lastNoteOffHr = lastNoteOffMin / 60.0;
-        std::snprintf(buf, sizeof(buf), "      last Note Off (wall): %.0f:%02.0f:%05.2f\n", std::floor(lastNoteOffHr), std::floor(std::fmod(lastNoteOffMin, 60.0)), std::fmod(lastNoteOffSec, 60.0));
+        std::snprintf(buf, sizeof(buf), "      last Note Off (wall): %d:%02d:%05.2f\n", static_cast<int>(std::floor(lastNoteOffHr)), static_cast<int>(std::floor(std::fmod(lastNoteOffMin, 60.0))), std::fmod(lastNoteOffSec, 60.0));
         acc += buf;
 
     } else {
@@ -3317,7 +3317,7 @@ midiFileInfo(const midi_file &m) {
         double lastEndOfTrackSec = times.lastEndOfTrackMicros / 1e6;
         double lastEndOfTrackMin = lastEndOfTrackSec / 60.0;
         double lastEndOfTrackHr = lastEndOfTrackMin / 60.0;
-        std::snprintf(buf, sizeof(buf), "  last End Of Track (wall): %.0f:%02.0f:%05.2f\n", std::floor(lastEndOfTrackHr), std::floor(std::fmod(lastEndOfTrackMin, 60.0)), std::fmod(lastEndOfTrackSec, 60.0));
+        std::snprintf(buf, sizeof(buf), "  last End Of Track (wall): %d:%02d:%05.2f\n", static_cast<int>(std::floor(lastEndOfTrackHr)), static_cast<int>(std::floor(std::fmod(lastEndOfTrackMin, 60.0))), std::fmod(lastEndOfTrackSec, 60.0));
         acc += buf;
 
     } else {
