@@ -24,6 +24,7 @@
 
 #undef NDEBUG
 
+#include "common/abort.h"
 #include "common/assert.h"
 #include "common/check.h"
 #include "common/file.h"
@@ -732,10 +733,8 @@ std::string tbtFileInfo(const tbt_file &t) {
         
         return TtbtFileInfo<0x65>(t65);
     }
-    default: {
-        LOGE("invalid versionNumber: 0x%02x", versionNumber);
-        ASSERT(false && "invalid versionNumber");
-    }
+    default:
+        ABORT_expanded(TAG, "invalid versionNumber: 0x%02x", versionNumber);
     }
 }
 
@@ -831,10 +830,8 @@ std::string tbtFileComment(const tbt_file &t) {
         
         return TtbtFileComment<0x65>(t65);
     }
-    default: {
-        LOGE("invalid versionNumber: 0x%02x", versionNumber);
-        ASSERT(false && "invalid versionNumber");
-    }
+    default:
+        ABORT_expanded(TAG, "invalid versionNumber: 0x%02x", versionNumber);
     }
 }
 

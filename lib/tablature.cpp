@@ -24,6 +24,7 @@
 
 #undef NDEBUG
 
+#include "common/abort.h"
 #include "common/assert.h"
 #include "common/logging.h"
 
@@ -123,10 +124,8 @@ std::string trackEffectChangesString(const std::map<tbt_track_effect, uint16_t> 
         return "M";
     case TE_PITCH_BEND:
         return "B";
-    default: {
-        LOGE("invalid effect: %d", effect);
-        ASSERT(false && "invalid effect");
-    }
+    default:
+        ABORT_expanded(TAG, "invalid effect: %d", effect);
     }
 }
 
@@ -154,10 +153,8 @@ std::string trackEffectString(uint8_t trackEffect) {
         return "P";
     case 'R': // Reverb change
         return "R";
-    default: {
-        LOGE("invalid trackEffect: %c (%d)", trackEffect, trackEffect);
-        ASSERT(false && "invalid trackEffect");
-    }
+    default:
+        ABORT_expanded(TAG, "invalid trackEffect: %c (%d)", trackEffect, trackEffect);
     }
 }
 
@@ -344,10 +341,8 @@ TtbtFileTablature(const tbt_file_t &t) {
                     case DOUBLE: {
                         break;
                     }
-                    default: {
-                        LOGE("invalid change: %d", change);
-                        ASSERT(false && "invalid change");
-                    }
+                    default:
+                        ABORT_expanded(TAG, "invalid change: %d", change);
                     }
                 }
 
@@ -414,10 +409,8 @@ TtbtFileTablature(const tbt_file_t &t) {
                     case DOUBLE: {
                         break;
                     }
-                    default: {
-                        LOGE("invalid change: %d", change);
-                        ASSERT(false && "invalid change");
-                    }
+                    default:
+                        ABORT_expanded(TAG, "invalid change: %d", change);
                     }
                 }
 
@@ -1629,10 +1622,8 @@ TtbtFileTablature(const tbt_file_t &t) {
 
                         break;
                     }
-                    default: {
-                        LOGE("invalid change: %d", change);
-                        ASSERT(false && "invalid change");
-                    }
+                    default:
+                        ABORT_expanded(TAG, "invalid change: %d", change);
                     }
 
                     barLinesMap.erase(barLinesMapIt);
@@ -1925,10 +1916,8 @@ TtbtFileTablature(const tbt_file_t &t) {
 
                         break;
                     }
-                    default: {
-                        LOGE("invalid change: %d", change);
-                        ASSERT(false && "invalid change");
-                    }
+                    default:
+                        ABORT_expanded(TAG, "invalid change: %d", change);
                     }
                 }
 
@@ -2126,10 +2115,8 @@ std::string tbtFileTablature(const tbt_file &t) {
 
         return TtbtFileTablature<0x65, false, 6>(t65);
     }
-    default: {
-        LOGE("invalid versionNumber: 0x%02x", versionNumber);
-        ASSERT(false && "invalid versionNumber");
-    }
+    default:
+        ABORT_expanded(TAG, "invalid versionNumber: 0x%02x", versionNumber);
     }
 }
 

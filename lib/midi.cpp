@@ -22,6 +22,7 @@
 
 #undef NDEBUG
 
+#include "common/abort.h"
 #include "common/assert.h"
 #include "common/check.h"
 #include "common/file.h"
@@ -298,8 +299,7 @@ computeTempoMap(
                         break;
                     }
                     default: {
-                        LOGE("invalid trackEffect: %c (%d)", trackEffect, trackEffect);
-                        ASSERT(false && "invalid trackEffect");
+                        ABORT_expanded(TAG, "invalid trackEffect: %c (%d)", trackEffect, trackEffect);
                     }
                     }
                 }
@@ -514,8 +514,7 @@ computeRepeats(
                     //
                     break;
                 default:
-                    LOGE("invalid change: %d", change);
-                    ASSERT(false && "invalid change");
+                    ABORT_expanded(TAG, "invalid change: %d", change);
                 }
             }
         }
@@ -1856,10 +1855,8 @@ TconvertToMidi(
 
                             break;
                         }
-                        default: {
-                            LOGE("invalid effect: %d", effect);
-                            ASSERT(false && "invalid effect");
-                        }
+                        default:
+                            ABORT_expanded(TAG, "invalid effect: %d", effect);
                         }
                     }
                 }
@@ -1993,10 +1990,8 @@ TconvertToMidi(
 
                         break;
                     }
-                    default: {
-                        LOGE("invalid trackEffect: %c (%d)", trackEffect, trackEffect);
-                        ASSERT(false && "invalid trackEffect");
-                    }
+                    default:
+                        ABORT_expanded(TAG, "invalid trackEffect: %c (%d)", trackEffect, trackEffect);
                     }
                 }
             }
@@ -2271,10 +2266,8 @@ convertToMidi(
         
         return TconvertToMidi<0x65, false, 6>(t65, opts, out);
     }
-    default: {
-        LOGE("invalid versionNumber: 0x%02x", versionNumber);
-        ASSERT(false && "invalid versionNumber");
-    }
+    default:
+        ABORT_expanded(TAG, "invalid versionNumber: 0x%02x", versionNumber);
     }
 }
 

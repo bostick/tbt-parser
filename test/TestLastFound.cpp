@@ -17,10 +17,6 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-#undef NDEBUG
-
-#include "common/assert.h"
-
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
