@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <cstdint>
+#include <cstdint> // for int64_t
 
 
 class rational {
