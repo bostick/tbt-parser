@@ -298,9 +298,8 @@ computeTempoMap(
                         //
                         break;
                     }
-                    default: {
-                        ABORT_expanded(TAG, "invalid trackEffect: %c (%d)", trackEffect, trackEffect);
-                    }
+                    default:
+                        ABORT("invalid trackEffect: %c (%d)", trackEffect, trackEffect);
                     }
                 }
             }
@@ -514,7 +513,7 @@ computeRepeats(
                     //
                     break;
                 default:
-                    ABORT_expanded(TAG, "invalid change: %d", change);
+                    ABORT("invalid change: %d", change);
                 }
             }
         }
@@ -1856,7 +1855,7 @@ TconvertToMidi(
                             break;
                         }
                         default:
-                            ABORT_expanded(TAG, "invalid effect: %d", effect);
+                            ABORT("invalid effect: %d", effect);
                         }
                     }
                 }
@@ -1991,7 +1990,7 @@ TconvertToMidi(
                         break;
                     }
                     default:
-                        ABORT_expanded(TAG, "invalid trackEffect: %c (%d)", trackEffect, trackEffect);
+                        ABORT("invalid trackEffect: %c (%d)", trackEffect, trackEffect);
                     }
                 }
             }
@@ -2267,7 +2266,7 @@ convertToMidi(
         return TconvertToMidi<0x65, false, 6>(t65, opts, out);
     }
     default:
-        ABORT_expanded(TAG, "invalid versionNumber: 0x%02x", versionNumber);
+        ABORT("invalid versionNumber: 0x%02x", versionNumber);
     }
 }
 

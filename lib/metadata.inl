@@ -57,7 +57,7 @@ parseMetadata(
         CHECK(static_cast<ptrdiff_t>(sizeof(tbt_track_metadata65) * out.header.trackCount) <= (end - it), "unhandled");
 
     } else {
-        ABORT_expanded(TAG, "invalid VERSION: 0x%02x", VERSION);
+        ABORT("invalid VERSION: 0x%02x", VERSION);
     }
 
     if constexpr (0x70 <= VERSION) {

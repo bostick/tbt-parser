@@ -734,7 +734,7 @@ std::string tbtFileInfo(const tbt_file &t) {
         return TtbtFileInfo<0x65>(t65);
     }
     default:
-        ABORT_expanded(TAG, "invalid versionNumber: 0x%02x", versionNumber);
+        ABORT("invalid versionNumber: 0x%02x", versionNumber);
     }
 }
 
@@ -831,7 +831,7 @@ std::string tbtFileComment(const tbt_file &t) {
         return TtbtFileComment<0x65>(t65);
     }
     default:
-        ABORT_expanded(TAG, "invalid versionNumber: 0x%02x", versionNumber);
+        ABORT("invalid versionNumber: 0x%02x", versionNumber);
     }
 }
 

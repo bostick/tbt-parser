@@ -125,7 +125,7 @@ std::string trackEffectChangesString(const std::map<tbt_track_effect, uint16_t> 
     case TE_PITCH_BEND:
         return "B";
     default:
-        ABORT_expanded(TAG, "invalid effect: %d", effect);
+        ABORT("invalid effect: %d", effect);
     }
 }
 
@@ -154,7 +154,7 @@ std::string trackEffectString(uint8_t trackEffect) {
     case 'R': // Reverb change
         return "R";
     default:
-        ABORT_expanded(TAG, "invalid trackEffect: %c (%d)", trackEffect, trackEffect);
+        ABORT("invalid trackEffect: %c (%d)", trackEffect, trackEffect);
     }
 }
 
@@ -342,7 +342,7 @@ TtbtFileTablature(const tbt_file_t &t) {
                         break;
                     }
                     default:
-                        ABORT_expanded(TAG, "invalid change: %d", change);
+                        ABORT("invalid change: %d", change);
                     }
                 }
 
@@ -410,7 +410,7 @@ TtbtFileTablature(const tbt_file_t &t) {
                         break;
                     }
                     default:
-                        ABORT_expanded(TAG, "invalid change: %d", change);
+                        ABORT("invalid change: %d", change);
                     }
                 }
 
@@ -1623,7 +1623,7 @@ TtbtFileTablature(const tbt_file_t &t) {
                         break;
                     }
                     default:
-                        ABORT_expanded(TAG, "invalid change: %d", change);
+                        ABORT("invalid change: %d", change);
                     }
 
                     barLinesMap.erase(barLinesMapIt);
@@ -1917,7 +1917,7 @@ TtbtFileTablature(const tbt_file_t &t) {
                         break;
                     }
                     default:
-                        ABORT_expanded(TAG, "invalid change: %d", change);
+                        ABORT("invalid change: %d", change);
                     }
                 }
 
@@ -2116,7 +2116,7 @@ std::string tbtFileTablature(const tbt_file &t) {
         return TtbtFileTablature<0x65, false, 6>(t65);
     }
     default:
-        ABORT_expanded(TAG, "invalid versionNumber: 0x%02x", versionNumber);
+        ABORT("invalid versionNumber: 0x%02x", versionNumber);
     }
 }
 
