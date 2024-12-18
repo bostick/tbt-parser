@@ -26,7 +26,7 @@
 #include "common/logging.h"
 
 // #include <utility>
-// #include <cmath>
+#include <cmath> // for round
 
 
 #define TAG "rational"

@@ -31,7 +31,8 @@
 // #include <algorithm> // for remove
 #include <set>
 // #include <variant> // for get_if
-// #include <iterator>
+#include <iterator>
+#include <vector>
 // #include <cinttypes>
 #include <cmath> // for round, floor, fmod
 #include <cstring> // for memcmp, strrchr, strcmp
