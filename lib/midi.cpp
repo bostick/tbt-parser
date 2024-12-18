@@ -33,8 +33,8 @@
 // #include <variant> // for get_if
 // #include <iterator>
 // #include <cinttypes>
-// #include <cmath> // for round, floor, fmod
-// #include <cstring> // for memcmp, strrchr, strcmp
+#include <cmath> // for round, floor, fmod
+#include <cstring> // for memcmp, strrchr, strcmp
 // #include <cstdio> // for snprintf
 
 
