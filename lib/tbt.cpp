@@ -31,7 +31,7 @@
 #include "common/logging.h"
 
 #include <cinttypes> // for PRIi32
-// #include <cstring> // for memcpy, strrchr, strcmp
+#include <cstring> // for memcpy, strrchr, strcmp
 // #include <cmath> // for round in alternate-time-regions.inl, in body.inl
 
 

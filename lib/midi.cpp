@@ -28,15 +28,15 @@
 #include "common/file.h"
 #include "common/logging.h"
 
-// #include <algorithm> // for remove
+#include <algorithm> // for remove
 #include <set>
-// #include <variant> // for get_if
+#include <variant> // for get_if
 #include <iterator>
 #include <vector>
 // #include <cinttypes>
 #include <cmath> // for round, floor, fmod
 #include <cstring> // for memcmp, strrchr, strcmp
-// #include <cstdio> // for snprintf
+#include <cstdio> // for snprintf
 
 
 #include "last-found.inl"
