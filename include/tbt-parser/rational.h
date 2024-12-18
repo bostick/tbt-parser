@@ -73,3 +73,19 @@ public:
 	rational floor() const;
 	rational round() const;
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -17,6 +17,10 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+#ifdef TAG
+#error alternate-time-regions.inl is being included where TAG is already defined
+#endif // TAG
+
 #define TAG "alternate-time-regions"
 
 
@@ -43,10 +47,8 @@ parseAlternateTimeRegionsMapList(
 
             std::vector<uint8_t> deltaList;
 
-            Status ret = parseDeltaListChunk(it, end, deltaList);
-
-            if (ret != OK) {
-                return ret;
+            if (parseDeltaListChunk(it, end, deltaList) != OK) {
+                return ERR;
             }
 
             alternateTimeRegionsDeltaListAcc.insert(
@@ -55,10 +57,8 @@ parseAlternateTimeRegionsMapList(
                 deltaList.cend()
             );
 
-            ret = computeDeltaListCount(deltaList, &dsqCount);
-
-            if (ret != OK) {
-                return ret;
+            if (computeDeltaListCount(deltaList, &dsqCount) != OK) {
+                return ERR;
             }
 
             CHECK(dsqCount <= 2 * trackSpaceCount, "unhandled");
@@ -78,7 +78,7 @@ parseAlternateTimeRegionsMapList(
         );
 
         if (ret != OK) {
-            return ret;
+            return ERR;
         }
 
         rational alternateTimeRegionsCorrection = 0;

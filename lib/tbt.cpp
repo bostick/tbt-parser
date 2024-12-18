@@ -30,9 +30,9 @@
 #include "common/file.h"
 #include "common/logging.h"
 
-#include <cinttypes>
-#include <cstring> // for memcpy, strrchr, strcmp
-#include <cmath> // for round in alternate-time-regions.inl, in body.inl
+#include <cinttypes> // for PRIi32
+// #include <cstring> // for memcpy, strrchr, strcmp
+// #include <cmath> // for round in alternate-time-regions.inl, in body.inl
 
 
 #include "splitat.inl"
@@ -183,10 +183,8 @@ TparseTbtBytes(
 
             std::vector<uint8_t> metadataToParse;
 
-            Status ret = zlib_inflate(metadataToInflate_it, metadataToInflate_end, metadataToParse);
-
-            if (ret != OK) {
-                return ret;
+            if (zlib_inflate(metadataToInflate_it, metadataToInflate_end, metadataToParse) != OK) {
+                return ERR;
             }
 
             auto metadataToParse_begin = metadataToParse.cbegin();
@@ -195,10 +193,8 @@ TparseTbtBytes(
 
             auto metadataToParse_end = metadataToParse.cend();
 
-            ret = parseMetadata<VERSION, tbt_file_t>(metadataToParse_it, metadataToParse_end, out);
-
-            if (ret != OK) {
-                return ret;
+            if (parseMetadata<VERSION, tbt_file_t>(metadataToParse_it, metadataToParse_end, out) != OK) {
+                return ERR;
             }
 
             ASSERT(metadataLen == (metadataToParse_it - metadataToParse_begin));
@@ -207,34 +203,24 @@ TparseTbtBytes(
             // now read the remaining title, artist, album, transcribedBy, and comment
             //
 
-            ret = readPascal2String(metadataToParse_it, metadataToParse_end, out.metadata.title);
-
-            if (ret != OK) {
-                return ret;
+            if (readPascal2String(metadataToParse_it, metadataToParse_end, out.metadata.title) != OK) {
+                return ERR;
             }
 
-            ret = readPascal2String(metadataToParse_it, metadataToParse_end, out.metadata.artist);
-
-            if (ret != OK) {
-                return ret;
+            if (readPascal2String(metadataToParse_it, metadataToParse_end, out.metadata.artist) != OK) {
+                return ERR;
             }
 
-            ret = readPascal2String(metadataToParse_it, metadataToParse_end, out.metadata.album);
-
-            if (ret != OK) {
-                return ret;
+            if (readPascal2String(metadataToParse_it, metadataToParse_end, out.metadata.album) != OK) {
+                return ERR;
             }
 
-            ret = readPascal2String(metadataToParse_it, metadataToParse_end, out.metadata.transcribedBy);
-
-            if (ret != OK) {
-                return ret;
+            if (readPascal2String(metadataToParse_it, metadataToParse_end, out.metadata.transcribedBy) != OK) {
+                return ERR;
             }
 
-            ret = readPascal2String(metadataToParse_it, metadataToParse_end, out.metadata.comment);
-
-            if (ret != OK) {
-                return ret;
+            if (readPascal2String(metadataToParse_it, metadataToParse_end, out.metadata.comment) != OK) {
+                return ERR;
             }
 
             CHECK(metadataToParse_it == metadataToParse_end, "unhandled");
@@ -268,10 +254,8 @@ TparseTbtBytes(
 
             auto metadataToParse_end = it + metadataLen;
 
-            Status ret = parseMetadata<VERSION, tbt_file_t>(it, metadataToParse_end, out);
-
-            if (ret != OK) {
-                return ret;
+            if (parseMetadata<VERSION, tbt_file_t>(it, metadataToParse_end, out) != OK) {
+                return ERR;
             }
 
             ASSERT(it == metadataToParse_end);
@@ -332,10 +316,8 @@ TparseTbtBytes(
 
             std::vector<uint8_t> bodyToParse;
 
-            Status ret = zlib_inflate(it, end, bodyToParse);
-
-            if (ret != OK) {
-                return ret;
+            if (zlib_inflate(it, end, bodyToParse) != OK) {
+                return ERR;
             }
 
             CHECK(it == end, "file is corrupted.");
@@ -344,10 +326,8 @@ TparseTbtBytes(
 
             auto bodyToParse_end = bodyToParse.cend();
 
-            ret = parseBody<VERSION, HASALTERNATETIMEREGIONS, tbt_file_t>(bodyToParse_it, bodyToParse_end, out);
-
-            if (ret != OK) {
-                return ret;
+            if (parseBody<VERSION, HASALTERNATETIMEREGIONS, tbt_file_t>(bodyToParse_it, bodyToParse_end, out) != OK) {
+                return OK;
             }
 
             CHECK(bodyToParse_it == bodyToParse_end, "file is corrupted.");
@@ -356,10 +336,8 @@ TparseTbtBytes(
 
             CHECK(it <= end, "unhandled");
 
-            Status ret = parseBody<VERSION, false, tbt_file_t>(it, end, out);
-
-            if (ret != OK) {
-                return ret;
+            if (parseBody<VERSION, false, tbt_file_t>(it, end, out) != OK) {
+                return OK;
             }
 
             CHECK(it == end, "file is corrupted.");
@@ -834,6 +812,14 @@ std::string tbtFileComment(const tbt_file &t) {
         ABORT("invalid versionNumber: 0x%02x", versionNumber);
     }
 }
+
+
+
+
+
+
+
+
 
 
 

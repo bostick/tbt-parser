@@ -17,6 +17,10 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+#ifdef TAG
+#error body.inl is being included where TAG is already defined
+#endif // TAG
+
 #define TAG "body"
 
 
@@ -36,10 +40,8 @@ parseBody(
     // parse bar lines
     //
 
-    Status ret = parseBarLinesMap<VERSION, tbt_file_t>(it, end, out);
-
-    if (ret != OK) {
-        return ret;
+    if (parseBarLinesMap<VERSION, tbt_file_t>(it, end, out) != OK) {
+        return ERR;
     }
 
 
@@ -53,6 +55,8 @@ parseBody(
     // parse notes
     //
 
+    Status ret;
+
     if constexpr (0x6b <= VERSION) {
 
         ret = parseNotesMapList<VERSION, tbt_file_t, 8>(it, end, out);
@@ -63,7 +67,7 @@ parseBody(
     }
 
     if (ret != OK) {
-        return ret;
+        return ERR;
     }
 
     //
@@ -72,10 +76,8 @@ parseBody(
 
     if constexpr (HASALTERNATETIMEREGIONS) {
 
-        ret = parseAlternateTimeRegionsMapList<VERSION, tbt_file_t>(it, end, out);
-
-        if (ret != OK) {
-            return ret;
+        if (parseAlternateTimeRegionsMapList<VERSION, tbt_file_t>(it, end, out) != OK) {
+            return ERR;
         }
     }
 
@@ -85,10 +87,8 @@ parseBody(
 
     if constexpr (0x71 <= VERSION) {
 
-        ret = parseTrackEffectChangesMapList<VERSION, tbt_file_t>(it, end, out);
-
-        if (ret != OK) {
-            return ret;
+        if (parseTrackEffectChangesMapList<VERSION, tbt_file_t>(it, end, out) != OK) {
+            return ERR;
         }
     }
 

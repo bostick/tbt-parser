@@ -17,6 +17,10 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+#ifdef TAG
+#error metadata.inl is being included where TAG is already defined
+#endif // TAG
+
 #define TAG "metadata"
 
 

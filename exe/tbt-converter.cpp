@@ -158,26 +158,20 @@ int main(int argc, const char *argv[]) {
 
     tbt_file t;
 
-    Status ret = parseTbtFile(inputFile.c_str(), t);
-
-    if (ret != OK) {
-        return ret;
+    if (parseTbtFile(inputFile.c_str(), t) != OK) {
+        return ERR;
     }
 
     LOGI("exporting...");
 
     midi_file m;
 
-    ret = convertToMidi(t, opts, m);
-
-    if (ret != OK) {
-        return ret;
+    if (convertToMidi(t, opts, m) != OK) {
+        return ERR;
     }
 
-    ret = exportMidiFile(m, outputFile.c_str());
-
-    if (ret != OK) {
-        return ret;
+    if (exportMidiFile(m, outputFile.c_str()) != OK) {
+        return ERR;
     }
 
     LOGI("finished!");

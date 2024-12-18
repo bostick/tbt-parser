@@ -17,6 +17,10 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+#ifdef TAG
+#error bar-lines.inl is being included where TAG is already defined
+#endif // TAG
+
 #define TAG "bar-lines"
 
 
@@ -44,10 +48,8 @@ parseBarLinesMap(
 
         std::vector<std::array<uint8_t, 6> > parts;
 
-        Status ret = partitionInto<6>(data, parts);
-
-        if (ret != OK) {
-            return ret;
+        if (partitionInto<6>(data, parts) != OK) {
+            return ERR;
         }
 
         out.body.barLinesSpaceCount = 0;
@@ -84,18 +86,14 @@ parseBarLinesMap(
 
             std::vector<uint8_t> deltaList;
 
-            Status ret = parseDeltaListChunk(it, end, deltaList);
-
-            if (ret != OK) {
-                return ret;
+            if (parseDeltaListChunk(it, end, deltaList) != OK) {
+                return ERR;
             }
 
             barLinesDeltaListAcc.insert(barLinesDeltaListAcc.end(), deltaList.cbegin(), deltaList.cend());
 
-            ret = computeDeltaListCount(deltaList, &sqCount);
-
-            if (ret != OK) {
-                return ret;
+            if (computeDeltaListCount(deltaList, &sqCount) != OK) {
+                return ERR;
             }
 
             CHECK(sqCount <= barLinesSpaceCount, "unhandled");
@@ -105,7 +103,11 @@ parseBarLinesMap(
             }
         }
 
-        Status ret = expandDeltaList<1>(barLinesDeltaListAcc, barLinesSpaceCount, 0, out.body.barLinesMap);
+        Status ret = expandDeltaList<1>(
+            barLinesDeltaListAcc,
+            barLinesSpaceCount,
+            0,
+            out.body.barLinesMap);
 
         if (ret != OK) {
             return ret;

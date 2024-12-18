@@ -71,3 +71,8 @@ const std::array<int8_t, 6> OPEN_STRING_TO_MIDI_NOTE_LE6A = {
 
 
 
+
+
+
+
+

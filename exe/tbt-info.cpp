@@ -70,10 +70,8 @@ int main(int argc, const char *argv[]) {
 
     tbt_file t;
 
-    Status ret = parseTbtFile(inputFile.c_str(), t);
-
-    if (ret != OK) {
-        return ret;
+    if (parseTbtFile(inputFile.c_str(), t) != OK) {
+        return ERR;
     }
 
 #ifndef NDEBUG

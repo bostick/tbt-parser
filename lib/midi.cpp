@@ -28,14 +28,14 @@
 #include "common/file.h"
 #include "common/logging.h"
 
-#include <algorithm> // for remove
+// #include <algorithm> // for remove
 #include <set>
-#include <variant> // for get_if
-#include <iterator>
-#include <cinttypes>
-#include <cmath> // for round, floor, fmod
-#include <cstring> // for memcmp, strrchr, strcmp
-#include <cstdio> // for snprintf
+// #include <variant> // for get_if
+// #include <iterator>
+// #include <cinttypes>
+// #include <cmath> // for round, floor, fmod
+// #include <cstring> // for memcmp, strrchr, strcmp
+// #include <cstdio> // for snprintf
 
 
 #include "last-found.inl"
@@ -2426,18 +2426,12 @@ exportMidiFile(
 
     std::vector<uint8_t> data;
 
-    Status ret;
-
-    ret = exportMidiBytes(m, data);
-
-    if (ret != OK) {
-        return ret;
+    if (exportMidiBytes(m, data) != OK) {
+        return ERR;
     }
 
-    ret = saveFile(path, data);
-
-    if (ret != OK) {
-        return ret;
+    if (saveFile(path, data) != OK) {
+        return ERR;
     }
 
     return OK;
@@ -2454,14 +2448,10 @@ parseMidiFile(
         LOGW("mid file does not end with .mid: %s", path);
     }
 
-    Status ret;
-
     std::vector<uint8_t> buf;
 
-    ret = openFile(path, buf);
-
-    if (ret != OK) {
-        return ret;
+    if (openFile(path, buf) != OK) {
+        return ERR;
     }
 
     auto buf_it = buf.cbegin();
@@ -2519,10 +2509,8 @@ parseHeader(
 
     chunk c;
 
-    Status ret = parseChunk(it, end, c);
-
-    if (ret != OK) {
-        return ret;
+    if (parseChunk(it, end, c) != OK) {
+        return ERR;
     }
 
     CHECK(std::memcmp(c.type.data(), S_MTHD.c_str(), 4) == 0, "expected MThd type");
@@ -2563,10 +2551,8 @@ parseTrackEvent(
 
     int32_t deltaTime;
 
-    Status ret = parseVLQ(it, end, deltaTime);
-
-    if (ret != OK) {
-        return ret;
+    if (parseVLQ(it, end, deltaTime) != OK) {
+        return ERR;
     }
 
     CHECK(1 <= (end - it), "out of data");
@@ -2765,10 +2751,8 @@ parseTrackEvent(
 
             int32_t len;
 
-            ret = parseVLQ(it2, end2, len);
-
-            if (ret != OK) {
-                return ret;
+            if (parseVLQ(it2, end2, len) != OK) {
+                return ERR;
             }
 
             if (len != (end2 - it2)) {
@@ -2788,10 +2772,8 @@ parseTrackEvent(
 
             int32_t len;
 
-            ret = parseVLQ(it, end, len);
-
-            if (ret != OK) {
-                return ret;
+            if (parseVLQ(it, end, len) != OK) {
+                return ERR;
             }
 
             auto begin = it;
@@ -2834,10 +2816,8 @@ parseTrack(
 
     chunk c;
 
-    Status ret = parseChunk(it, end, c);
-
-    if (ret != OK) {
-        return ret;
+    if (parseChunk(it, end, c) != OK) {
+        return ERR;
     }
 
     CHECK(std::memcmp(c.type.data(), S_MTRK.c_str(), 4) == 0, "expected MTrk type");
@@ -2852,10 +2832,8 @@ parseTrack(
 
         midi_track_event e;
 
-        ret = parseTrackEvent(it2, end2, running, e);
-
-        if (ret != OK) {
-            return ret;
+        if (parseTrackEvent(it2, end2, running, e) != OK) {
+            return ERR;
         }
 
         track.push_back(e);
@@ -2894,18 +2872,14 @@ parseMidiBytes(
 
     CHECK(len != 0, "empty file");
 
-    Status ret = parseHeader(it, end, out);
-
-    if (ret != OK) {
-        return ret;
+    if (parseHeader(it, end, out) != OK) {
+        return ERR;
     }
 
     for (int i = 0; i < out.header.trackCount; i++) {
 
-        ret = parseTrack(it, end, out);
-
-        if (ret != OK) {
-            return ret;
+        if (parseTrack(it, end, out) != OK) {
+            return ERR;
         }
     }
 

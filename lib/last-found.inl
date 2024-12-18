@@ -17,7 +17,11 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-#define TAG "last_found"
+#ifdef TAG
+#error last-found.inl is being included where TAG is already defined
+#endif // TAG
+
+#define TAG "last-found"
 
 
 //

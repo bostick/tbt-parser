@@ -17,6 +17,10 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+#ifdef TAG
+#error notes.inl is being included where TAG is already defined
+#endif // TAG
+
 #define TAG "notes"
 
 
@@ -53,18 +57,14 @@ parseNotesMapList(
 
             std::vector<uint8_t> deltaList;
 
-            Status ret = parseDeltaListChunk(it, end, deltaList);
-
-            if (ret != OK) {
-                return ret;
+            if (parseDeltaListChunk(it, end, deltaList) != OK) {
+                return ERR;
             }
 
             notesDeltaListAcc.insert(notesDeltaListAcc.end(), deltaList.cbegin(), deltaList.cend());
 
-            ret = computeDeltaListCount(deltaList, &vsqCount);
-
-            if (ret != OK) {
-                return ret;
+            if (computeDeltaListCount(deltaList, &vsqCount) != OK) {
+                return ERR;
             }
 
             CHECK(vsqCount <= (STRINGS_PER_TRACK + STRINGS_PER_TRACK + 4) * trackSpaceCount, "unhandled");

@@ -17,6 +17,10 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+#ifdef TAG
+#error track-effect-changes.inl is being included where TAG is already defined
+#endif // TAG
+
 #define TAG "track-effect-changes"
 
 
@@ -36,18 +40,14 @@ parseTrackEffectChangesMapList(
 
         std::vector<uint8_t> arrayList;
 
-        Status ret = parseChunk4(it, end, arrayList);
-
-        if (ret != OK) {
-            return ret;
+        if (parseChunk4(it, end, arrayList) != OK) {
+            return ERR;
         }
 
         std::vector<std::array<uint8_t, 8> > parts;
 
-        ret = partitionInto<8>(arrayList, parts);
-
-        if (ret != OK) {
-            return ret;
+        if (partitionInto<8>(arrayList, parts) != OK) {
+            return ERR;
         }
 
         uint16_t space = 0;

@@ -90,10 +90,8 @@ int main(int argc, const char *argv[]) {
 
     LOGI("parsing...");
 
-    Status ret = parseTbtFile(inputFile.c_str(), t);
-
-    if (ret != OK) {
-        return ret;
+    if (parseTbtFile(inputFile.c_str(), t) != OK) {
+        return ERR;
     }
 
     LOGI("printing...");
@@ -102,10 +100,8 @@ int main(int argc, const char *argv[]) {
 
     auto buf = std::vector<uint8_t>(tab.begin(), tab.end());
 
-    ret = saveFile(outputFile.c_str(), buf);
-
-    if (ret != OK) {
-        return ret;
+    if (saveFile(outputFile.c_str(), buf) != OK) {
+        return ERR;
     }
 
     LOGI("finished!");

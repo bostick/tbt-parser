@@ -17,6 +17,10 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+#ifdef TAG
+#error expandDeltaList.inl is being included where TAG is already defined
+#endif // TAG
+
 #define TAG "expandDeltaList"
 
 
@@ -35,10 +39,8 @@ expandDeltaList(
 
     std::vector<std::array<uint8_t, 2> > parts;
 
-    Status ret = partitionInto<2>(deltaList, parts);
-
-    if (ret != OK) {
-        return ret;
+    if (partitionInto<2>(deltaList, parts) != OK) {
+        return ERR;
     }
 
     std::vector<std::vector<std::array<uint8_t, 2> > > split;

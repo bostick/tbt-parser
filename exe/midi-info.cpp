@@ -71,10 +71,8 @@ int main(int argc, const char *argv[]) {
 
     midi_file m;
 
-    Status ret = parseMidiFile(inputFile.c_str(), m);
-
-    if (ret != OK) {
-        return ret;
+    if (parseMidiFile(inputFile.c_str(), m) != OK) {
+        return ERR;
     }
 
     auto info = midiFileInfo(m);
