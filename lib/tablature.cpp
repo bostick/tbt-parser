@@ -18,15 +18,17 @@
 
 #include "tbt-parser.h"
 
-#include "tbt-parser/rational.h"
 #include "tbt-parser/tbt-parser-util.h"
 #include "tbt-parser/tbt.h"
+
+#include "rational/rational.h"
 
 #undef NDEBUG
 
 #include "common/abort.h"
 #include "common/assert.h"
 #include "common/logging.h"
+#include "common/math_utils.h"
 
 #include <map>
 

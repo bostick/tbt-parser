@@ -16,9 +16,10 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#include "tbt-parser/rational.h"
 #include "tbt-parser/tbt-parser-util.h"
 #include "tbt-parser/tbt.h"
+
+#include "rational/rational.h"
 
 #undef NDEBUG
 

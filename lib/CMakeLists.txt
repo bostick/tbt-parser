@@ -54,10 +54,19 @@ FetchContent_Declare(common
 )
 FetchContent_MakeAvailable(common)
 
+FetchContent_Declare(rational
+    GIT_REPOSITORY
+        https://github.com/bostick/rational.git
+    GIT_TAG
+        v0.1.0
+    GIT_SHALLOW 1
+    GIT_PROGRESS 1
+)
+FetchContent_MakeAvailable(rational)
+
 
 set(CPP_LIB_SOURCES
     midi.cpp
-    rational.cpp
     tbt.cpp
     tbt-parser-util.cpp
     tablature.cpp
@@ -80,6 +89,7 @@ target_link_libraries(tbt-parser-lib
     PRIVATE
         zlibstatic
         common-lib
+        rational-lib
 )
 
 set_target_properties(tbt-parser-lib
