@@ -63,11 +63,11 @@ set(CPP_LIB_SOURCES
     tablature.cpp
 )
 
-add_library(tbt-parser-static-lib STATIC
+add_library(tbt-parser-lib STATIC
     ${CPP_LIB_SOURCES}
 )
 
-target_include_directories(tbt-parser-static-lib
+target_include_directories(tbt-parser-lib
     PUBLIC
         ../include
         #
@@ -76,15 +76,15 @@ target_include_directories(tbt-parser-static-lib
         ../lib
 )
 
-target_link_libraries(tbt-parser-static-lib
+target_link_libraries(tbt-parser-lib
     PRIVATE
         zlibstatic
         common-lib
 )
 
-set_target_properties(tbt-parser-static-lib
+set_target_properties(tbt-parser-lib
     PROPERTIES
-        OUTPUT_NAME tbt-parser-static
+        OUTPUT_NAME tbt-parser
         CXX_STANDARD 20
         CXX_STANDARD_REQUIRED ON
         CXX_EXTENSIONS NO
@@ -96,19 +96,19 @@ set_target_properties(tbt-parser-static-lib
 # https://www.foonathan.net/2018/10/cmake-warnings/
 #
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-target_compile_options(tbt-parser-static-lib PRIVATE
+target_compile_options(tbt-parser-lib PRIVATE
     -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion
 )
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
-target_compile_options(tbt-parser-static-lib PRIVATE
+target_compile_options(tbt-parser-lib PRIVATE
     -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion
 )
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-target_compile_options(tbt-parser-static-lib PRIVATE
+target_compile_options(tbt-parser-lib PRIVATE
     -Wall -Wextra -pedantic -Werror -Wconversion -Wsign-conversion
 )
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-target_compile_options(tbt-parser-static-lib PRIVATE
+target_compile_options(tbt-parser-lib PRIVATE
     #
     # /Zc:preprocessor is needed for handling __VA_OPT__(,)
     #

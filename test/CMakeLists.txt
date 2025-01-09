@@ -56,7 +56,7 @@ add_executable(tbt-test-exe
 
 target_link_libraries(tbt-test-exe
     PRIVATE
-        tbt-parser-static-lib
+        tbt-parser-lib
         GTest::gmock_main
         common-lib
 )

@@ -48,25 +48,25 @@ add_executable(tbt-info-exe
 
 target_link_libraries(tbt-converter-exe
     PRIVATE
-        tbt-parser-static-lib
+        tbt-parser-lib
         common-lib
 )
 
 target_link_libraries(midi-info-exe
     PRIVATE
-        tbt-parser-static-lib
+        tbt-parser-lib
         common-lib
 )
 
 target_link_libraries(tbt-printer-exe
     PRIVATE
-        tbt-parser-static-lib
+        tbt-parser-lib
         common-lib
 )
 
 target_link_libraries(tbt-info-exe
     PRIVATE
-        tbt-parser-static-lib
+        tbt-parser-lib
         common-lib
 )
 
