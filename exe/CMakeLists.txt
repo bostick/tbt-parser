@@ -19,6 +19,14 @@
 cmake_minimum_required(VERSION 3.22.1)
 include(FetchContent)
 
+#
+# De-duplicate libraries on link lines based on linker capabilities.
+#
+# fixes Xcode complaining:
+# ld: warning: ignoring duplicate libraries: 'libcommon.a'
+#
+cmake_policy(SET CMP0156 NEW)
+
 FetchContent_Declare(common
     GIT_REPOSITORY
         https://github.com/bostick/common.git

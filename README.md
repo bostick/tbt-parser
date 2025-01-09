@@ -17,7 +17,7 @@ tbt-parser depends on zlib and uses CMake for building.
 tbt-parser requires a C++20 compiler because of features such as `__VA_OPT__`.
 
 ```
-cd cpp
+cd tbt-parser
 mkdir build
 cd build
 cmake ..
