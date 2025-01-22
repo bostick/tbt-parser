@@ -19,6 +19,7 @@
 cmake_minimum_required(VERSION 3.22.1)
 include(FetchContent)
 
+
 #
 # De-duplicate libraries on link lines based on linker capabilities.
 #
@@ -26,6 +27,7 @@ include(FetchContent)
 # ld: warning: ignoring duplicate libraries: 'libcommon.a'
 #
 cmake_policy(SET CMP0156 NEW)
+
 
 FetchContent_Declare(common
     GIT_REPOSITORY
@@ -232,14 +234,77 @@ add_test(
 
 if(SANITIZE)
     if(${SANITIZE} STREQUAL "ubsan")
+        
         target_compile_options(tbt-converter-exe
             PRIVATE
                 -fsanitize=undefined -fno-sanitize-recover=undefined
         )
+        target_compile_options(midi-info-exe
+            PRIVATE
+                -fsanitize=undefined -fno-sanitize-recover=undefined
+        )
+        target_compile_options(tbt-printer-exe
+            PRIVATE
+                -fsanitize=undefined -fno-sanitize-recover=undefined
+        )
+        target_compile_options(tbt-info-exe
+            PRIVATE
+                -fsanitize=undefined -fno-sanitize-recover=undefined
+        )
+
         target_link_options(tbt-converter-exe
             PRIVATE
                 -fsanitize=undefined -fno-sanitize-recover=undefined
         )
+        target_link_options(midi-info-exe
+            PRIVATE
+                -fsanitize=undefined -fno-sanitize-recover=undefined
+        )
+        target_link_options(tbt-printer-exe
+            PRIVATE
+                -fsanitize=undefined -fno-sanitize-recover=undefined
+        )
+        target_link_options(tbt-info-exe
+            PRIVATE
+                -fsanitize=undefined -fno-sanitize-recover=undefined
+        )
+
+    elseif(${SANITIZE} STREQUAL "asan")
+
+        target_compile_options(tbt-converter-exe
+            PRIVATE
+                -fsanitize=address -fno-omit-frame-pointer
+        )
+        target_compile_options(midi-info-exe
+            PRIVATE
+                -fsanitize=address -fno-omit-frame-pointer
+        )
+        target_compile_options(tbt-printer-exe
+            PRIVATE
+                -fsanitize=address -fno-omit-frame-pointer
+        )
+        target_compile_options(tbt-info-exe
+            PRIVATE
+                -fsanitize=address -fno-omit-frame-pointer
+        )
+
+        target_link_options(tbt-converter-exe
+            PRIVATE
+                -fsanitize=address -fno-omit-frame-pointer
+        )
+        target_link_options(midi-info-exe
+            PRIVATE
+                -fsanitize=address -fno-omit-frame-pointer
+        )
+        target_link_options(tbt-printer-exe
+            PRIVATE
+                -fsanitize=address -fno-omit-frame-pointer
+        )
+        target_link_options(tbt-info-exe
+            PRIVATE
+                -fsanitize=address -fno-omit-frame-pointer
+        )
+
     endif()
 endif()
 
