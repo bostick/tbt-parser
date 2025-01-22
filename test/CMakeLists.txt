@@ -1,4 +1,4 @@
-# Copyright (C) 2024 by Brenton Bostick
+# Copyright (C) 2025 by Brenton Bostick
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 # associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -18,6 +18,15 @@
 
 cmake_minimum_required(VERSION 3.22.1)
 include(FetchContent)
+
+
+#
+# De-duplicate libraries on link lines based on linker capabilities.
+#
+# fixes Xcode complaining:
+# ld: warning: ignoring duplicate libraries: 'libcommon.a'
+#
+cmake_policy(SET CMP0156 NEW)
 
 
 FetchContent_Declare(googletest

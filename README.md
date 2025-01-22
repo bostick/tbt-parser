@@ -38,7 +38,7 @@ Print out tablature from a .tbt TabIt file:
 ```
 % ./tbt-printer --input-file black.tbt                                                                     
 tbt printer v1.3.0
-Copyright (C) 2024 by Brenton Bostick
+Copyright (C) 2025 by Brenton Bostick
 input file: black.tbt
 output file: out.txt
 parsing...
@@ -51,7 +51,7 @@ Generate a MIDI file from a .tbt TabIt file:
 ```
 % ./tbt-converter --input-file black.tbt 
 tbt converter v1.3.0
-Copyright (C) 2024 by Brenton Bostick
+Copyright (C) 2025 by Brenton Bostick
 input file: black.tbt
 output file: out.mid
 emit control change events: 1
@@ -66,7 +66,7 @@ Generate a MIDI file from a .tbt TabIt file, and do not emit any ControlChange e
 ```
 % ./tbt-converter --input-file black.tbt --emit-controlchange-events 0 --emit-programchange-events 0 --emit-pitchbend-events 0
 tbt converter v1.3.0
-Copyright (C) 2024 by Brenton Bostick
+Copyright (C) 2025 by Brenton Bostick
 input file: black.tbt
 output file: out.mid
 emit control change events: 0
@@ -81,7 +81,7 @@ Print out information about a MIDI file:
 ```
 % ./midi-info --input-file black.mid 
 midi info v1.3.0
-Copyright (C) 2024 by Brenton Bostick
+Copyright (C) 2025 by Brenton Bostick
 input file: black.mid
 parsing...
 tracks:
@@ -109,7 +109,7 @@ Print out information about a .tbt TabIt file:
 ```
 % ./tbt-info --input-file black.tbt
 tbt info v1.3.0
-Copyright (C) 2024 by Brenton Bostick
+Copyright (C) 2025 by Brenton Bostick
 input file: black.tbt
 tbt file version: 2.0 (0x72)
 title: Back In Black
