@@ -30,10 +30,14 @@
 #include "common/check.h"
 #include "common/file.h"
 #include "common/logging.h"
+#include "common/status.h"
 
 #include <cinttypes>
 #include <cstring> // for memcpy, strrchr, strcmp
 #include <cmath> // for round in alternate-time-regions.inl, in body.inl
+
+
+using enum Status;
 
 
 #include "splitat.inl"

@@ -22,6 +22,7 @@
 
 #include "common/file.h"
 #include "common/logging.h"
+#include "common/status.h"
 
 #include <string>
 #include <cstring>
@@ -29,6 +30,9 @@
 
 
 #define TAG "tbt-printer"
+
+
+using enum Status;
 
 
 void printUsage();
@@ -93,7 +97,7 @@ int main(int argc, const char *argv[]) {
     Status ret = parseTbtFile(inputFile.c_str(), t);
 
     if (ret != OK) {
-        return ret;
+        return EXIT_FAILURE;
     }
 
     LOGI("printing...");
@@ -105,7 +109,7 @@ int main(int argc, const char *argv[]) {
     ret = saveFile(outputFile.c_str(), buf);
 
     if (ret != OK) {
-        return ret;
+        return EXIT_FAILURE;
     }
 
     LOGI("finished!");

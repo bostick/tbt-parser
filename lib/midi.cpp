@@ -28,6 +28,7 @@
 #include "common/check.h"
 #include "common/file.h"
 #include "common/logging.h"
+#include "common/status.h"
 
 #include <algorithm> // for remove
 #include <set>
@@ -37,6 +38,9 @@
 #include <cmath> // for round, floor, fmod
 #include <cstring> // for memcmp, strrchr, strcmp
 #include <cstdio> // for snprintf
+
+
+using enum Status;
 
 
 #include "last-found.inl"

@@ -21,6 +21,7 @@
 #include "tbt-parser/tbt-parser-util.h"
 
 #include "common/logging.h"
+#include "common/status.h"
 
 #include <string>
 #include <cstring>
@@ -28,6 +29,9 @@
 
 
 #define TAG "tbt-converter"
+
+
+using enum Status;
 
 
 void printUsage();
@@ -161,7 +165,7 @@ int main(int argc, const char *argv[]) {
     Status ret = parseTbtFile(inputFile.c_str(), t);
 
     if (ret != OK) {
-        return ret;
+        return EXIT_FAILURE;
     }
 
     LOGI("exporting...");
@@ -171,13 +175,13 @@ int main(int argc, const char *argv[]) {
     ret = convertToMidi(t, opts, m);
 
     if (ret != OK) {
-        return ret;
+        return EXIT_FAILURE;
     }
 
     ret = exportMidiFile(m, outputFile.c_str());
 
     if (ret != OK) {
-        return ret;
+        return EXIT_FAILURE;
     }
 
     LOGI("finished!");

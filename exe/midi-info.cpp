@@ -20,6 +20,7 @@
 
 #include "common/check.h"
 #include "common/logging.h"
+#include "common/status.h"
 
 #include <string>
 #include <map>
@@ -29,6 +30,9 @@
 
 
 #define TAG "midi-info"
+
+
+using enum Status;
 
 
 void printUsage();
@@ -74,7 +78,7 @@ int main(int argc, const char *argv[]) {
     Status ret = parseMidiFile(inputFile.c_str(), m);
 
     if (ret != OK) {
-        return ret;
+        return EXIT_FAILURE;
     }
 
     auto info = midiFileInfo(m);

@@ -23,11 +23,16 @@
 #include "common/assert.h"
 #include "common/check.h"
 #include "common/logging.h"
+#include "common/status.h"
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 #include <cstring>
+
+
+using enum Status;
+
 
 #include "splitat.inl"
 #include "partitioninto.inl"

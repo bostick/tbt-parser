@@ -23,10 +23,14 @@
 #include "common/assert.h"
 #include "common/check.h"
 #include "common/logging.h"
+#include "common/status.h"
 
 #include "zlib.h"
 
 #include <cstring>
+
+
+using enum Status;
 
 
 #include "partitioninto.inl"

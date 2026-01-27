@@ -18,8 +18,14 @@
 
 #include "tbt-parser.h"
 
+#include "common/status.h"
+
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+
+
+using enum Status;
+
 
 class MidiTest : public ::testing::Test {
 protected:
