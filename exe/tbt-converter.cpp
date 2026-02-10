@@ -1,4 +1,4 @@
-// Copyright (C) 2025 by Brenton Bostick
+// Copyright (C) 2026 by Brenton Bostick
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 // associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -40,7 +40,7 @@ void printUsage();
 int main(int argc, const char *argv[]) {
 
     LOGI("tbt converter v1.4.0");
-    LOGI("Copyright (C) 2025 by Brenton Bostick");
+    LOGI("Copyright (C) 2026 by Brenton Bostick");
 
     if (argc == 1) {
         printUsage();
