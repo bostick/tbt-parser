@@ -413,7 +413,7 @@ parseTbtBytes(
 
     RETURN_ERR_IF_FALSE(len != 0, "empty file");
 
-    CHECK_NOT(len <= TBT_HEADER_SIZE, "file is too small to be parsed. size: %zu", len);
+    RETURN_ERR_IF_TRUE(len <= TBT_HEADER_SIZE, "file is too small to be parsed. size: %zu", len);
 
     auto versionNumber_it = it + 3;
 
