@@ -61,7 +61,7 @@ parseAlternateTimeRegionsMapList(
                 return ret;
             }
 
-            CHECK(dsqCount <= 2 * trackSpaceCount, "unhandled");
+            RETURN_ERR_IF_FALSE(dsqCount <= 2 * trackSpaceCount, "unhandled");
 
             if (dsqCount == 2 * trackSpaceCount) {
                 break;

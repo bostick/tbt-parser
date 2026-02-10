@@ -38,7 +38,7 @@ parseBarLinesMap(
 
         it += out.header.barCount * 6;
 
-        CHECK(it <= end, "unhandled");
+        RETURN_ERR_IF_FALSE(it <= end, "unhandled");
 
         std::vector<uint8_t> data(begin, it);
 
@@ -98,7 +98,7 @@ parseBarLinesMap(
                 return ret;
             }
 
-            CHECK(sqCount <= barLinesSpaceCount, "unhandled");
+            RETURN_ERR_IF_FALSE(sqCount <= barLinesSpaceCount, "unhandled");
 
             if (sqCount == barLinesSpaceCount) {
                 break;

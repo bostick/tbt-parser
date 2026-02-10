@@ -77,47 +77,47 @@ TparseTbtBytes(
     // handle file corruption
     //
 
-    CHECK(std::memcmp(out.header.magic.data(), "TBT", 3) == 0, "file is corrupted. magic bytes do not match. expected: TBT, actual: %c%c%c", out.header.magic[0], out.header.magic[1], out.header.magic[2]);
+    RETURN_ERR_IF_FALSE(std::memcmp(out.header.magic.data(), "TBT", 3) == 0, "file is corrupted. magic bytes do not match. expected: TBT, actual: %c%c%c", out.header.magic[0], out.header.magic[1], out.header.magic[2]);
 
     if constexpr (0x68 <= VERSION) {
 
-        CHECK(out.header.compressedMetadataLen >= 0, "file is corrupted. compressedMetadataLen is negative: %" PRIi32, out.header.compressedMetadataLen);
+        RETURN_ERR_IF_FALSE(out.header.compressedMetadataLen >= 0, "file is corrupted. compressedMetadataLen is negative: %" PRIi32, out.header.compressedMetadataLen);
 
-        CHECK(out.header.compressedMetadataLen < size, "file is corrupted. compressedMetadataLen is smaller than expected. expected: %" PRIi32 ", actual: %td", out.header.compressedMetadataLen, size);
-        
-        CHECK(out.header.totalByteCount == size, "file is corrupted. file byte counts do not match. expected: %" PRIi32 ", actual: %td", out.header.totalByteCount, size);
+        RETURN_ERR_IF_FALSE(out.header.compressedMetadataLen < size, "file is corrupted. compressedMetadataLen is smaller than expected. expected: %" PRIi32 ", actual: %td", out.header.compressedMetadataLen, size);
+
+        RETURN_ERR_IF_FALSE(out.header.totalByteCount == size, "file is corrupted. file byte counts do not match. expected: %" PRIi32 ", actual: %td", out.header.totalByteCount, size);
 
         auto restToCheck_it = it + TBT_HEADER_SIZE;
 
         auto crc32Rest = crc32_checksum(restToCheck_it, end);
 
-        CHECK(crc32Rest == out.header.crc32Rest, "file is corrupted. CRC-32 of rest of file does not match. expected: %" PRIu32 ", actual: %" PRIu32,  out.header.crc32Rest, crc32Rest);
+        RETURN_ERR_IF_FALSE(crc32Rest == out.header.crc32Rest, "file is corrupted. CRC-32 of rest of file does not match. expected: %" PRIu32 ", actual: %" PRIu32,  out.header.crc32Rest, crc32Rest);
 
         auto headerToCheck_it = it;
 
         auto crc32Header = crc32_checksum(headerToCheck_it, it + TBT_HEADER_SIZE - 4);
 
-        CHECK(crc32Header == out.header.crc32Header, "file is corrupted. CRC-32 of header does not match. expected: %" PRIu32 ", actual: %" PRIu32, out.header.crc32Header, crc32Header);
+        RETURN_ERR_IF_FALSE(crc32Header == out.header.crc32Header, "file is corrupted. CRC-32 of header does not match. expected: %" PRIu32 ", actual: %" PRIu32, out.header.crc32Header, crc32Header);
     }
 
-    CHECK(out.header.versionString[0] == 3 || out.header.versionString[0] == 4, "file is corrupted.");
+    RETURN_ERR_IF_FALSE(out.header.versionString[0] == 3 || out.header.versionString[0] == 4, "file is corrupted.");
 
     if constexpr (0x70 <= VERSION) {
 
-        CHECK(out.header.barCount != 0, "file is corrupted.");
+        RETURN_ERR_IF_FALSE(out.header.barCount != 0, "file is corrupted.");
 
     } else {
 
-        CHECK(out.header.barCount_unused == 0, "file is corrupted.");
+        RETURN_ERR_IF_FALSE(out.header.barCount_unused == 0, "file is corrupted.");
     }
 
     if constexpr (VERSION == 0x6f) {
 
-        CHECK(out.header.spaceCount != 0, "file is corrupted.");
+        RETURN_ERR_IF_FALSE(out.header.spaceCount != 0, "file is corrupted.");
 
     } else {
 
-        CHECK(out.header.spaceCount_unused == 0, "file is corrupted.");
+        RETURN_ERR_IF_FALSE(out.header.spaceCount_unused == 0, "file is corrupted.");
     }
 
     if constexpr (0x6e <= VERSION && VERSION <= 0x6f) {
@@ -128,25 +128,25 @@ TparseTbtBytes(
 
     } else {
 
-        CHECK(out.header.lastNonEmptySpace_unused == 0, "file is corrupted.");
+        RETURN_ERR_IF_FALSE(out.header.lastNonEmptySpace_unused == 0, "file is corrupted.");
     }
 
     if constexpr (0x6e <= VERSION) {
 
-        CHECK(out.header.tempo2 != 0, "file is corrupted.");
+        RETURN_ERR_IF_FALSE(out.header.tempo2 != 0, "file is corrupted.");
 
         if (250 <= out.header.tempo2) {
 
-            CHECK(out.header.tempo1 == 250, "file is corrupted.");
+            RETURN_ERR_IF_FALSE(out.header.tempo1 == 250, "file is corrupted.");
 
         } else {
 
-            CHECK(out.header.tempo1 == out.header.tempo2, "file is corrupted.");
+            RETURN_ERR_IF_FALSE(out.header.tempo1 == out.header.tempo2, "file is corrupted.");
         }
 
     } else {
 
-        CHECK(out.header.tempo2_unused == 0, "file is corrupted.");
+        RETURN_ERR_IF_FALSE(out.header.tempo2_unused == 0, "file is corrupted.");
     }
 
     it += TBT_HEADER_SIZE;
@@ -180,7 +180,7 @@ TparseTbtBytes(
 
             auto metadataToInflate_it = it;
 
-            CHECK(out.header.compressedMetadataLen <= (end - it), "file is corrupted.");
+            RETURN_ERR_IF_FALSE(out.header.compressedMetadataLen <= (end - it), "file is corrupted.");
 
             it += out.header.compressedMetadataLen;
 
@@ -242,7 +242,7 @@ TparseTbtBytes(
                 return ret;
             }
 
-            CHECK(metadataToParse_it == metadataToParse_end, "unhandled");
+            RETURN_ERR_IF_FALSE(metadataToParse_it == metadataToParse_end, "unhandled");
 
         } else {
 
@@ -267,9 +267,9 @@ TparseTbtBytes(
                 out.metadata.tracks = std::vector<tbt_track_metadata65>(out.header.trackCount);
             }
 
-            CHECK(metadataLen >= 0, "file is corrupted.");
+            RETURN_ERR_IF_FALSE(metadataLen >= 0, "file is corrupted.");
 
-            CHECK(metadataLen <= (end - it), "file is corrupted.");
+            RETURN_ERR_IF_FALSE(metadataLen <= (end - it), "file is corrupted.");
 
             auto metadataToParse_end = it + metadataLen;
 
@@ -285,11 +285,11 @@ TparseTbtBytes(
             // now read the remaining title, artist, and comment
             //
 
-            CHECK(1 <= (end - it), "file is corrupted.");
+            RETURN_ERR_IF_FALSE(1 <= (end - it), "file is corrupted.");
 
             auto strLen = *it;
 
-            CHECK(1 + strLen <= (end - it), "file is corrupted.");
+            RETURN_ERR_IF_FALSE(1 + strLen <= (end - it), "file is corrupted.");
 
             auto begin = it;
 
@@ -297,11 +297,11 @@ TparseTbtBytes(
 
             out.metadata.title = std::vector<char>(begin, it);
 
-            CHECK(1 <= (end - it), "file is corrupted.");
+            RETURN_ERR_IF_FALSE(1 <= (end - it), "file is corrupted.");
 
             strLen = *it;
 
-            CHECK(1 + strLen <= (end - it), "file is corrupted.");
+            RETURN_ERR_IF_FALSE(1 + strLen <= (end - it), "file is corrupted.");
 
             begin = it;
 
@@ -309,11 +309,11 @@ TparseTbtBytes(
 
             out.metadata.artist = std::vector<char>(begin, it);
 
-            CHECK(1 <= (end - it), "file is corrupted.");
+            RETURN_ERR_IF_FALSE(1 <= (end - it), "file is corrupted.");
 
             strLen = *it;
 
-            CHECK(1 + strLen <= (end - it), "file is corrupted.");
+            RETURN_ERR_IF_FALSE(1 + strLen <= (end - it), "file is corrupted.");
 
             begin = it;
 
@@ -333,7 +333,7 @@ TparseTbtBytes(
     {
         if constexpr (0x6e <= VERSION) {
 
-            CHECK(it <= end, "unhandled");
+            RETURN_ERR_IF_FALSE(it <= end, "unhandled");
 
             std::vector<uint8_t> bodyToParse;
 
@@ -343,7 +343,7 @@ TparseTbtBytes(
                 return ret;
             }
 
-            CHECK(it == end, "file is corrupted.");
+            RETURN_ERR_IF_FALSE(it == end, "file is corrupted.");
 
             auto bodyToParse_it = bodyToParse.cbegin();
 
@@ -355,11 +355,11 @@ TparseTbtBytes(
                 return ret;
             }
 
-            CHECK(bodyToParse_it == bodyToParse_end, "file is corrupted.");
+            RETURN_ERR_IF_FALSE(bodyToParse_it == bodyToParse_end, "file is corrupted.");
 
         } else {
 
-            CHECK(it <= end, "unhandled");
+            RETURN_ERR_IF_FALSE(it <= end, "unhandled");
 
             Status ret = parseBody<VERSION, false, tbt_file_t>(it, end, out);
 
@@ -367,7 +367,7 @@ TparseTbtBytes(
                 return ret;
             }
 
-            CHECK(it == end, "file is corrupted.");
+            RETURN_ERR_IF_FALSE(it == end, "file is corrupted.");
         }
     }
 
@@ -411,7 +411,7 @@ parseTbtBytes(
 
     auto len = end - it;
 
-    CHECK(len != 0, "empty file");
+    RETURN_ERR_IF_FALSE(len != 0, "empty file");
 
     CHECK_NOT(len <= TBT_HEADER_SIZE, "file is too small to be parsed. size: %zu", len);
 

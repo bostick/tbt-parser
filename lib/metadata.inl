@@ -34,27 +34,27 @@ parseMetadata(
 
     if constexpr (0x71 <= VERSION) {
 
-        CHECK(static_cast<ptrdiff_t>(sizeof(tbt_track_metadata71) * out.header.trackCount) <= (end - it), "unhandled");
+        RETURN_ERR_IF_FALSE(static_cast<ptrdiff_t>(sizeof(tbt_track_metadata71) * out.header.trackCount) <= (end - it), "unhandled");
 
     } else if constexpr (0x70 <= VERSION) {
 
-        CHECK(static_cast<ptrdiff_t>(sizeof(tbt_track_metadata70) * out.header.trackCount) <= (end - it), "unhandled");
+        RETURN_ERR_IF_FALSE(static_cast<ptrdiff_t>(sizeof(tbt_track_metadata70) * out.header.trackCount) <= (end - it), "unhandled");
 
     } else if constexpr (0x6e <= VERSION) {
 
-        CHECK(static_cast<ptrdiff_t>(sizeof(tbt_track_metadata6e) * out.header.trackCount) <= (end - it), "unhandled");
+        RETURN_ERR_IF_FALSE(static_cast<ptrdiff_t>(sizeof(tbt_track_metadata6e) * out.header.trackCount) <= (end - it), "unhandled");
 
     } else if constexpr (0x6b <= VERSION) {
 
-        CHECK(static_cast<ptrdiff_t>(sizeof(tbt_track_metadata6b) * out.header.trackCount) <= (end - it), "unhandled");
+        RETURN_ERR_IF_FALSE(static_cast<ptrdiff_t>(sizeof(tbt_track_metadata6b) * out.header.trackCount) <= (end - it), "unhandled");
 
     } else if constexpr (0x6a <= VERSION) {
 
-        CHECK(static_cast<ptrdiff_t>(sizeof(tbt_track_metadata6a) * out.header.trackCount) <= (end - it), "unhandled");
+        RETURN_ERR_IF_FALSE(static_cast<ptrdiff_t>(sizeof(tbt_track_metadata6a) * out.header.trackCount) <= (end - it), "unhandled");
 
     } else if constexpr (0x65 <= VERSION) {
 
-        CHECK(static_cast<ptrdiff_t>(sizeof(tbt_track_metadata65) * out.header.trackCount) <= (end - it), "unhandled");
+        RETURN_ERR_IF_FALSE(static_cast<ptrdiff_t>(sizeof(tbt_track_metadata65) * out.header.trackCount) <= (end - it), "unhandled");
 
     } else {
         ABORT("invalid VERSION: 0x%02x", VERSION);

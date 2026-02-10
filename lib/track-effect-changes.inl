@@ -61,7 +61,7 @@ parseTrackEffectChangesMapList(
             auto r = parseLE2(part[4], part[5]);
             auto v = parseLE2(part[6], part[7]);
 
-            CHECK(r == 0x02, "unhandled");
+            RETURN_ERR_IF_FALSE(r == 0x02, "unhandled");
 
             space += s;
 

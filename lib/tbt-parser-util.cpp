@@ -120,7 +120,7 @@ parseVLQ(
 
     while (true) {
 
-        CHECK(1 <= (end - it), "out of data");
+        RETURN_ERR_IF_FALSE(1 <= (end - it), "out of data");
 
         auto b = *it++;
 
@@ -197,11 +197,11 @@ readPascal2String(
 
     auto begin = it;
 
-    CHECK(2 <= (end - it), "out of data");
+    RETURN_ERR_IF_FALSE(2 <= (end - it), "out of data");
 
     auto len = parseLE2(it);
 
-    CHECK(len <= (end - it), "out of data");
+    RETURN_ERR_IF_FALSE(len <= (end - it), "out of data");
 
     it += len;
 
@@ -217,15 +217,15 @@ parseDeltaListChunk(
     const std::vector<uint8_t>::const_iterator &end,
     std::vector<uint8_t> &out) {
 
-    CHECK(2 <= (end - it), "out of data");
+    RETURN_ERR_IF_FALSE(2 <= (end - it), "out of data");
 
     auto count = parseLE2(it);
 
-    CHECK(count <= 0x1000, "out of data");
+    RETURN_ERR_IF_FALSE(count <= 0x1000, "out of data");
 
     auto begin = it;
 
-    CHECK(2 * count <= (end - it), "out of data");
+    RETURN_ERR_IF_FALSE(2 * count <= (end - it), "out of data");
 
     it += 2 * count;
 
@@ -241,15 +241,15 @@ parseChunk4(
     const std::vector<uint8_t>::const_iterator &end,
     std::vector<uint8_t> &out) {
 
-    CHECK(4 <= (end - it), "out of data");
+    RETURN_ERR_IF_FALSE(4 <= (end - it), "out of data");
 
     auto count = static_cast<int32_t>(parseLE4(it));
 
-    CHECK(count >= 0, "unhandled");
+    RETURN_ERR_IF_FALSE(count >= 0, "unhandled");
 
     auto begin = it;
 
-    CHECK(count <= (end - it), "unhandled");
+    RETURN_ERR_IF_FALSE(count <= (end - it), "unhandled");
 
     it += count;
 
@@ -486,7 +486,7 @@ computeDeltaListCount(
 
         if (s[0][0] == 0) {
 
-            CHECK(s.size() == 2, "unhandled");
+            RETURN_ERR_IF_FALSE(s.size() == 2, "unhandled");
 
             //
             // parse s[0][1] and s[1][0] as a single short

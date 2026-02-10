@@ -2490,7 +2490,7 @@ parseChunk(
     const std::vector<uint8_t>::const_iterator &end,
     chunk &out) {
 
-    CHECK(4 + 4 <= (end - it), "out of data");
+    RETURN_ERR_IF_FALSE(4 + 4 <= (end - it), "out of data");
 
     std::memcpy(out.type.data(), &*it, 4);
 
@@ -2498,7 +2498,7 @@ parseChunk(
 
     auto len = static_cast<int32_t>(parseBE4(it));
 
-    CHECK(len >= 0, "len is negative");
+    RETURN_ERR_IF_FALSE(len >= 0, "len is negative");
 
     if (len == 0) {
         LOGW("chunk length is 0");
@@ -2506,7 +2506,7 @@ parseChunk(
 
     auto begin = it;
 
-    CHECK(len <= (end - it), "out of data");
+    RETURN_ERR_IF_FALSE(len <= (end - it), "out of data");
 
     it += len;
 
@@ -2530,13 +2530,13 @@ parseHeader(
         return ret;
     }
 
-    CHECK(std::memcmp(c.type.data(), S_MTHD.c_str(), 4) == 0, "expected MThd type");
+    RETURN_ERR_IF_FALSE(std::memcmp(c.type.data(), S_MTHD.c_str(), 4) == 0, "expected MThd type");
 
     auto it2 = c.data.cbegin();
 
     auto end2 = c.data.cend();
 
-    CHECK(2 + 2 + 2 <= (end2 - it2), "out of data");
+    RETURN_ERR_IF_FALSE(2 + 2 + 2 <= (end2 - it2), "out of data");
 
     out.header.format = parseBE2(it2);
 
@@ -2574,7 +2574,7 @@ parseTrackEvent(
         return ret;
     }
 
-    CHECK(1 <= (end - it), "out of data");
+    RETURN_ERR_IF_FALSE(1 <= (end - it), "out of data");
 
     auto b = *it++;
 
@@ -2587,7 +2587,7 @@ parseTrackEvent(
         // use running status
         //
 
-        CHECK((running & 0b10000000) == 0b10000000, "running status is not set");
+        RETURN_ERR_IF_FALSE((running & 0b10000000) == 0b10000000, "running status is not set");
 
         hi = (running & 0b11110000);
         lo = (running & 0b00001111);
@@ -2605,7 +2605,7 @@ parseTrackEvent(
         hi = (b & 0b11110000);
         lo = (b & 0b00001111);
 
-        CHECK(1 <= (end - it), "out of data");
+        RETURN_ERR_IF_FALSE(1 <= (end - it), "out of data");
 
         b = *it++;
 
@@ -2620,7 +2620,7 @@ parseTrackEvent(
         hi = (b & 0b11110000);
         lo = (b & 0b00001111);
 
-        CHECK(1 <= (end - it), "out of data");
+        RETURN_ERR_IF_FALSE(1 <= (end - it), "out of data");
 
         b = *it++;
 
@@ -2635,7 +2635,7 @@ parseTrackEvent(
         hi = (b & 0b11110000);
         lo = (b & 0b00001111);
 
-        CHECK(1 <= (end - it), "out of data");
+        RETURN_ERR_IF_FALSE(1 <= (end - it), "out of data");
 
         b = *it++;
     }
@@ -2647,7 +2647,7 @@ parseTrackEvent(
 
         uint8_t midiNote = (b & 0b01111111);
 
-        CHECK(1 <= (end - it), "out of data");
+        RETURN_ERR_IF_FALSE(1 <= (end - it), "out of data");
 
         b = *it++;
 
@@ -2662,8 +2662,8 @@ parseTrackEvent(
         auto channel = lo;
 
         uint8_t midiNote = (b & 0b01111111);
-        
-        CHECK(1 <= (end - it), "out of data");
+
+        RETURN_ERR_IF_FALSE(1 <= (end - it), "out of data");
 
         b = *it++;
 
@@ -2678,8 +2678,8 @@ parseTrackEvent(
         auto channel = lo;
 
         uint8_t midiNote = (b & 0b01111111);
-        
-        CHECK(1 <= (end - it), "out of data");
+
+        RETURN_ERR_IF_FALSE(1 <= (end - it), "out of data");
 
         b = *it++;
 
@@ -2695,7 +2695,7 @@ parseTrackEvent(
 
         auto controller = b;
 
-        CHECK(1 <= (end - it), "out of data");
+        RETURN_ERR_IF_FALSE(1 <= (end - it), "out of data");
 
         b = *it++;
 
@@ -2730,8 +2730,8 @@ parseTrackEvent(
         auto channel = lo;
 
         uint8_t pitchBendLSB = (b & 0b01111111);
-        
-        CHECK(1 <= (end - it), "out of data");
+
+        RETURN_ERR_IF_FALSE(1 <= (end - it), "out of data");
 
         b = *it++;
 
@@ -2757,7 +2757,7 @@ parseTrackEvent(
                     break;
                 }
 
-                CHECK(1 <= (end - it), "out of data");
+                RETURN_ERR_IF_FALSE(1 <= (end - it), "out of data");
 
                 b = *it++;
 
@@ -2801,7 +2801,7 @@ parseTrackEvent(
 
             auto begin = it;
 
-            CHECK(len <= (end - it), "out of data");
+            RETURN_ERR_IF_FALSE(len <= (end - it), "out of data");
 
             it += len;
 
@@ -2845,7 +2845,7 @@ parseTrack(
         return ret;
     }
 
-    CHECK(std::memcmp(c.type.data(), S_MTRK.c_str(), 4) == 0, "expected MTrk type");
+    RETURN_ERR_IF_FALSE(std::memcmp(c.type.data(), S_MTRK.c_str(), 4) == 0, "expected MTrk type");
 
     std::vector<midi_track_event> track;
 
@@ -2897,7 +2897,7 @@ parseMidiBytes(
 
     auto len = (end - it);
 
-    CHECK(len != 0, "empty file");
+    RETURN_ERR_IF_FALSE(len != 0, "empty file");
 
     Status ret = parseHeader(it, end, out);
 

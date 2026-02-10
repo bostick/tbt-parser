@@ -31,7 +31,7 @@ partitionInto(
     const std::vector<uint8_t> &data,
     std::vector<std::array<uint8_t, S> > &out) {
 
-    CHECK(data.size() % S == 0, "unhandled");
+    RETURN_ERR_IF_FALSE(data.size() % S == 0, "unhandled");
 
     out.reserve(data.size() / S);
 
