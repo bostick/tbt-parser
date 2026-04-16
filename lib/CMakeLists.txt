@@ -58,7 +58,7 @@ FetchContent_Declare(rational
     GIT_REPOSITORY
         https://github.com/bostick/rational.git
     GIT_TAG
-        v0.4.0
+        v0.5.0
     GIT_SHALLOW 1
     GIT_PROGRESS 1
 )
