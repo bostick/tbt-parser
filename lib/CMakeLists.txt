@@ -23,7 +23,7 @@ FetchContent_Declare(zlib
     GIT_REPOSITORY
         https://github.com/madler/zlib.git
     GIT_TAG
-        v1.3.1
+        v1.3.2
 )
 set(ZLIB_USE_STATIC_LIBS ON)
 set(ZLIB_BUILD_EXAMPLES OFF)
