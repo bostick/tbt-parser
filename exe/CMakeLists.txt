@@ -210,7 +210,7 @@ add_test(
     NAME
         tbt-converter-exe-black-test
     COMMAND
-        $<TARGET_FILE:tbt-converter-exe> --input-file ../../test/data/black.tbt
+        $<TARGET_FILE:tbt-converter-exe> --input-file ../test/data/black.tbt
 )
 
 
@@ -218,7 +218,7 @@ add_test(
     NAME
         midi-info-exe-black-test
     COMMAND
-        $<TARGET_FILE:midi-info-exe> --input-file ../../test/data/black.mid
+        $<TARGET_FILE:midi-info-exe> --input-file ../test/data/black.mid
 )
 
 
@@ -226,7 +226,7 @@ add_test(
     NAME
         tbt-printer-exe-black-test
     COMMAND
-        $<TARGET_FILE:tbt-printer-exe> --input-file ../../test/data/black.tbt
+        $<TARGET_FILE:tbt-printer-exe> --input-file ../test/data/black.tbt
 )
 
 
@@ -234,7 +234,7 @@ add_test(
     NAME
         tbt-info-exe-black-test
     COMMAND
-        $<TARGET_FILE:tbt-info-exe> --input-file ../../test/data/black.tbt
+        $<TARGET_FILE:tbt-info-exe> --input-file ../test/data/black.tbt
 )
 
 
