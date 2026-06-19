@@ -29,13 +29,19 @@ include(FetchContent)
 cmake_policy(SET CMP0156 NEW)
 
 
+if("${LOCAL_COMMON_DIR}" STREQUAL "")
+    message(FATAL_ERROR "LOCAL_COMMON_DIR is not set!")
+endif()
+
 FetchContent_Declare(common
-    GIT_REPOSITORY
-        https://github.com/bostick/common.git
-    GIT_TAG
-        v0.5.0
-    GIT_SHALLOW 1
-    GIT_PROGRESS 1
+    # GIT_REPOSITORY
+    #     https://github.com/bostick/common.git
+    # GIT_TAG
+    #     v0.5.0
+    # GIT_SHALLOW 1
+    # GIT_PROGRESS 1
+    SOURCE_DIR
+        ${LOCAL_COMMON_DIR}
 )
 FetchContent_MakeAvailable(common)
 

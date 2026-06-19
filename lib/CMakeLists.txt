@@ -19,11 +19,18 @@
 cmake_minimum_required(VERSION 3.22.1)
 include(FetchContent)
 
+
+if("${LOCAL_ZLIB_DIR}" STREQUAL "")
+    message(FATAL_ERROR "LOCAL_ZLIB_DIR is not set!")
+endif()
+
 FetchContent_Declare(zlib
-    GIT_REPOSITORY
-        https://github.com/madler/zlib.git
-    GIT_TAG
-        v1.3.2
+    # GIT_REPOSITORY
+    #     https://github.com/madler/zlib.git
+    # GIT_TAG
+    #     v1.3.2
+    SOURCE_DIR
+        ${LOCAL_ZLIB_DIR}
 )
 set(ZLIB_USE_STATIC_LIBS ON)
 set(ZLIB_BUILD_EXAMPLES OFF)
@@ -44,23 +51,37 @@ target_compile_options(zlibstatic PRIVATE
 )
 endif()
 
+
+if("${LOCAL_COMMON_DIR}" STREQUAL "")
+    message(FATAL_ERROR "LOCAL_COMMON_DIR is not set!")
+endif()
+
 FetchContent_Declare(common
-    GIT_REPOSITORY
-        https://github.com/bostick/common.git
-    GIT_TAG
-        v0.5.0
-    GIT_SHALLOW 1
-    GIT_PROGRESS 1
+    # GIT_REPOSITORY
+    #     https://github.com/bostick/common.git
+    # GIT_TAG
+    #     v0.5.0
+    # GIT_SHALLOW 1
+    # GIT_PROGRESS 1
+    SOURCE_DIR
+        ${LOCAL_COMMON_DIR}
 )
 FetchContent_MakeAvailable(common)
 
+
+if("${LOCAL_RATIONAL_DIR}" STREQUAL "")
+    message(FATAL_ERROR "LOCAL_RATIONAL_DIR is not set!")
+endif()
+
 FetchContent_Declare(rational
-    GIT_REPOSITORY
-        https://github.com/bostick/rational.git
-    GIT_TAG
-        v0.5.0
-    GIT_SHALLOW 1
-    GIT_PROGRESS 1
+    # GIT_REPOSITORY
+    #     https://github.com/bostick/rational.git
+    # GIT_TAG
+    #     v0.5.0
+    # GIT_SHALLOW 1
+    # GIT_PROGRESS 1
+    SOURCE_DIR
+        ${LOCAL_RATIONAL_DIR}
 )
 FetchContent_MakeAvailable(rational)
 
