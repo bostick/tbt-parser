@@ -107,28 +107,28 @@ jobs:
 
     - name: Upload tbt-converter-exe (Windows Release)
       if: runner.os == 'Windows' && matrix.build_type == 'Release'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tbt-converter-exe
         path: ${{ steps.strings.outputs.build-output-dir }}/exe/Release/tbt-converter.exe
 
     - name: Upload midi-info-exe (Windows Release)
       if: runner.os == 'Windows' && matrix.build_type == 'Release'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: midi-info-exe
         path: ${{ steps.strings.outputs.build-output-dir }}/exe/Release/midi-info.exe
 
     - name: Upload tbt-info-exe (Windows Release)
       if: runner.os == 'Windows' && matrix.build_type == 'Release'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tbt-info-exe
         path: ${{ steps.strings.outputs.build-output-dir }}/exe/Release/tbt-info.exe
 
     - name: Upload tbt-printer-exe (Windows Release)
       if: runner.os == 'Windows' && matrix.build_type == 'Release'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: tbt-printer-exe
         path: ${{ steps.strings.outputs.build-output-dir }}/exe/Release/tbt-printer.exe
